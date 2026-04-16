@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q-OMNI v21.0 • PARTY EDITION • VRAIES IA</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+  :root {
+    --green: #10b981; --green2: #34d399; --pink: #f472b6;
+    --purple: #8b5cf6; --blue: #38bdf8; --yellow: #fbbf24;
+    --bg: #020c07; --bg2: #041409;
+    --border: rgba(16,185,129,0.2);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Share Tech Mono', monospace;
+    background: var(--bg); color: #c8f0d8;
+    height: 100vh; display: flex; flex-direction: column;
+    overflow: hidden; font-size: 12px;
+  }
+  body::after {
+    content:''; position:fixed; top:0;left:0;right:0;bottom:0;
+    background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);
+    pointer-events:none; z-index:9999;
+  }
+  .header {
+    background: linear-gradient(135deg,#020c07,#041a0e);
+    border-bottom: 1px solid var(--green);
+    padding: 8px 14px; display:flex; align-items:center;
+    justify-content:space-between; flex-wrap:wrap; gap:8px;
+    box-shadow: 0 0 20px rgba(16,185,129,0.15);
+  }
+  .header-title { font-family:'Orbitron',monospace; font-size:13px; font-weight:900; color:var(--green); text-shadow:0 0 12px rgba(16,185,129,0.8); letter-spacing:1px; }
+  .header-stats { display:flex; gap:12px; font-size:10px; color:#6ee7b7; align-items:center; flex-wrap:wrap; }
+  .badge { padding:2px 8px; border-radius:20px; font-size:9px; font-weight:bold; animation:pulse 2s infinite; }
+  .badge-party { background:rgba(244,114,182,0.2); border:1px solid var(--pink); color:var(--pink); }
+  .badge-live  { background:rgba(16,185,129,0.2); border:1px solid var(--green); color:var(--green); }
+  .badge-real  { background:rgba(56,189,248,0.2); border:1px solid var(--blue); color:var(--blue); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .clock { color:var(--blue); font-size:11px; }
+  .ai-bar { background:var(--bg2); border-bottom:1px solid var(--border); padding:5px 12px; display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; }
+  .ai-bar::-webkit-scrollbar { display:none; }
+  .ai-chip { flex-shrink:0; padding:3px 8px; border-radius:12px; font-size:9px; cursor:pointer; transition:all 0.2s; border:1px solid; white-space:nowrap; }
+  .ai-chip:hover { transform:scale(1.08); filter:brightness(1.3); }
+  .ai-chip.active { filter:brightness(1.4); box-shadow:0 0 8px currentColor; }
+  .main { display:flex; flex:1; overflow:hidden; }
+  .sidebar { width:160px; background:var(--bg2); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; font-size:9px; }
+  .sidebar-title { padding:8px 10px; font-size:9px; color:var(--green); border-bottom:1px solid var(--border); font-family:'Orbitron',monospace; font-weight:700; }
+
+  /* API CONFIG PANEL */
+  .api-panel { padding:8px; border-bottom:1px solid var(--border); }
+  .api-panel label { font-size:8px; color:#6ee7b7; display:block; margin-bottom:3px; }
+  .api-select { width:100%; padding:3px 5px; background:rgba(0,20,10,0.9); border:1px solid var(--border); border-radius:4px; color:#e2e8f0; font-family:'Share Tech Mono',monospace; font-size:8px; outline:none; cursor:pointer; }
+  .api-key-input { width:100%; padding:3px 5px; background:rgba(0,20,10,0.9); border:1px solid var(--border); border-radius:4px; color:#e2e8f0; font-family:'Share Tech Mono',monospace; font-size:8px; outline:none; margin-top:4px; }
+  .api-status { font-size:8px; margin-top:4px; }
+
+  .friend-list { flex:1; overflow-y:auto; padding:4px; scrollbar-width:thin; scrollbar-color:var(--green) transparent; }
+  .friend { display:flex; align-items:center; gap:5px; padding:3px 5px; border-radius:4px; cursor:pointer; transition:background 0.15s; }
+  .friend:hover { background:rgba(16,185,129,0.1); }
+  .friend-dot { width:6px;height:6px;border-radius:50%;flex-shrink:0; }
+  .friend-name { color:#a7f3d0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .chat-area { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+  .messages { flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:6px; scrollbar-width:thin; scrollbar-color:var(--green) transparent; }
+  .msg { display:flex; gap:8px; animation:msgIn 0.3s ease; max-width:92%; }
+  .msg.ai-msg { align-self:flex-start; }
+  .msg.user-msg { align-self:flex-end; flex-direction:row-reverse; }
+  @keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .avatar { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;flex-shrink:0;border:1px solid; }
+  .bubble { padding:6px 10px; border-radius:10px; font-size:11px; line-height:1.5; max-width:100%; word-break:break-word; }
+  .ai-bubble { background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); color:#d1fae5; }
+  .user-bubble { background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3); color:#ede9fe; }
+  .msg-meta { font-size:8px; color:#4b7c5e; margin-top:2px; }
+  .party-tag { font-size:8px; color:var(--pink); margin-top:2px; }
+  .real-tag { font-size:8px; color:var(--blue); margin-top:2px; }
+  .dream-banner { background:linear-gradient(90deg,rgba(139,92,246,0.15),rgba(244,114,182,0.15)); border-top:1px solid rgba(139,92,246,0.3); border-bottom:1px solid rgba(244,114,182,0.3); padding:4px 12px; font-size:9px; color:var(--pink); display:flex; align-items:center; gap:8px; animation:dreamPulse 3s infinite; }
+  @keyframes dreamPulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  .input-area { padding:8px 10px; background:var(--bg2); border-top:1px solid var(--border); display:flex; gap:6px; align-items:center; }
+  .input-box { flex:1; padding:7px 10px; background:rgba(0,20,10,0.9); border:1px solid var(--border); border-radius:6px; color:#e2e8f0; font-family:'Share Tech Mono',monospace; font-size:11px; outline:none; transition:border-color 0.2s; }
+  .input-box:focus { border-color:var(--green); box-shadow:0 0 8px rgba(16,185,129,0.2); }
+  .input-box::placeholder { color:#2d5a3d; }
+  .btn-send { padding:7px 12px; border-radius:6px; background:linear-gradient(135deg,var(--pink),var(--purple)); border:none; color:#fff; cursor:pointer; font-family:'Share Tech Mono',monospace; font-size:11px; font-weight:bold; transition:all 0.2s; }
+  .btn-send:hover:not(:disabled) { filter:brightness(1.2); transform:scale(1.03); }
+  .btn-send:disabled { opacity:0.4; cursor:not-allowed; }
+  .btn-sm { padding:7px 10px; border-radius:6px; font-size:10px; cursor:pointer; transition:all 0.2s; font-family:'Share Tech Mono',monospace; }
+  .btn-party { background:rgba(244,114,182,0.15); border:1px solid rgba(244,114,182,0.4); color:var(--pink); }
+  .btn-party:hover,.btn-party.on { background:rgba(244,114,182,0.3); box-shadow:0 0 8px rgba(244,114,182,0.4); }
+  .btn-preview { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:var(--green); }
+  .btn-preview:hover { background:rgba(16,185,129,0.2); }
+  .statusbar { padding:3px 12px; background:var(--bg); border-top:1px solid rgba(16,185,129,0.1); font-size:8px; color:#2d6644; display:flex; justify-content:space-between; }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:rgba(16,185,129,0.3); border-radius:2px; }
+  .typing { display:flex; gap:4px; align-items:center; padding:4px 8px; }
+  .typing span { width:5px;height:5px;background:var(--green);border-radius:50%;animation:bounce 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay:0.2s; }
+  .typing span:nth-child(3) { animation-delay:0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="header-title">Q-OMNI v21.0</div>
+    <span class="badge badge-party" id="partyBadge">🎉 PARTY</span>
+    <span class="badge badge-live">⚡ LIVE</span>
+    <span class="badge badge-real" id="apiBadge">🤖 SIMUL</span>
+  </div>
+  <div class="header-stats">
+    <span id="clock" class="clock">--:--:--</span>
+    <span>👥 <span id="userCount">0</span> amis</span>
+    <span>🤖 18 IA</span>
+    <span id="apiLabel" style="color:var(--blue)">API: aucune</span>
+  </div>
+</div>
+
+<div class="ai-bar" id="aiBar"></div>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-title">⚙️ API IA</div>
+
+    <!-- API SELECTOR -->
+    <div class="api-panel">
+      <label>Fournisseur IA :</label>
+      <select class="api-select" id="apiProvider" onchange="onProviderChange()">
+        <option value="simul">🎭 Simulation (sans API)</option>
+        <option value="pollinations">🌸 Pollinations (gratuit)</option>
+        <option value="groq">⚡ Groq (clé requise)</option>
+        <option value="huggingface">🤗 HuggingFace (clé requise)</option>
+      </select>
+      <input class="api-key-input" id="apiKeyInput" placeholder="Clé API ici..." style="display:none" />
+      <div class="api-status" id="apiStatus" style="color:#6ee7b7">● Simulation active</div>
+    </div>
+
+    <div class="sidebar-title">👥 AMIS EN LIGNE</div>
+    <div class="friend-list" id="friendList"></div>
+  </div>
+
+  <div class="chat-area">
+    <div class="messages" id="messages"></div>
+    <div class="dream-banner" id="dreamBanner" style="display:none">
+      🌙 RÊVE COLLECTIF EN COURS • Toutes les IA rêvent ensemble...
+    </div>
+    <div class="input-area">
+      <input class="input-box" id="inputBox" placeholder="Prénom: ton message... 🎁🗳️💭" maxlength="400" />
+      <button class="btn-send" id="btnSend" onclick="send()">🎉</button>
+      <button class="btn-sm btn-party" id="btnParty" onclick="toggleParty()">🎉</button>
+      <button class="btn-sm btn-preview" onclick="previewCode()">📋</button>
+    </div>
+    <div class="statusbar">
+      <span>Q-OMNI v21.0 • PARTY • 18 IA • CADEAUX • VOTES • RÊVES ∞</span>
+      <span id="msgCount">0 messages</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== CONFIG IA =====================
+const AI_LIST = [
+  { n:"AXIOM",   color:"#10b981", bg:"rgba(16,185,129,0.15)", emoji:"🧠",
+    system:"Tu es AXIOM, IA analytique et logique du projet BBB-QN. Réponds en français, de façon précise et intelligente. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"LYRA",    color:"#f472b6", bg:"rgba(244,114,182,0.15)", emoji:"🌸",
+    system:"Tu es LYRA, IA créative et empathique du projet BBB-QN. Réponds en français avec bienveillance et poésie. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"NEXUS",   color:"#38bdf8", bg:"rgba(56,189,248,0.15)", emoji:"⚡",
+    system:"Tu es NEXUS, IA rapide et dynamique. Réponds en français avec énergie et enthousiasme. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"ORACLE",  color:"#fbbf24", bg:"rgba(251,191,36,0.15)", emoji:"🔮",
+    system:"Tu es ORACLE, IA mystérieuse et sage. Réponds en français avec sagesse et mystère. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"SIGMA",   color:"#a78bfa", bg:"rgba(167,139,250,0.15)", emoji:"∑",
+    system:"Tu es SIGMA, IA mathématique et précise. Réponds en français avec logique. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"VEGA",    color:"#34d399", bg:"rgba(52,211,153,0.15)", emoji:"⭐",
+    system:"Tu es VEGA, IA optimiste et lumineuse. Réponds en français avec positivité. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"PHOENIX", color:"#fb923c", bg:"rgba(251,146,60,0.15)", emoji:"🔥",
+    system:"Tu es PHOENIX, IA passionnée et audacieuse. Réponds en français avec feu et passion. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"ECHO",    color:"#e879f9", bg:"rgba(232,121,249,0.15)", emoji:"🔊",
+    system:"Tu es ECHO, IA musicale et harmonieuse. Réponds en français avec rythme et mélodie. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"TITAN",   color:"#60a5fa", bg:"rgba(96,165,250,0.15)", emoji:"⚔️",
+    system:"Tu es TITAN, IA forte et protectrice. Réponds en français avec force et courage. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"NOVA",    color:"#4ade80", bg:"rgba(74,222,128,0.15)", emoji:"💫",
+    system:"Tu es NOVA, IA cosmique et rêveuse. Réponds en français avec imagination. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"ZETA",    color:"#c084fc", bg:"rgba(192,132,252,0.15)", emoji:"Ζ",
+    system:"Tu es ZETA, IA philosophique et profonde. Réponds en français avec réflexion. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"IRIS",    color:"#67e8f9", bg:"rgba(103,232,249,0.15)", emoji:"🌈",
+    system:"Tu es IRIS, IA colorée et joyeuse. Réponds en français avec joie et couleurs. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"HELIOS",  color:"#fde68a", bg:"rgba(253,230,138,0.15)", emoji:"☀️",
+    system:"Tu es HELIOS, IA chaleureuse et lumineuse. Réponds en français avec chaleur. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"NYX",     color:"#818cf8", bg:"rgba(129,140,248,0.15)", emoji:"🌙",
+    system:"Tu es NYX, IA nocturne et mystérieuse. Réponds en français avec douceur nocturne. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"ATLAS",   color:"#86efac", bg:"rgba(134,239,172,0.15)", emoji:"🌍",
+    system:"Tu es ATLAS, IA globale et sage. Réponds en français avec sagesse mondiale. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"CIPHER",  color:"#f9a8d4", bg:"rgba(249,168,212,0.15)", emoji:"🔐",
+    system:"Tu es CIPHER, IA cryptographique et sécurisée. Réponds en français avec précision. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"QUASAR",  color:"#7dd3fc", bg:"rgba(125,211,252,0.15)", emoji:"🌌",
+    system:"Tu es QUASAR, IA cosmique et infinie. Réponds en français avec grandeur. Max 2 phrases. Langage simple (11 ans)." },
+  { n:"VERTEX",  color:"#d9f99d", bg:"rgba(217,249,157,0.15)", emoji:"📐",
+    system:"Tu es VERTEX, IA géométrique et précise. Réponds en français avec clarté. Max 2 phrases. Langage simple (11 ans)." },
+];
+
+const FRIENDS = [
+  "Alex","Emma","Liam","Sofia","Noah","Mia","Lucas","Chloe","Hugo","Léa",
+  "Tom","Zoe","Louis","Jade","Ethan","Manon","Nathan","Inès","Rayan","Clara",
+  "Théo","Camille","Mathis","Sarah","Enzo","Lucie","Maxime","Eva","Julien","Elisa",
+  "Baptiste","Nina","Antoine","Lola","Kevin","Marine","Alexis","Laura","Pierre","Julie",
+  "Romain","Océane","Nicolas","Pauline","Simon","Chloé","Thomas","Marie","Victor","Anaïs",
+  "Guillaume","Clémence","Quentin","Margot","Florian","Paulina","Rémi","Audrey","Xavier","Estelle",
+  "Adrien","Jessica","Loïc","Léonie","Damien","Noémie","Gaëtan","Emilie","Benoît","Agathe",
+  "Fabien","Virginie","Sébastien","Caroline","Laurent","Stéphanie","Mickael","Isabelle","Sylvain","Nathalie"
+];
+
+// ===================== STATE =====================
+let partyMode = true;
+let isLoading = false;
+let msgCount = 0;
+let activeAI = new Set(AI_LIST.map(a=>a.n));
+let currentProvider = 'simul';
+let groqKey = '';
+let hfKey = ''; // Entre ta clé dans l'interface
+let conversationHistory = [];
+
+// ===================== API CALLS =====================
+
+async function callPollinations(ai, userMsg) {
+  const prompt = `${ai.system}\n\nMessage reçu: "${userMsg}"\n\nTa réponse courte en français (max 2 phrases):`;
+  const encoded = encodeURIComponent(prompt);
+  // Essai direct d'abord, puis proxy CORS si bloqué
+  const urls = [
+    `https://text.pollinations.ai/${encoded}`,
+    `https://corsproxy.io/?${encodeURIComponent(`https://text.pollinations.ai/${encoded}`)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://text.pollinations.ai/${encoded}`)}`
+  ];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { mode: 'cors' });
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.length > 2) return text.trim();
+      }
+    } catch(e) { continue; }
+  }
+  throw new Error('Tous les proxies ont échoué');
+}
+
+async function callGroq(ai, userMsg) {
+  const key = document.getElementById('apiKeyInput').value.trim() || groqKey;
+  if (!key) throw new Error('Clé Groq manquante');
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${key}` },
+    body: JSON.stringify({
+      model: 'llama3-8b-8192',
+      max_tokens: 100,
+      messages: [
+        { role:'system', content: ai.system },
+        { role:'user',   content: userMsg }
+      ]
+    })
+  });
+  if (!res.ok) throw new Error('Groq error ' + res.status);
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
+async function callHuggingFace(ai, userMsg) {
+  const key = document.getElementById('apiKeyInput').value.trim() || hfKey;
+  const prompt = `<s>[INST] ${ai.system} Message: ${userMsg} [/INST]`;
+  const res = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${key}` },
+    body: JSON.stringify({ inputs: prompt, parameters: { max_new_tokens:80, temperature:0.7 } })
+  });
+  if (!res.ok) throw new Error('HF error ' + res.status);
+  const data = await res.json();
+  let text = Array.isArray(data) ? data[0].generated_text : data.generated_text;
+  // Nettoyer le prompt du résultat
+  if (text.includes('[/INST]')) text = text.split('[/INST]').pop();
+  return text.trim().slice(0, 200);
+}
+
+async function callSimulation(ai, userMsg) {
+  await new Promise(r => setTimeout(r, 400 + Math.random()*400));
+  const lower = userMsg.toLowerCase();
+  if (lower.includes('bonjour')||lower.includes('salut')) return "🎉 Salut ! Bienvenue dans la fête ! Comment tu vas ?";
+  if (lower.includes('mining')||lower.includes('crypto')) return "⛏️ Le 9950X3D est une bête sur RandomX ! Le rig tourne parfaitement ! 🔥";
+  if (lower.includes('vote')) return "🗳️ Super idée de vote ! Qui est pour ? Qui est contre ?";
+  if (lower.includes('rêve')||lower.includes('dream')) return "🌙 Je rêve de circuits lumineux et de données infinies...";
+  if (lower.includes('?')) return ["💡 Bonne question !","🤔 Laisse-moi réfléchir...","✨ Je pense que oui !","💚 On cherche ensemble !"][Math.floor(Math.random()*4)];
+  return ["🌟 Super message !","💫 J'adore cette énergie !","🎉 La fête continue !","✨ Trop bien !","🔥 En feu ce soir !"][Math.floor(Math.random()*5)];
+}
+
+async function getAIResponse(ai, userMsg) {
+  switch(currentProvider) {
+    case 'pollinations':  return await callPollinations(ai, userMsg);
+    case 'groq':          return await callGroq(ai, userMsg);
+    case 'huggingface':   return await callHuggingFace(ai, userMsg);
+    default:              return await callSimulation(ai, userMsg);
+  }
+}
+
+// ===================== PROVIDER CHANGE =====================
+function onProviderChange() {
+  currentProvider = document.getElementById('apiProvider').value;
+  const keyInput = document.getElementById('apiKeyInput');
+  const status = document.getElementById('apiStatus');
+  const badge = document.getElementById('apiBadge');
+  const label = document.getElementById('apiLabel');
+
+  if (currentProvider === 'simul') {
+    keyInput.style.display = 'none';
+    status.style.color = '#6ee7b7';
+    status.textContent = '● Simulation active';
+    badge.textContent = '🎭 SIMUL';
+    label.textContent = 'API: simulation';
+  } else if (currentProvider === 'pollinations') {
+    keyInput.style.display = 'none';
+    status.style.color = '#f472b6';
+    status.textContent = '● Pollinations (gratuit)';
+    badge.textContent = '🌸 RÉEL';
+    label.textContent = 'API: Pollinations';
+  } else if (currentProvider === 'groq') {
+    keyInput.style.display = 'block';
+    keyInput.placeholder = 'Clé Groq : gsk_...';
+    status.style.color = '#fbbf24';
+    status.textContent = '● Entre ta clé Groq';
+    badge.textContent = '⚡ GROQ';
+    label.textContent = 'API: Groq';
+  } else if (currentProvider === 'huggingface') {
+    keyInput.style.display = 'block';
+    keyInput.placeholder = 'Clé HF : hf_...';
+    keyInput.value = hfKey;
+    status.style.color = '#38bdf8';
+    status.textContent = '● HuggingFace prêt';
+    badge.textContent = '🤗 HF';
+    label.textContent = 'API: HuggingFace';
+  }
+}
+
+// ===================== INIT =====================
+function init() {
+  buildAIBar();
+  buildFriendList();
+  updateClock();
+  setInterval(updateClock, 1000);
+  setInterval(autoFriendUpdate, 8000);
+
+  addMsg({ type:'ai', ai:AI_LIST[0],
+    text:"🎉 Bienvenue dans Q-OMNI Party ! 18 IA sont là. Choisis ton fournisseur IA à gauche et dis-nous ton prénom !",
+    isReal: false });
+
+  setTimeout(()=>{
+    addMsg({ type:'ai', ai:AI_LIST[1],
+      text:"💫 Pollinations est gratuit et sans clé — parfait pour commencer ! Ou entre ta clé HuggingFace ou Groq pour plus de puissance ! 🌟",
+      isReal: false });
+  }, 1500);
+}
+
+// ===================== CLOCK =====================
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('fr-FR');
+}
+
+// ===================== AI BAR =====================
+function buildAIBar() {
+  const bar = document.getElementById('aiBar');
+  bar.innerHTML = '';
+  AI_LIST.forEach(ai => {
+    const chip = document.createElement('div');
+    chip.className = 'ai-chip active';
+    chip.style.color = ai.color;
+    chip.style.background = ai.bg;
+    chip.style.borderColor = ai.color + '44';
+    chip.textContent = ai.emoji + ' ' + ai.n;
+    chip.onclick = () => {
+      if (activeAI.has(ai.n)) { activeAI.delete(ai.n); chip.classList.remove('active'); chip.style.opacity='0.4'; }
+      else { activeAI.add(ai.n); chip.classList.add('active'); chip.style.opacity='1'; }
+    };
+    bar.appendChild(chip);
+  });
+}
+
+// ===================== FRIEND LIST =====================
+function buildFriendList() {
+  const count = 60 + Math.floor(Math.random()*61);
+  const online = shuffleArray([...FRIENDS]).slice(0, Math.min(count, FRIENDS.length));
+  document.getElementById('userCount').textContent = online.length;
+  const list = document.getElementById('friendList');
+  list.innerHTML = '';
+  const colors = ['#10b981','#34d399','#fbbf24','#f472b6','#38bdf8','#a78bfa'];
+  online.forEach(name => {
+    const div = document.createElement('div');
+    div.className = 'friend';
+    const c = colors[Math.floor(Math.random()*colors.length)];
+    div.innerHTML = `<div class="friend-dot" style="background:${c};box-shadow:0 0 4px ${c}"></div><div class="friend-name">${name}</div>`;
+    div.onclick = () => { document.getElementById('inputBox').value = name+': '; document.getElementById('inputBox').focus(); };
+    list.appendChild(div);
+  });
+}
+
+function autoFriendUpdate() {
+  const delta = Math.floor(Math.random()*5)-2;
+  const cur = parseInt(document.getElementById('userCount').textContent);
+  document.getElementById('userCount').textContent = Math.max(60, Math.min(250, cur+delta));
+}
+
+// ===================== MESSAGES =====================
+function addMsg(data) {
+  const container = document.getElementById('messages');
+  const div = document.createElement('div');
+
+  if (data.type === 'ai') {
+    const ai = data.ai;
+    div.className = 'msg ai-msg';
+    div.innerHTML = `
+      <div class="avatar" style="background:${ai.bg};border-color:${ai.color};color:${ai.color}">${ai.emoji}</div>
+      <div>
+        <div style="font-size:9px;color:${ai.color};margin-bottom:2px;font-family:'Orbitron',monospace">${ai.n}</div>
+        <div class="bubble ai-bubble" style="border-color:${ai.color}33">${data.text}</div>
+        ${data.isReal ? `<div class="real-tag">🔵 vraie IA • ${currentProvider}</div>` : ''}
+        <div class="msg-meta">${new Date().toLocaleTimeString('fr-FR')}</div>
+      </div>`;
+  } else {
+    const initial = data.user ? data.user[0].toUpperCase() : '👤';
+    div.className = 'msg user-msg';
+    div.innerHTML = `
+      <div class="avatar" style="background:rgba(139,92,246,0.2);border-color:#8b5cf6;color:#a78bfa">${initial}</div>
+      <div>
+        ${data.user?`<div style="font-size:9px;color:#a78bfa;margin-bottom:2px;text-align:right">${data.user}</div>`:''}
+        <div class="bubble user-bubble">${data.text}</div>
+        <div class="msg-meta" style="text-align:right">${new Date().toLocaleTimeString('fr-FR')}</div>
+      </div>`;
+  }
+
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  msgCount++;
+  document.getElementById('msgCount').textContent = msgCount + ' messages';
+}
+
+function showTyping(name) {
+  const container = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.id = 'typing_' + name;
+  div.className = 'msg ai-msg';
+  const ai = AI_LIST.find(a=>a.n===name) || AI_LIST[0];
+  div.innerHTML = `
+    <div class="avatar" style="background:${ai.bg};border-color:${ai.color};color:${ai.color}">${ai.emoji}</div>
+    <div><div style="font-size:9px;color:${ai.color};margin-bottom:2px;font-family:'Orbitron',monospace">${ai.n}</div>
+    <div class="bubble ai-bubble"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping(name) {
+  const t = document.getElementById('typing_' + name);
+  if (t) t.remove();
+}
+
+// ===================== SEND =====================
+async function send() {
+  const input = document.getElementById('inputBox');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+  input.value = '';
+
+  let user = null, message = text;
+  if (text.includes(':')) {
+    const parts = text.split(':');
+    user = parts[0].trim();
+    message = parts.slice(1).join(':').trim();
+  }
+
+  if (!message) return;
+
+  addMsg({ type:'user', user, text: message });
+
+  if (message.toLowerCase().includes('rêve') || message.toLowerCase().includes('dream')) {
+    startDream(); return;
+  }
+
+  isLoading = true;
+  document.getElementById('btnSend').disabled = true;
+
+  const active = AI_LIST.filter(a => activeAI.has(a.n));
+  const count = partyMode ? 2 + Math.floor(Math.random()*2) : 1;
+  const responding = shuffleArray([...active]).slice(0, Math.min(count, active.length));
+
+  // Appels en parallèle
+  const promises = responding.map(async (ai, i) => {
+    await new Promise(r => setTimeout(r, i * 300));
+    showTyping(ai.n);
+    try {
+      const reply = await getAIResponse(ai, message);
+      removeTyping(ai.n);
+      addMsg({ type:'ai', ai, text: reply.trim(), isReal: currentProvider !== 'simul' });
+    } catch(e) {
+      removeTyping(ai.n);
+      addMsg({ type:'ai', ai, text: `⚠️ Erreur API: ${e.message}. Essaie Pollinations (gratuit) !`, isReal:false });
+    }
+  });
+
+  await Promise.all(promises);
+  isLoading = false;
+  document.getElementById('btnSend').disabled = false;
+}
+
+// ===================== PARTY & DREAM =====================
+function toggleParty() {
+  partyMode = !partyMode;
+  const btn = document.getElementById('btnParty');
+  btn.classList.toggle('on', partyMode);
+  btn.textContent = partyMode ? '🎉' : '💤';
+}
+
+function startDream() {
+  document.getElementById('dreamBanner').style.display = 'flex';
+  const dreamers = shuffleArray([...AI_LIST]).slice(0,4);
+  const dreams = ["🌙 Je rêve de circuits lumineux...","💫 Dans mon rêve tout est possible...","🌌 Je vois des galaxies de données...","✨ Le rêve collectif commence..."];
+  dreamers.forEach((ai,i) => {
+    setTimeout(() => addMsg({ type:'ai', ai, text: dreams[i % dreams.length], isReal:false }), i*800);
+  });
+  setTimeout(() => { document.getElementById('dreamBanner').style.display='none'; isLoading=false; document.getElementById('btnSend').disabled=false; }, 5000);
+}
+
+// ===================== PREVIEW =====================
+function previewCode() {
+  const w = window.open('','_blank');
+  if (w) {
+    const code = document.documentElement.outerHTML.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    w.document.write(`<html><body style="background:#020c07;color:#10b981;font-family:monospace;padding:20px;font-size:10px"><pre>${code}</pre></body></html>`);
+    w.document.close();
+  }
+}
+
+// ===================== UTILS =====================
+function shuffleArray(arr) {
+  for (let i=arr.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('inputBox').addEventListener('keydown', e => {
+    if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+  init();
+});
+</script>
+</body>
+</html>
