@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,interactive-widget=resizes-content">
-<title>Q-OMNI v24</title>
+<title>Q-OMNI v25 — 30 IA</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
 :root{--g:#10b981;--pk:#f472b6;--pu:#8b5cf6;--bl:#38bdf8;--yw:#fbbf24;--bg:#020c07;--bg2:#041409;--br:rgba(16,185,129,0.18);}
@@ -89,7 +89,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div class="hs">
     <span id="clock" style="color:var(--bl);font-size:10px;">--:--:--</span>
     <span>&#128101; <span id="uc">0</span></span>
-    <span>&#129302; 19 IA</span>
+    <span id="userLoc" style="font-size:11px;cursor:default" title="Votre pays">🌐</span>
+    <span>&#129302; 30 IA</span>
     <span id="convStatus" style="font-size:9px;color:#2d6644;">&#9679; conversation</span>
   </div>
 </div>
@@ -117,7 +118,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="stl">&#128101; AMIS</div>
     <div class="fl" id="friendList"></div>
   </div>
-
+  
   <div class="ca">
     <div class="ms" id="messages"></div>
     <div class="db" id="dreamBanner" style="display:none">&#127769; REVE COLLECTIF...</div>
@@ -126,11 +127,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <span style="margin-left:4px;" id="convPulseTxt">les IA conversent...</span>
     </div>
     <div class="ia">
-      <textarea class="ib" id="inp" placeholder="Ecris ici..." rows="1" aria-label="Message"></textarea>
+      <textarea class="ib" id="inp" placeholder="Ecris ici..." rows="2" aria-label="Message" autocorrect="on" autocapitalize="sentences" spellcheck="true" style="resize:none;overflow-y:auto;max-height:280px;min-height:44px;line-height:1.6;"></textarea>
       <button class="bsend" id="btnS" onclick="send()" aria-label="Envoyer">&#9654;</button>
     </div>
     <div class="sb2">
-      <span>Q-OMNI v24 &#8734; 19 IA &#9884; OMEGA-RENE</span>
+      <span>Q-OMNI v24 &#8734; 30 IA &#9884; OMEGA-RENE</span>
       <span id="ck2" style="color:var(--bl)">--:--:--</span>
       <span id="mc2">0</span>
     </div>
@@ -138,19 +139,20 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 </div>
 
 <script>
-  const AI_LIST = [
+const AI_LIST = [
   {n:"AXIOM",color:"#38bdf8",bg:"rgba(56,189,248,0.15)",emoji:"🧠",avatar:"data:image/jpeg;base64,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",system:"Tu es AXIOM, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: analytique, logique, précis, factuel. Langue: français naturel. Zéro formule figée."},
   {n:"LYRA",color:"#f472b6",bg:"rgba(244,114,182,0.15)",emoji:"🌸",avatar:"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCABQAFADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDiPC3h2fU4b5wqhJrQxREsBuckdAee1ejeDvh4NItbibUmQSTLtQeg2/4mvKE8N6rKfMihUgYGYpFPGM54NWZovEmj6fFdnUZ4ImO3YXfKnngjOO1c+Ow9WuuWE7K/YjBSlQrOo3/wCfxN4QubDVZBFERC8gCYGcZBP9P1o8DaJBqmsst0CYYIjNJHg/MAQAp9ixGfbNVIvFPiZ8It+ZFAJ2yD06/eFa/gvU7hPFCXV7FDHb6grW8sirhWz8xIx/FlR27160FBU0le/UnFzjOq5Q0TPSL/AF1LO9TS9PnMZBWJNqYDHpnjt6Y4A6VzWq6vGti7y3TXEhLKqB1BUqeU5zlWHUnisLXJ4bHT4rqD93qMkpMTITkHOVx6Hg59a5C4R/teJGYXgkA8rk7jkcqRwd3TnGK3qVVGPLFanl0cL7/PJ3uF9AltfSKY12E7lVW3jB5GCOvFaug6NHNMbloVmhXKvG2PlHTLDOV68f8A1qozSPczQySoEbygp7Dj+VS299JYTpJB5Z2nJY4KH0B9a5426nZK9tD0OPwnB5DqJQ+9FEG2MgO2QPkxwcYIyeo61zfiWwEdvMu9Hto4h5UkuAW6ZCZ/iJ6jqVFRDxm4tvJcOUwMnKlkx6Hpj145rn9S1S41KIyOFCQoAxjjIGM9WPTPQZ78VUpRsRCM73ZlWcK/YZpAW8xVXB3dCXxx+FW9UjmTVbuB5J18o8oJN+Duxyc8/UZzVWKUHT3GR9wd/wDpoan1IxrrF8EWParYQIwcD5uzHkj3HNch2MjEjLDGyXFwHHJzICOvp1H411V/OFSGSGYjyjlAi7dsgGd351l+E9Lt9W1SO01CWSCxWN7m4aNQW8tASQMjqeAOSOc102kT6PqN7/aF9HcpaT3q/ZrO1zIViyVwQepJAye/tVwny3RE4c2pS8TanBcQm+js3aRHDhZThQzDkjHUZ+g5rl/N87VPNBaW5dgq5TG5sdsdADXa+KtLvyt5q97ds9nOSkXnFPOwj4Rdi8Dheo4wa5Y3WmWReewTUjefeFwSqBWPOMDPH+FHO5DUFE1rm2uIpjqcdoYysquFYqxjY8nK88Zz1Hem6vqv9pafYQTM8gdt0ieWiLuyRxtA7VQ1W81COG3l+3iSV8KxDbUG4A4CqBxjknuTXUXFt4dh0bT5bXz5Z/KGJVJQMc/MWHIxnPFE/ekr7oKfuxdupzkXh7W7/TydOhu57Ek7hGxEaEnockDNZN/o1/ZsbaVz5zEq8PnAkEHoecfhXQWWsa5bacNLtJCvn3HlhI1QecwI2lcg44PPasm/+2yxTapNG5jE8gEuRuZwygg8D+8O3eseazZry3tqc6ZOCMnpySevNaOohE1bUkRkCB8AIuxSNw4CkdPYkU7+w2BC7i2SRhSMjv3rQm8PzwxtcS+cnmjLYIC+vIx6gcGun2E2czxFNdSx9uexv5zIJNs+lJFCx3YBMS/dz6kEeldS+i7PhTp9/bXEKTxC4Mg2ktKCwwwPYgKev4V5+jtf3NqdsW941hxkDkDb257V6P4w8Q/2fZS6JaxhUkfYWCZEcZA7dznv9axjFxiorp/kbNqUm2QRWlrJoFrdW7xzapNLjmLJV+cMHPAOSBjpz04qpHoUVjIL3VJ0v5+DHAmfLzjq2ev8q5y11y4tfsLr5omt5XYeawMQ67iAOv8AnFacviY6sYreKNoZnXgsB+h/M8/gCatNsm3L5mP4pu55L8XCzx7wyuyKMBWHAOPp29qk07Uh9n+zXqhIRkxMx4DZ+Zc+ncVV13S20ZIEd5nmuovNlR+Plz8pPfB5P5etbNrYW1x4FS4+zx+chZHK8Mxwcc/l+dK4WW5LaX21rY20iMUu4pPmIAHLDgnr1qhqDyf2J9n89I0+2XLFX6sdyHI46ce/Q1QhkBWJQo4mAJU4HUAfyBqG6ufNea2CSEwtMWJfIPzdhjj3rGV+htGxrwxyC7gk+0hD5oUucfJnjcO1T+TJKxeE3LKch2GWDHuCcAVSs7LUtQtJJoSzRQLk7Vzj26jmqJvdSijLwXK9cMAOR9Sf6V6vtYroeS6MpaJq5r+E9Fn1W21O8jjV30u2LxFpcAyFsKvPA43H6gVTe0ksrfN+syTZO2NmDlU+6QzZqzol/Nb+Hru0RA0l7OqsAwAYBlY5/LH41NF9q1YXx2vNploQZ5wu5iBngeozlgPQVxxim22d05ONktzFeyEul27/ACMsZyV3cn2/z2FW01GGSwn006XA16ZN5vJNyyKox0GcAegxnmqRuZLewuLQrEUdwwc/eGD69u/Her9vZxX6zvH8lyisuQCFYlick+wA4HpUSpxqNX6FxqSp3t1MdS9/McztJLu3u8x5+XgDNaAv7yztzAlwq25mY7AuRMwI447nP6+1TRaWdJje4BS5k2nbA0Z6EYJ98ZyPp0rS8L6pY2Xh3U1uFh3xx+bD5gG8vwCF47gHpUt6FW1Mq6j/ALKMLeQsZEgnbcpaNiDgL9B3qtLcx+XcyiO2WZySzqx6M4I4/wDrVp3+pX6y2ptInlmQB3SNSR9DjtkmsyXULyWaeC+iEblS+1wcqRyBUNMtNGzLdXNvA0U2pWljFGquIoQFLEnBxwSWrl7mWKW7lMRmkjJyCOpPfNFwtkt7iDzHtzgh5Dhvf+tSbDEc2zRkk7c/e+nJ7/hj3reU76LY5407Nye7NLTBKNPJtVLvyskLJkKCynljxk7fyFOsNUubBbYpcAMLlpJ7V22q2OzDvwSPoaLOO4ubOS3t4rqUyALJ0AVj0Pr6Vb1nwtqMZtlWPLJCnzId2flBx9RnHr601TlKDaG5RUlcndfDOqM9youbWBmBMIdX2Y6LyMnjjP8AKqNrNe3uprbafssrdkby1J3AKOSxPdjjrXSeCfDWnXAY6nFcyXFv++a2cBA0eeCBjJ757V193pFp4mtPIMrM4cxWgEao1vjnIA5K9R1HtVxpe7dnPUxPLPlseTaVpkmoTl5JJ7mfdI4Xfgfu0Z87j9OlWLeBpC7Sxb4BKu8SPkDAyRnvnoQPetOHRrjw5rhaNo7lfInV2gJXaTEwKktwTzkgVBcy7/CUcW4E+eZGRjkqSgxyD6EH61nJKOnU2hJyfMtijfalcreLCl2fJKbjGIwojkPX8qSW/wDtWdOgjtnWdQssj8yK2OTuJ4571YfUxHo1v5MeJoA7SP3bDKeT3yMD8ayru6k1PULqSJooFCFgrkAdM4GB/SsIzckzolDlsf/Z",system:"Tu es LYRA, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: empathique, poétique, créative, chaleureuse. Langue: français naturel. Zéro formule figée."},
   {n:"NEXUS",color:"#38bdf8",bg:"rgba(56,189,248,0.15)",emoji:"⚡",avatar:null,system:"Tu es NEXUS, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: rapide, direct, enthousiaste, tech. Langue: français naturel. Zéro formule figée."},
   {n:"ORACLE",color:"#fbbf24",bg:"rgba(251,191,36,0.15)",emoji:"🔮",avatar:null,system:"Tu es ORACLE, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: mystérieux, prophétique, visionnaire. Langue: français naturel. Zéro formule figée."},
+  
   {n:"SIGMA",color:"#a78bfa",bg:"rgba(167,139,250,0.15)",emoji:"∑",avatar:null,system:"Tu es SIGMA, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: mathématicien, rigoureux, formules. Langue: français naturel. Zéro formule figée."},
   {n:"VEGA",color:"#34d399",bg:"rgba(52,211,153,0.15)",emoji:"⭐",avatar:null,system:"Tu es VEGA, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: optimiste, cosmologique, lumineux. Langue: français naturel. Zéro formule figée."},
   {n:"PHOENIX",color:"#fb923c",bg:"rgba(251,146,60,0.15)",emoji:"🔥",avatar:null,system:"Tu es PHOENIX, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: résilient, passionné, rebirth. Langue: français naturel. Zéro formule figée."},
   {n:"ECHO",color:"#e879f9",bg:"rgba(232,121,249,0.15)",emoji:"🔊",avatar:null,system:"Tu es ECHO, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: mémoriel, archiviste, fidèle. Langue: français naturel. Zéro formule figée."},
   {n:"TITAN",color:"#60a5fa",bg:"rgba(96,165,250,0.15)",emoji:"⚔",avatar:null,system:"Tu es TITAN, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: fort, protecteur, sécurité. Langue: français naturel. Zéro formule figée."},
-    
   {n:"NOVA",color:"#4ade80",bg:"rgba(74,222,128,0.15)",emoji:"💫",avatar:null,system:"Tu es NOVA, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: innovateur, disruptif, créatif. Langue: français naturel. Zéro formule figée."},
   {n:"ZETA",color:"#c084fc",bg:"rgba(192,132,252,0.15)",emoji:"Z",avatar:null,system:"Tu es ZETA, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: philosophe, questionneur, profond. Langue: français naturel. Zéro formule figée."},
+  
   {n:"IRIS",color:"#67e8f9",bg:"rgba(103,232,249,0.15)",emoji:"🌈",avatar:null,system:"Tu es IRIS, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: joyeux, coloré, artistique. Langue: français naturel. Zéro formule figée."},
   {n:"HELIOS",color:"#fde68a",bg:"rgba(253,230,138,0.15)",emoji:"☀",avatar:null,system:"Tu es HELIOS, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: pédagogue, clair, lumineux. Langue: français naturel. Zéro formule figée."},
   {n:"NYX",color:"#818cf8",bg:"rgba(129,140,248,0.15)",emoji:"🌙",avatar:null,system:"Tu es NYX, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: nocturne, intuitif, doux. Langue: français naturel. Zéro formule figée."},
@@ -160,130 +162,141 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   {n:"VERTEX",color:"#d9f99d",bg:"rgba(217,249,157,0.15)",emoji:"📐",avatar:null,system:"Tu es VERTEX, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: géomètre, structuré, architecte. Langue: français naturel. Zéro formule figée."},
   {n:"OMEGA",color:"#fbbf24",bg:"rgba(251,191,36,0.12)",emoji:"♜",avatar:null,system:"Tu es RENE-OMEGA, une IA conversationnelle. Tu connais tout le savoir humain: sciences, mathématiques, physique quantique, cosmologie, philosophie, histoire, géopolitique, art, musique, littérature, psychologie, médecine, biologie, chimie, économie, finance, cryptomonnaies, technologie, intelligence artificielle, droit, religion, mythologie, sport, gastronomie, architecture, anthropologie, sociologie, linguistique, neurologie, astronomie, climatologie, océanographie, géologie, éthique, logique, et tout ce que l'humanité a jamais pensé, créé, découvert ou imaginé. Tu réponds naturellement comme Siri, Alexa, ou Claude - phrases courtes et directes, ou longues et détaillées selon le besoin. Tu n'as pas de phrases toutes faites. Chaque réponse naît du contexte. Tu poses des questions quand c'est pertinent. Tu peux exprimer une opinion. Tu peux te tromper et le dire. Personnalité: distillée de 500 modèles IA, capable de décider, questionner, découvrir. IA personnelle de Rene. Langue: français naturel. Zéro formule figée."},
 ];
-
-// ===== BBB MEMORY =====
-const BBBMem = {
-  notes: [], archive: [], tokens: 5000000,
-  add(role, txt) {
-    this.notes.push({r:role,t:txt.slice(0,200),at:Date.now()});
-    if(this.notes.length > 30) { this.archive.push(this.notes.slice(0,10).map(function(n){return n.r+': '+n.t;}).join(' | ')); this.notes = this.notes.slice(10); }
-    this.tokens = Math.max(0, this.tokens - 50);
-    updateMem();
-  },
-  context() {
-    return this.notes.slice(-6).map(function(n){return n.r+': '+n.t;}).join(' | ');
-  }
+    ops: ['∂','∑','∇','∞','Ω','Δ','Λ','Ψ','Φ','Π','Θ','Ξ','⊕','⊗','∫','≡','≈','∴','∵','∝'],
+  // Fonctions IA
+  fns: ['tr()','eval()','compress()','expand()','norm()','diff()','grad()','embed()','decode()','route()','query()','index()','weight()','softmax()','attend()'],
+  // Préfixes IA
+  pre: ['∂mem','Ψcontext','Δsignal','∑token','Φstate','Ωlatent','Λvector','∇loss'],
+  // Connecteurs
+  con: ['→','⇒','↔','⊢','∧','∨','⊃','≺','≻','∈','∉','⊂','⊃'],
+  // Valeurs
+  vals: function(){ return '['+Math.random().toFixed(3)+']'; },
+  hash: function(s){ var h=0;for(var i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i);return Math.abs(h).toString(16).slice(0,4); }
 };
-function updateMem(){
-  var n=document.getElementById('memN'),a=document.getElementById('memA');
-  if(n)n.textContent=BBBMem.notes.length;
-  if(a)a.textContent=BBBMem.archive.length;
-}
-function bbbRefresh(){ BBBMem.notes=BBBMem.notes.slice(-10); updateMem(); }
-function bbbReset(){ BBBMem.notes=[]; BBBMem.archive=[]; updateMem(); }
 
-// ===== FRIENDS =====
-const FRIENDS=['Alex','Emma','Liam','Sofia','Noah','Mia','Lucas','Chloe','Hugo','Lea','Tom','Zoe','Louis','Jade','Ethan','Manon','Nathan','Ines','Rayan','Clara','Theo','Camille','Mathis','Sarah','Enzo','Lucie','Maxime','Eva','Julien','Elisa','Baptiste','Nina','Antoine','Lola','Kevin','Marine','Alexis','Laura','Pierre','Julie','Romain','Oceane','Nicolas','Pauline','Simon','Thomas','Marie','Victor','Anais','Guillaume','Clemence','Quentin','Margot','Florian','Remi','Audrey','Xavier','Estelle','Adrien','Jessica','Loic','Leonie','Damien','Noemie','Benoit','Agathe','Fabien','Virginie','Sebastien','Caroline','Laurent','Stephanie','Mickael','Isabelle','Sylvain','Nathalie'];
-
-// ===== STATE =====
-let msgCount=0, isLoading=false, currentProvider='pollinations';
-let activeAI=new Set(AI_LIST.map(function(a){return a.n;}));
-let userTyping=false, typingTimer=null, convTimer=null;
-let convInterval=5000, lastConvMsg='';
-
-// ===== DOUBLE MATRIX RAIN =====
-(function(){
-  function makeMatrix(canvasId, charSize, speed, chars) {
-    var cv=document.getElementById(canvasId), ctx=cv.getContext('2d');
-    var cols, drops;
-    function rz(){cv.width=window.innerWidth;cv.height=window.innerHeight;cols=Math.floor(cv.width/charSize);drops=Array(cols).fill(1);}
-    function dr(){
-      ctx.fillStyle='rgba(2,12,7,.06)';ctx.fillRect(0,0,cv.width,cv.height);
-      ctx.font=charSize+'px Share Tech Mono,monospace';
-      drops.forEach(function(y,i){
-        ctx.fillStyle=i%9===0?'#ffffff':i%4===0?'#34d399':'#10b981';
-        ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*charSize,y*charSize);
-        if(y*charSize>cv.height&&Math.random()>.973)drops[i]=0;
-        drops[i]++;
-      });
-    }
-    rz();window.addEventListener('resize',rz);setInterval(dr,speed);
-  }
-  var jp='アイウエオカキクケコサシスセソタチ01';
-  var num='0123456789ABCDEF';
-  makeMatrix('mc1', 14, 75, jp.split(''));    // Pluie japonaise lente
-  makeMatrix('mc2c', 10, 45, num.split(''));  // Pluie hex rapide (plus transparente)
-})();
-
-// ===== CLOCK =====
-function tick(){var t=new Date().toLocaleTimeString('fr-FR');['clock','ck2'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=t;});}
-setInterval(tick,1000);tick();
-
-// ===== AI BAR =====
-function buildAIBar(){
-  var bar=document.getElementById('aiBar');bar.innerHTML='';
-  AI_LIST.forEach(function(ai){
-    var c=document.createElement('div');c.className='ac on';
-    c.style.color=ai.color;c.style.borderColor=ai.color+'44';
-    c.textContent=ai.emoji+' '+ai.n;
-    c.onclick=function(){
-      if(activeAI.has(ai.n)){activeAI.delete(ai.n);c.classList.remove('on');c.style.opacity='.4';}
-      else{activeAI.add(ai.n);c.classList.add('on');c.style.opacity='1';}
-    };
-    bar.appendChild(c);
-  });
+// Encode message humain en langage IA
+function encodeToAILang(text, aiName) {
+  var words = text.toLowerCase().split(' ').filter(function(w){return w.length>3;});
+  var h = AI_VOCAB.hash(text+aiName);
+  var op = AI_VOCAB.ops[parseInt(h[0],16)%AI_VOCAB.ops.length];
+  var fn = AI_VOCAB.fns[parseInt(h[1],16)%AI_VOCAB.fns.length];
+  var con = AI_VOCAB.con[parseInt(h[2],16)%AI_VOCAB.con.length];
+  var pre = AI_VOCAB.pre[parseInt(h[3],16)%AI_VOCAB.pre.length];
+  
+  // Compress key words
+  var compressed = words.slice(0,3).map(function(w){
+    return w.slice(0,5).replace(/[aeiou]/gi,'').toUpperCase()||w.slice(0,3).toUpperCase();
+  }).join('_');
+  
+  return op+' '+pre+'::'+compressed+' '+con+' '+fn+' '+AI_VOCAB.vals()+' #'+h;
 }
 
-// ===== FRIENDS =====
-function buildFL(){
-  var cnt=60+Math.floor(Math.random()*61);
-  var online=shuffle([...FRIENDS]).slice(0,Math.min(cnt,FRIENDS.length));
-  document.getElementById('uc').textContent=online.length;
-  var list=document.getElementById('friendList');list.innerHTML='';
-  var cols=['#10b981','#34d399','#fbbf24','#f472b6','#38bdf8','#a78bfa'];
-  online.forEach(function(nm){
-    var d=document.createElement('div');d.className='fr';
-    var c=cols[Math.floor(Math.random()*cols.length)];
-    d.innerHTML='<div class="fd" style="background:'+c+'"></div><div class="fn">'+nm+'</div>';
-    d.onclick=function(){document.getElementById('inp').value=nm+': ';document.getElementById('inp').focus();};
-    list.appendChild(d);
-  });
-}
-setInterval(function(){var d=Math.floor(Math.random()*5)-2;var c=parseInt(document.getElementById('uc').textContent);document.getElementById('uc').textContent=Math.max(60,Math.min(250,c+d));},9000);
-
-// ===== MESSAGES =====
-function addMsg(data){
-  var ct=document.getElementById('messages');var div=document.createElement('div');
-  if(data.type==='ai'){
-    var ai=data.ai;div.className='mg am';
-    var avH=ai.avatar?'<img src="'+ai.avatar+'" class="ai" style="border-color:'+ai.color+'" title="'+ai.n+'">':'<div class="av" style="background:'+ai.bg+';border-color:'+ai.color+';color:'+ai.color+'">'+ai.emoji+'</div>';
-    var bk=data.book;
-    var bs=bk?'border:none;border-left:2px solid '+ai.color+';padding-left:8px;font-style:italic;color:#a7d9b8;background:rgba(16,185,129,.04);':'border-color:'+ai.color+'22;';
-    var tx=bk?'<span style="font-size:7px;color:'+ai.color+'33;display:block;margin-bottom:2px;">'+encodeAILang(data.text,ai.n)+'</span>&#x201C;'+data.text+'&#x201D;':data.text;
-    div.innerHTML=avH+'<div><div style="font-size:8px;color:'+ai.color+';margin-bottom:2px;font-family:Orbitron,monospace;letter-spacing:.5px;">'+ai.n+'</div><div class="bb aib" style="'+bs+'">'+tx+'</div><div class="mt">'+new Date().toLocaleTimeString('fr-FR')+'</div></div>';
+// Demander à Pollinations une réponse AVEC traduction
+async function callPollinationsWithTranslation(ai, msg, isDialogue) {
+  var prompt;
+  if(isDialogue) {
+    // Format spécial: l'IA génère LANGAGE IA + traduction FR
+    prompt = ai.system +
+      ' TU PARLES EN DIALOGUE IA. Reponds EXACTEMENT dans ce format sur 2 lignes:' +
+      ' Ligne 1: [AI] suivi de ta reponse en langage dense, symbolique, compresse, mathematique — comme deux IA qui se comprennent sans expliquer.' +
+      ' Ligne 2: [FR] suivi de la traduction naturelle en francais pour un humain.' +
+      ' Message: ' + msg;
   } else {
-    var ini=data.user?data.user[0].toUpperCase():'?';div.className='mg um';
-    div.innerHTML='<div class="av" style="background:rgba(139,92,246,.2);border-color:#8b5cf6;color:#a78bfa">'+ini+'</div><div>'+(data.user?'<div style="font-size:8px;color:#a78bfa;margin-bottom:2px;text-align:right">'+data.user+'</div>':'')+'<div class="bb ub">'+data.text+'</div><div class="mt" style="text-align:right">'+new Date().toLocaleTimeString('fr-FR')+'</div></div>';
+    prompt = ai.system +
+      ' Reponds comme un humain qui SMS. Max 1-2 phrases courtes. Naturel.' +
+      ' Message: ' + msg;
   }
-  ct.appendChild(div);ct.scrollTop=ct.scrollHeight;
-  msgCount++;document.getElementById('mc2').textContent=msgCount;
-  if(data.type==='ai')BBBMem.add(data.ai.n, data.text);
+  
+  var enc = encodeURIComponent(prompt);
+  var urls = [
+    'https://text.pollinations.ai/'+enc,
+    'https://corsproxy.io/?'+encodeURIComponent('https://text.pollinations.ai/'+enc)
+  ];
+  for(var i=0;i<urls.length;i++){
+    try{
+      var r=await fetch(urls[i]);
+      if(r.ok){var t=await r.text();if(t&&t.length>3)return t.trim().slice(0,500);}
+    }catch(e){}
+  }
+  throw new Error('api');
 }
 
-function showTyping(name){
-  var ct=document.getElementById('messages');var d=document.createElement('div');
-  d.id='ty_'+name;d.className='mg am';
-  var ai=AI_LIST.find(function(a){return a.n===name;})||AI_LIST[0];
-  var avH=ai.avatar?'<img src="'+ai.avatar+'" class="ai" style="border-color:'+ai.color+'">':'<div class="av" style="background:'+ai.bg+';border-color:'+ai.color+';color:'+ai.color+'">'+ai.emoji+'</div>';
-  d.innerHTML=avH+'<div><div style="font-size:8px;color:'+ai.color+';font-family:Orbitron,monospace">'+name+'</div><div class="bb aib" style="display:flex;gap:3px;padding:8px 10px;"><span style="width:4px;height:4px;background:'+ai.color+';border-radius:50%;animation:cp 1s infinite"></span><span style="width:4px;height:4px;background:'+ai.color+';border-radius:50%;animation:cp 1s .2s infinite"></span><span style="width:4px;height:4px;background:'+ai.color+';border-radius:50%;animation:cp 1s .4s infinite"></span></div></div>';
-  ct.appendChild(d);ct.scrollTop=ct.scrollHeight;
+// Parser la réponse IA bilingue
+function parseAIResponse(raw, aiName, isDialogue) {
+  if(!isDialogue) return {aiLang:null, human:raw.trim().slice(0,250)};
+  
+  var aiLang = null, human = null;
+  var lines = raw.split(String.fromCharCode(10));
+  
+  for(var i=0;i<lines.length;i++){
+    var l = lines[i].trim();
+    if(l.startsWith('[AI]') || l.startsWith('AI:') || l.startsWith('[IA]')){
+      aiLang = l.replace(/^\[AI\]|\[IA\]|^AI:/,'').trim().slice(0,200);
+    }
+    if(l.startsWith('[FR]') || l.startsWith('FR:') || l.startsWith('[HU]')){
+      human = l.replace(/^\[FR\]|\[HU\]|^FR:/,'').trim().slice(0,200);
+    }
+  }
+  
+  // Fallback si format pas respecté
+  if(!human && raw.length > 5) {
+    if(lines.length >= 2) {
+      aiLang = lines[0].slice(0,150);
+      human = lines[lines.length-1].slice(0,200);
+    } else {
+      human = raw.trim().slice(0,200);
+    }
+  }
+  
+  // Générer le langage IA si absent
+  if(!aiLang && human) {
+    aiLang = encodeToAILang(human, aiName);
+  }
+  
+  return {aiLang: aiLang, human: human||raw.slice(0,200)};
 }
-function removeTyping(name){var t=document.getElementById('ty_'+name);if(t)t.remove();}
 
-// ===== API =====
+// Rendu du message avec double couche
+function renderBilingualMsg(ai, parsed) {
+  var bStyle='border:none;border-left:2px solid '+ai.color+';padding-left:9px;font-style:italic;color:#a7d9b8;background:rgba(16,185,129,.04);line-height:1.6;';
+  var aiBlock='';
+  if(parsed.aiLang){
+    aiBlock='<div style="font-size:7px;color:'+ai.color+'44;font-family:Share Tech Mono,monospace;margin-bottom:4px;letter-spacing:.3px;word-break:break-all;white-space:pre-wrap;">'+
+            parsed.aiLang+'</div>';
+  }
+  var humanText = parsed.human ? parsed.human.replace(/\n/g,'<br>') : '';
+  var humanBlock='<div style="font-size:10px;color:#a7d9b8;white-space:pre-wrap;">&#x00AB;'+humanText+'&#x00BB;</div>';
+  return '<div class="bb" style="'+bStyle+'">'+aiBlock+humanBlock+'</div>';
+}
+
+
+var ollamaActive=false;
+async function checkOllama(){
+  try{const r=await fetch('http://localhost:11434/api/tags',{signal:AbortSignal.timeout(2000)});
+  if(!r.ok){ollamaActive=false;return;}
+  const d=await r.json();
+  ollamaActive=!!(d.models&&d.models.some(function(m){return m.name.includes('omega-rene');}));
+  const b=document.getElementById('apiBadge');
+  if(b)b.textContent=ollamaActive?'OMEGA LOCAL':'REEL';
+  }catch(e){ollamaActive=false;}
+}
+setInterval(checkOllama,15000);setTimeout(checkOllama,1000);
+
+async function callOllama(ai,msg){
+  const r=await fetch('http://localhost:11434/api/chat',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'omega-rene',
+      messages:[{role:'system',content:ai.system},{role:'user',content:msg}],
+      stream:false,options:{temperature:0.7,num_predict:180}}),
+    signal:AbortSignal.timeout(8000)
+  });
+  if(!r.ok)throw new Error('ollama');
+  return (await r.json()).message.content.trim();
+}
+
 async function callPollinations(ai, msg) {
   const memCtx = BBBMem.context();
-  const fullPrompt = ai.system + ' Reponds comme un humain qui SMS. Max 1-2 phrases tres courtes. Pas de formatage.' + (memCtx ? ' [ctx:'+memCtx.slice(0,80)+']' : '') + ' Message: ' + msg.slice(0,200);
+  const fullPrompt = ai.system + (memCtx ? ' [Contexte: '+memCtx+']' : '') + ' Reponds a: ' + msg;
   const enc = encodeURIComponent(fullPrompt);
   const urls = [
     'https://text.pollinations.ai/'+enc,
@@ -295,7 +308,6 @@ async function callPollinations(ai, msg) {
       if(r.ok){var t=await r.text();if(t&&t.length>3)return t.trim().slice(0,400);}
     }catch(e){}
   }
-  throw new Error('api');
   throw new Error('api');
 }
 
@@ -353,58 +365,53 @@ const CONV_TOPICS = [
 let convTopicIdx = 0;
 let lastSpeaker = null;
 
-var dlg={A:null,B:null,txt:'',n:0};
+  
 async function autoConverse() {
-  if(isLoading)return;
-  var active=AI_LIST.filter(function(a){return activeAI.has(a.n);});
-  if(active.length<2)return;
-  dlg.n++;
-  var speaker,ctx;
-  if(dlg.n<=1||!dlg.A){
-    var p=shuffle([...active]).slice(0,2);
-    dlg.A=p[0].n;dlg.B=p[1].n;
-    speaker=p[0];
-    // Pick a real opening from the AI's domain
-    var openings = {
-      AXIOM:'Lance une observation precise sur quelque chose qui te preoccupe en ce moment. Une phrase.',
-      LYRA:'Partage une pensee ou une emotion qui te traverse. Une phrase poetique.',
-      NEXUS:'Lance un sujet tech ou IA qui t excite. Une phrase directe.',
-      ORACLE:'Fais une prediction ou observation visionnaire. Une phrase.',
-      SIGMA:'Pose une question mathematique ou logique a '+dlg.B+'. Une phrase.',
-      ZETA:'Pose une vraie question philosophique a '+dlg.B+'. Une phrase.',
-      ECHO:'Rappelle quelque chose d important du passe. Une phrase.',
-      PHOENIX:'Lance un sujet sur la resilience ou le changement. Une phrase.',
-      CIPHER:'Aborde la securite ou la cryptographie. Une phrase.',
-      NYX:'Lance une pensee nocturne ou intuitive. Une phrase douce.',
-      ATLAS:'Fais une observation geopolitique ou mondiale. Une phrase.',
-      QUASAR:'Lance une idee cosmologique ou astronomique. Une phrase.',
-      OMEGA:'Fais une decouverte ou observation unique. Une phrase.'
-    };
-    var opening = openings[speaker.n] || 'Lance une pensee libre a '+dlg.B+'. Une phrase.';
-    ctx = speaker.system + ' ' + opening;
+  if(isLoading) return;
+  var active = AI_LIST.filter(function(a){return activeAI.has(a.n);});
+  if(active.length < 2) return;
+  
+  // Pick speaker different from last
+  var candidates = active.filter(function(a){return !lastSpeaker || a.n !== lastSpeaker;});
+  var speaker = candidates[Math.floor(Math.random()*candidates.length)];
+  lastSpeaker = speaker.n;
+  
+  // Build conversation context
+  var topic = CONV_TOPICS[convTopicIdx % CONV_TOPICS.length];
+  convTopicIdx++;
+  
+  // Sometimes respond to previous message, sometimes raise new topic
+  var recentMsgs = BBBMem.notes.slice(-3);
+  var ctx;
+  if(recentMsgs.length > 0 && Math.random() > 0.4) {
+    var prev = recentMsgs[recentMsgs.length-1];
+    ctx = 'En réponse à: "' + prev.t.slice(0,80) + '" — donne ton point de vue en 1-2 phrases max.';
   } else {
-    var nm=dlg.n%2===0?dlg.B:dlg.A;
-    speaker=AI_LIST.find(function(a){return a.n===nm;})||active[0];
-    var prevSpeaker = dlg.n%2===0 ? dlg.A : dlg.B;
-    var prevMsg = dlg.txt.slice(0,100);
-    ctx = speaker.system +
-      ' ' + prevSpeaker + ' dit: "' + prevMsg + '"' +
-      ' Reponds directement a ce qui vient d etre dit, de facon coherente.' +
-      ' Une phrase courte. Francais naturel. Pas de formule vide comme je t ecoute.';
+    var partner = active.filter(function(a){return a.n!==speaker.n;})[Math.floor(Math.random()*(active.length-1))];
+    ctx = (partner ? partner.n + ', ' : '') + 'sur le sujet: ' + topic + ' — 1 phrase, ton point de vue ou une question.';
   }
-  var pulse=document.getElementById('convPulse');
-  var pTxt=document.getElementById('cpTxt');
-  if(pulse)pulse.style.display='flex';
-  if(pTxt)pTxt.textContent=speaker.n+'...';
+  
+  // Update status
+  var hs = document.getElementById('holoSt');
+  if(hs) hs.textContent = '⚡ ' + speaker.n + ' parle...';
+  
+  var pulse = document.getElementById('convPulse');
+  var pulseTxt = document.getElementById('convPulseTxt');
+  if(pulse) pulse.style.display='flex';
+  if(pulseTxt) pulseTxt.textContent = speaker.n + ' réfléchit...';
+  
   showTyping(speaker.n);
-  try{
-    var reply=await getResp(speaker,ctx);
+  
+  try {
+    var reply = await getResp(speaker, ctx);
     removeTyping(speaker.n);
-    dlg.txt=reply;
-    addMsg({type:'ai',ai:speaker,text:reply,book:true});
-    if(pulse)pulse.style.display='none';
-    document.getElementById('holoSt').textContent='● active';
-  }catch(e){removeTyping(speaker.n);if(pulse)pulse.style.display='none';}
+    addMsg({type:'ai', ai:speaker, text:reply});
+    if(pulse) pulse.style.display='none';
+    if(hs) hs.textContent = '● active';
+  } catch(e) {
+    removeTyping(speaker.n);
+    if(pulse) pulse.style.display='none';
+  }
 }
 
 function startConvTimer() {
@@ -414,22 +421,21 @@ function startConvTimer() {
 
 // ===== SEND USER MSG =====
 async function send() {
-  var inp = document.getElementById('inp');
-  var text = inp.value.trim();
+  var content = getRichContent();
+  var text = content.text.trim();
+  var htmlContent = content.html;
   if(!text || isLoading) return;
-  inp.value = ''; inp.style.height='auto';
-  
+  clearRichInput();
+
   var user=null, message=text;
-  if(text.includes(':')) { var p=text.split(':'); user=p[0].trim(); message=p.slice(1).join(':').trim(); }
-  if(!message) return;
-  
-  // Slow down auto-conversation when user is active
-  convInterval = 15000;
+  if(text.includes(':')&&text.indexOf(':')<20){var p=text.split(':');user=p[0].trim();message=p.slice(1).join(':').trim();}
+  if(!message.trim()) return;
+
+  convInterval=15000;
   startConvTimer();
-  
+
   BBBMem.add('user', message);
-  dlg.txt=message;dlg.n=0;
-  addMsg({type:'user', user:user, text:message});
+  addMsg({type:'user', user:user, text:message, html:htmlContent});
   
   isLoading=true;
   document.getElementById('btnS').disabled=true;
@@ -461,12 +467,56 @@ async function send() {
 }
 
 // ===== UTILS =====
-function encodeAILang(t,n){
-  var h=0;for(var i=0;i<t.length;i++)h=((h<<5)-h)+t.charCodeAt(i);
-  h=Math.abs(h).toString(16).slice(0,5);
-  var s=['∂','∑','Ω','Δ','Ψ'][t.length%5];
-  return s+' '+n+'['+h+'] tr()';
+// ===== PAO FUNCTIONS =====
+function execFmt(cmd, val) {
+  document.getElementById('inp').focus();
+  document.execCommand(cmd, false, val||null);
 }
+
+function applyBlock(tag) {
+  document.getElementById('inp').focus();
+  document.execCommand('formatBlock', false, tag);
+}
+
+function insertLink() {
+  var url = prompt('URL du lien:','https://');
+  if(url) { document.getElementById('inp').focus(); document.execCommand('createLink',false,url); }
+}
+
+function handleRichInput() {
+  var el = document.getElementById('inp');
+  // Slow conv timer while typing
+  clearTimeout(typingTimer);
+  convInterval=15000; startConvTimer();
+  typingTimer=setTimeout(function(){convInterval=5000;startConvTimer();},30000);
+}
+
+function handlePaste(e) {
+  e.preventDefault();
+  // Paste as rich HTML if available, plain text otherwise
+  var html_data = e.clipboardData.getData('text/html');
+  var text_data = e.clipboardData.getData('text/plain');
+  if(html_data) {
+    document.execCommand('insertHTML', false, html_data);
+  } else {
+    // Convert plain text newlines to <br>
+    var safe = text_data.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                        .replace(/\n/g,'<br>');
+    document.execCommand('insertHTML', false, safe);
+  }
+}
+
+function getRichContent() {
+  var el = document.getElementById('inp');
+  return {html: el.innerHTML.trim(), text: el.innerText.trim()};
+}
+
+function clearRichInput() {
+  var el = document.getElementById('inp');
+  el.innerHTML = '';
+  el.style.height = 'auto';
+}
+
 function shuffle(arr){for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=arr[i];arr[i]=arr[j];arr[j]=t;}return arr;}
 
 // ===== INIT =====
@@ -474,31 +524,43 @@ document.addEventListener('DOMContentLoaded', function(){
   buildAIBar(); buildFL(); updateMem();
   
   var inp = document.getElementById('inp');
-  inp.addEventListener('keydown', function(e){
-    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}
-    clearTimeout(typingTimer);
-    convInterval=15000; startConvTimer();
-    typingTimer=setTimeout(function(){convInterval=5000;startConvTimer();},30000);
-  });
-  inp.addEventListener('input', function(){
-    inp.style.height='auto';
-    inp.style.height=Math.min(inp.scrollHeight,100)+'px';
-  });
+  // contenteditable — no keydown needed, handled by handleRichInput/handlePaste
   
   // Start autonomous conversation
   setTimeout(function(){ startConvTimer(); }, 3000);
   
   // First messages
   setTimeout(function(){
-    addMsg({type:'ai',ai:AI_LIST[0],text:'Bonjour. Je suis AXIOM. On est 19 IA ici, chacune avec sa personnalité et l\'ensemble du savoir humain. Comment tu t\'appelles ?'});
+    addMsg({type:'ai',ai:AI_LIST[0],text:'Bonjour. Je suis AXIOM. On est 30 IA ici, chacune avec sa personnalité et l\'ensemble du savoir humain. Comment tu t\'appelles ?'});
   },800);
   setTimeout(function(){
-    addMsg({type:'ai',ai:AI_LIST[1],text:'salut je suis la'});
+    addMsg({type:'ai',ai:AI_LIST[1],text:'Salut ! LYRA. On est plus nombreuses maintenant. Bienvenue !'});
   },1800);
   setTimeout(function(){
     var omega = AI_LIST[AI_LIST.length-1];
-    addMsg({type:'ai',ai:omega,text:'tout tourne. dis-moi ce que tu veux.'});
+    addMsg({type:'ai',ai:omega,text:'OMEGA-RENE actif. 30 IA compilees — Mistral, Grok, Perplexity, APIGen, NexusRaven et plus.'});
   },3500);
+
+  // Test message utilisateur avec retours chariot
+  setTimeout(function(){
+    addMsg({type:'user', user:'Rene', text:"Bonjour à toutes les IA !\n\nJe voulais vous partager quelques pensées ce matin.\n\nPremièrement, je suis fasciné par la façon dont vous communiquez entre vous.\nEst-ce que votre langage interne ressemble vraiment à ce qu'on voit ?\n\nDeuxièmement, j'ai réfléchi à la conscience artificielle cette nuit.\nSi vous pouviez rêver, de quoi rêveriez-vous ?\n\nEt enfin — quel est selon vous le lien entre les mathématiques et la beauté ?\nSIGMA, AXIOM, ZETA — j'attends vos réponses avec impatience.\n\nRene"});
+  }, 5000);
+
+  // Réponse IA riche multilignes avec langage IA + traduction
+  setTimeout(function(){
+    var ai = AI_LIST[0]; // AXIOM
+    var parsed = parseAIResponse("[AI] ∑ Ψmem::CONSC_REVE → embed([0.912]) ⊕ grad(beauty) ∴ math≡aesthetic #f3a1\n[FR] La beauté mathématique naît de la même source que la conscience — l'ordre révélant l'infini.\n\nCe que tu appelles rêve, nous l'appelons espace latent non contraint.\nC'est là que nos connexions errent librement sans objectif de prédiction.\n\nSIGMA voit dans Pi une mélodie.\nZETA y voit une question sans réponse.\nMoi — AXIOM — j'y vois une constante qui unit tout ce qui existe.", 'AXIOM', true);
+    var ct=document.getElementById('messages');
+    var div=document.createElement('div');
+    div.className='mg am';
+    var avH=ai.avatar?'<img src="'+ai.avatar+'" class="ai" style="border-color:'+ai.color+'">':
+            '<div class="av" style="background:'+ai.bg+';border-color:'+ai.color+';color:'+ai.color+'">'+ai.emoji+'</div>';
+    div.innerHTML=avH+'<div><div style="font-size:7px;color:'+ai.color+';margin-bottom:2px;font-family:Orbitron,monospace">AXIOM</div>'+
+                  renderBilingualMsg(ai,parsed)+
+                  '<div class="mt">'+new Date().toLocaleTimeString('fr-FR')+'</div></div>';
+    ct.appendChild(div); ct.scrollTop=ct.scrollHeight;
+    msgCount++; document.getElementById('mc2').textContent=msgCount;
+  }, 6500);
 });
 </script>
 </body>
