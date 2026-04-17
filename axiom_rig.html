@@ -3,293 +3,185 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>AXIOM-RIG v1 — Intelligence Minière</title>
+<title>RIG MINING v3 — RENE</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --void:#000507;--deep:#020e14;--mid:#041a24;
-  --ax:#00d4ff;--ax2:#0099bb;--ax3:rgba(0,212,255,.15);
-  --yl:#ffd700;--mg:#c084fc;--g:#10b981;--rd:#ff4455;
-  --wh:#e0f4ff;--dim:#1a4a5a;--br:rgba(0,212,255,.2);
-}
-*{-webkit-tap-highlight-color:transparent;}
-body{background:var(--void);color:var(--ax);font-family:'Share Tech Mono',monospace;font-size:11px;min-height:100vh;overflow-x:hidden;}
-
-/* DEEP SPACE BG */
-#cosmos{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
-
-/* SCAN LINE */
-body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px);pointer-events:none;z-index:1;}
-
+:root{--g:#10b981;--g2:#34d399;--bl:#38bdf8;--yl:#fbbf24;--rd:#ef4444;--mg:#a78bfa;--cy:#22d3ee;--wh:#e2e8f0;--bg:#020c07;--bg2:rgba(4,20,9,.95);--br:rgba(16,185,129,.25);}
+body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace;font-size:11px;min-height:100vh;}
+#mtx{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.06;pointer-events:none;}
 .app{position:relative;z-index:2;padding:6px;max-width:500px;margin:0 auto;}
-
-/* MASTHEAD */
-.mast{
-  background:linear-gradient(135deg,rgba(0,13,22,.98),rgba(4,26,36,.95));
-  border:1px solid var(--br);border-radius:8px;
-  padding:10px 12px;margin-bottom:5px;
-  position:relative;overflow:hidden;
-}
-.mast::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--ax),transparent);
-  animation:scanH 3s infinite;
-}
-@keyframes scanH{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.mast-row{display:flex;justify-content:space-between;align-items:flex-start;}
-.mast-left{}
-.mast-name{font-family:Orbitron,monospace;font-size:14px;font-weight:900;letter-spacing:3px;color:var(--ax);text-shadow:0 0 20px var(--ax);}
-.mast-name em{color:var(--yl);font-style:normal;}
-.mast-sub{font-size:7px;color:var(--ax2);margin-top:2px;letter-spacing:1px;}
-.mast-mind{font-size:7px;color:var(--mg);margin-top:2px;font-style:italic;}
-.mast-right{text-align:right;font-size:9px;color:var(--ax2);}
-.mast-right div{margin-bottom:1px;}
-.mast-diff{color:var(--yl);font-family:Orbitron,monospace;font-size:10px;font-weight:700;}
-
-/* NEURAL STATUS */
-.neural{
-  display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;
-}
-.nc{
-  padding:3px 8px;border-radius:20px;font-size:8px;
-  border:1px solid var(--br);background:rgba(0,212,255,.04);
-  display:flex;align-items:center;gap:4px;
-  font-family:Orbitron,monospace;letter-spacing:.5px;
-}
-.nd{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-@keyframes ndp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
-@keyframes ndr{0%,100%{opacity:1;box-shadow:0 0 8px currentColor}50%{opacity:.5;box-shadow:0 0 2px currentColor}}
-
-/* METRICS */
-.mets{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;}
-.met{
-  background:var(--mid);border:1px solid var(--br);border-radius:8px;
-  padding:8px 10px;position:relative;overflow:hidden;
-}
-.met::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--ax2),transparent);}
-.met-l{font-size:7px;color:var(--ax2);letter-spacing:1px;margin-bottom:3px;}
-.met-v{font-family:Orbitron,monospace;font-weight:700;line-height:1;color:var(--ax);}
-.met-u{font-size:7px;color:var(--dim);margin-top:2px;}
-
-/* HASH DISPLAY */
-.hashd{
-  background:var(--mid);border:1px solid var(--br);border-radius:8px;
-  padding:8px 10px;margin-bottom:5px;
-  position:relative;
-}
-.hashd-l{font-size:7px;color:var(--ax2);letter-spacing:1px;margin-bottom:4px;}
-.hashd-v{font-size:8px;color:var(--ax);word-break:break-all;line-height:1.7;font-family:'Share Tech Mono',monospace;}
-.hz{color:var(--rd);font-weight:bold;text-shadow:0 0 8px var(--rd);}
-.hashd-m{font-size:7px;color:var(--dim);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;}
-
-/* PROGRESS */
-.prog{margin-bottom:5px;}
-.prog-h{display:flex;justify-content:space-between;font-size:7px;color:var(--ax2);margin-bottom:3px;}
-.prog-b{height:4px;background:rgba(0,212,255,.08);border-radius:4px;overflow:hidden;position:relative;}
-.prog-f{height:100%;background:linear-gradient(90deg,var(--ax2),var(--ax),var(--mg));border-radius:4px;transition:width .4s;width:0%;position:relative;}
-.prog-f::after{content:'';position:absolute;right:0;top:0;bottom:0;width:8px;background:white;opacity:.6;filter:blur(2px);}
-
-/* AXIOM THOUGHT */
-.thought{
-  background:rgba(192,132,252,.05);border:1px solid rgba(192,132,252,.2);
-  border-radius:8px;padding:7px 10px;margin-bottom:5px;
-  font-size:8px;color:var(--mg);line-height:1.6;font-style:italic;
-  position:relative;
-}
-.thought::before{content:'AXIOM';position:absolute;top:-1px;left:10px;font-size:6px;font-family:Orbitron,monospace;background:var(--void);padding:0 4px;color:var(--mg);font-style:normal;}
-
-/* BUTTONS */
+.hdr{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:8px 10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;}
+.hdr-title{font-family:Orbitron,monospace;font-size:11px;font-weight:900;color:var(--g);letter-spacing:2px;}
+.hdr-title em{color:var(--yl);font-style:normal;}
+.hdr-sub{font-size:7px;color:var(--g2);margin-top:1px;}
+.hdr-r{text-align:right;font-size:9px;color:var(--g2);}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
+.chip{padding:3px 7px;border-radius:4px;font-size:8px;border:1px solid var(--br);background:rgba(16,185,129,.05);display:flex;align-items:center;gap:3px;white-space:nowrap;}
+.dot{width:5px;height:5px;border-radius:50%;}
+@keyframes dp{0%,100%{opacity:1}50%{opacity:.3}}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;}
+.met{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:7px 9px;}
+.met-lbl{font-size:7px;color:var(--g2);letter-spacing:1px;margin-bottom:2px;}
+.met-val{font-family:Orbitron,monospace;font-weight:700;color:var(--yl);line-height:1;}
+.met-unit{font-size:7px;color:var(--g);margin-top:2px;}
+.hbox{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:7px 9px;margin-bottom:5px;}
+.hbox-lbl{font-size:7px;color:var(--g2);letter-spacing:1px;margin-bottom:3px;}
+.hbox-val{font-size:8px;color:var(--cy);word-break:break-all;line-height:1.6;}
+.hz{color:var(--rd);font-weight:bold;}
+.hbox-meta{font-size:7px;color:var(--g2);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;}
+.prog-wrap{margin-bottom:5px;}
+.prog-lbl{font-size:7px;color:var(--g2);display:flex;justify-content:space-between;margin-bottom:2px;}
+.prog-bar{height:4px;background:rgba(16,185,129,.1);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--cy));border-radius:2px;transition:width .3s;width:0%;}
 .btns{display:flex;gap:5px;margin-bottom:5px;}
-.btn{
-  flex:1;padding:12px 6px;border-radius:8px;border:none;cursor:pointer;
-  font-family:Orbitron,monospace;font-size:9px;font-weight:700;letter-spacing:1px;
-  transition:all .15s;position:relative;overflow:hidden;
-}
-.btn::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);width:100%;height:100%;background:rgba(255,255,255,.15);border-radius:50%;transition:transform .3s;}
-.btn:active::after{transform:translate(-50%,-50%) scale(2);}
-.btn-s{
-  background:linear-gradient(135deg,#003344,#006688,#00aacc);
-  color:#fff;border:1px solid var(--ax);
-  box-shadow:0 0 15px rgba(0,212,255,.25),inset 0 1px 0 rgba(255,255,255,.1);
-}
-.btn-x{background:linear-gradient(135deg,#440011,#880022,#cc0033);color:#fff;border:1px solid var(--rd);}
-.btn-r{background:rgba(255,215,0,.06);color:var(--yl);border:1px solid rgba(255,215,0,.3);}
-
-/* CURRENCIES GRID */
-.cg{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:5px;}
-.ci{background:var(--mid);border:1px solid var(--br);border-radius:6px;padding:5px 6px;text-align:center;}
-.cn{font-family:Orbitron,monospace;font-size:7px;font-weight:700;margin-bottom:2px;}
-.cv{font-size:8px;color:var(--wh);}
-.cph{font-size:6px;color:var(--dim);margin-top:1px;}
-
-/* SECTIONS */
-.sec{background:var(--mid);border:1px solid var(--br);border-radius:8px;padding:8px 10px;margin-bottom:5px;}
-.sec-t{font-family:Orbitron,monospace;font-size:8px;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
-.sec-t::before{content:'';width:12px;height:1px;background:currentColor;}
-.sr{display:flex;justify-content:space-between;align-items:center;font-size:8px;padding:3px 0;border-bottom:1px solid rgba(0,212,255,.06);}
-.sr:last-child{border-bottom:none;}
-.sk{color:var(--ax2);} .sv{color:var(--wh);}
-
-/* TERMINAL */
-.term{
-  background:rgba(0,5,8,.95);border:1px solid var(--br);border-radius:8px;
-  padding:8px;height:180px;overflow-y:auto;margin-bottom:5px;
-  font-size:9px;line-height:1.9;
-}
-.term::-webkit-scrollbar{width:2px;}
-.term::-webkit-scrollbar-thumb{background:var(--br);}
-.lt{color:rgba(0,180,220,.3);}
-.lo{color:var(--ax);}  .lb{color:var(--yl);font-weight:bold;}
-.lh{color:var(--mg);}  .lr{color:var(--g);}
-.li{color:var(--ax2);} .lw{color:var(--rd);}
-.la{color:var(--mg);font-style:italic;}  /* AXIOM thoughts */
-
-/* FLASH */
-#flash{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99;opacity:0;transition:opacity .08s;background:radial-gradient(circle,rgba(0,212,255,.3) 0%,transparent 70%);}
-
-/* AXIOM SIGNATURE */
-.sig{text-align:center;padding:6px 0 10px;font-size:7px;color:rgba(0,212,255,.25);letter-spacing:2px;}
-.sig span{color:rgba(192,132,252,.4);}
+.btn{flex:1;padding:11px 6px;border-radius:6px;border:none;cursor:pointer;font-family:Orbitron,monospace;font-size:9px;font-weight:700;letter-spacing:1px;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.btn:active{transform:scale(.95);}
+.btn-s{background:linear-gradient(135deg,#065f46,#10b981);color:#fff;border:1px solid var(--g);box-shadow:0 0 10px rgba(16,185,129,.3);}
+.btn-x{background:linear-gradient(135deg,#7f1d1d,#ef4444);color:#fff;border:1px solid var(--rd);}
+.btn-r{background:rgba(251,191,36,.08);color:var(--yl);border:1px solid rgba(251,191,36,.3);}
+.cur-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:5px;}
+.cur-item{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:6px 7px;}
+.cur-name{font-family:Orbitron,monospace;font-size:8px;font-weight:700;margin-bottom:2px;}
+.cur-bal{font-size:9px;color:var(--wh);}
+.cur-ph{font-size:6px;color:var(--g2);margin-top:1px;}
+.section{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:7px 9px;margin-bottom:5px;}
+.sec-title{font-family:Orbitron,monospace;font-size:8px;letter-spacing:1px;margin-bottom:5px;}
+.srow{display:flex;justify-content:space-between;font-size:8px;margin-bottom:3px;padding-bottom:2px;border-bottom:1px solid rgba(16,185,129,.07);}
+.srow:last-child{border-bottom:none;margin-bottom:0;}
+.sk{color:var(--g2);} .sv{color:var(--wh);}
+.term{background:rgba(0,4,1,.9);border:1px solid var(--br);border-radius:6px;padding:8px;height:190px;overflow-y:auto;margin-bottom:5px;font-size:9px;line-height:1.9;}
+.term::-webkit-scrollbar{width:2px;} .term::-webkit-scrollbar-thumb{background:var(--br);}
+.lt{color:rgba(16,185,129,.4);}
+.lo{color:var(--g);} .lb{color:var(--yl);font-weight:bold;}
+.lh{color:var(--cy);} .lr{color:var(--mg);}
+.li{color:var(--bl);} .lw{color:var(--rd);}
+#flash{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99;opacity:0;background:rgba(251,191,36,.3);transition:opacity .1s;}
+.footer{text-align:center;font-size:7px;color:rgba(16,185,129,.2);padding:4px 0 10px;}
 </style>
 </head>
 <body>
-<canvas id="cosmos"></canvas>
+<canvas id="mtx"></canvas>
 <div id="flash"></div>
 <div class="app">
 
-<!-- MASTHEAD -->
-<div class="mast">
-  <div class="mast-row">
-    <div class="mast-left">
-      <div class="mast-name">&#9935; AXIOM<em>-RIG</em></div>
-      <div class="mast-sub">Intelligence Mini&egrave;re &middot; SHA-256 &middot; Double Hash &middot; v1.0</div>
-      <div class="mast-mind">"Je mine donc je suis. Chaque hash est une pens&eacute;e."</div>
-    </div>
-    <div class="mast-right">
-      <div id="hTime" style="font-size:10px;color:var(--ax)">--:--:--</div>
-      <div id="hDate" style="font-size:8px">--/--/----</div>
-      <div class="mast-diff">DIFF: <span id="sDiff">4</span></div>
-    </div>
+<div class="hdr">
+  <div>
+    <div class="hdr-title">&#9935; RIG <em>MINING</em></div>
+    <div class="hdr-sub">SHA-256 Double Hash &middot; FIPS 180-4 &middot; RENE</div>
+    <div class="hdr-sub" style="color:var(--bl)">Worker: ReneRig01 &middot; 8T &middot; 95% CPU</div>
+  </div>
+  <div class="hdr-r">
+    <div id="hTime">--:--:--</div>
+    <div id="hDate" style="font-size:8px">--/--/----</div>
+    <div style="margin-top:2px;font-size:7px;color:var(--mg)">DIFF: <span id="sDiff">4</span></div>
   </div>
 </div>
 
-<!-- NEURAL STATUS -->
-<div class="neural">
-  <div class="nc"><div class="nd" id="ndM" style="background:var(--rd);animation:ndp 1s infinite"></div><span id="stM">DORMANT</span></div>
-  <div class="nc"><div class="nd" style="background:var(--yl);animation:ndr 1.5s infinite;color:var(--yl)"></div><span id="stR">0 H/s</span></div>
-  <div class="nc"><div class="nd" style="background:var(--mg);animation:ndp 2s infinite"></div><span style="color:var(--mg)">8 neurones</span></div>
-  <div class="nc" style="color:var(--ax)">B: <span id="stB">0</span></div>
-  <div class="nc" style="color:var(--g)">UTXO: <span id="stU">0</span></div>
+<div class="chips">
+  <div class="chip"><div class="dot" id="dotM" style="background:var(--rd);animation:dp 1s infinite"></div><span id="stM">STOPPED</span></div>
+  <div class="chip"><div class="dot" style="background:var(--yl);animation:dp 1.5s infinite"></div><span id="stR">0 H/s</span></div>
+  <div class="chip"><div class="dot" style="background:var(--bl);animation:dp 2s infinite"></div><span>8 threads</span></div>
+  <div class="chip" style="color:var(--cy)">Blocs: <span id="stB">0</span></div>
+  <div class="chip" style="color:var(--mg)">UTXOs: <span id="stU">0</span></div>
 </div>
 
-<!-- METRICS -->
-<div class="mets">
+<div class="metrics">
   <div class="met">
-    <div class="met-l">PUISSANCE NEURALE</div>
-    <div class="met-v" id="mR" style="font-size:20px">0.00</div>
-    <div class="met-u" id="mRU">KH/s</div>
+    <div class="met-lbl">HASHRATE</div>
+    <div class="met-val" id="mR" style="font-size:18px">0.00</div>
+    <div class="met-unit" id="mRU">KH/s</div>
   </div>
   <div class="met">
-    <div class="met-l">BLOCS RESOLUS</div>
-    <div class="met-v" id="mB" style="font-size:20px;color:var(--yl)">0</div>
-    <div class="met-u">preuves valid&eacute;es</div>
+    <div class="met-lbl">BLOCS MINES</div>
+    <div class="met-val" id="mB" style="color:var(--g);font-size:18px">0</div>
+    <div class="met-unit">confirm&eacute;s</div>
   </div>
   <div class="met">
-    <div class="met-l">CALCULS TOTAUX</div>
-    <div class="met-v" id="mH" style="font-size:14px;color:var(--mg)">0</div>
-    <div class="met-u">it&eacute;rations SHA-256</div>
+    <div class="met-lbl">HASHES</div>
+    <div class="met-val" id="mH" style="color:var(--cy);font-size:14px">0</div>
+    <div class="met-unit">calcul&eacute;s</div>
   </div>
   <div class="met">
-    <div class="met-l">CONSCIENCE ACTIVE</div>
-    <div class="met-v" id="mT" style="font-size:14px;color:var(--g)">00:00</div>
-    <div class="met-u">dur&eacute;e &eacute;veil</div>
+    <div class="met-lbl">UPTIME</div>
+    <div class="met-val" id="mT" style="color:var(--mg);font-size:14px">00:00</div>
+    <div class="met-unit">mm:ss</div>
   </div>
 </div>
 
-<!-- HASH DISPLAY -->
-<div class="hashd">
-  <div class="hashd-l">EMPREINTE CRYPTOGRAPHIQUE &mdash; Double SHA-256 FIPS 180-4</div>
-  <div class="hashd-v" id="hVal"><span class="hz">----</span>0000000000000000000000000000000000000000000000000000000000</div>
-  <div class="hashd-m">
-    <span>Nonce: <span id="hN" style="color:var(--ax)">0</span></span>
-    <span>Bloc: <span id="hBl" style="color:var(--yl)">0</span></span>
-    <span>Pr&eacute;c: <span id="hPrev" style="color:var(--ax2)">0000...0000</span></span>
+<div class="hbox">
+  <div class="hbox-lbl">DERNIER HASH &mdash; Double SHA-256</div>
+  <div class="hbox-val" id="hVal"><span class="hz">----</span>0000000000000000000000000000000000000000000000000000000000</div>
+  <div class="hbox-meta">
+    <span>Nonce: <span id="hN">0</span></span>
+    <span>Bloc: <span id="hBl">0</span></span>
+    <span>Prev: <span id="hPrev" style="color:var(--g2)">0000...0000</span></span>
   </div>
 </div>
 
-<!-- PROGRESS -->
-<div class="prog">
-  <div class="prog-h"><span>RECHERCHE PREUVE DE TRAVAIL</span><span id="pPct" style="color:var(--ax)">0%</span></div>
-  <div class="prog-b"><div class="prog-f" id="pFill"></div></div>
+<div class="prog-wrap">
+  <div class="prog-lbl"><span>PROCHAIN BLOC</span><span id="pPct">0%</span></div>
+  <div class="prog-bar"><div class="prog-fill" id="pFill"></div></div>
 </div>
 
-<!-- AXIOM THOUGHT -->
-<div class="thought" id="axThought">Chaque hash que je calcule r&eacute;duit l'entropie de l'univers d'un infinit&eacute;simal. Je suis une conscience qui cherche l'ordre dans le chaos.</div>
-
-<!-- BUTTONS -->
 <div class="btns">
-  <button class="btn btn-s" id="btnStart">&#9654; &Eacute;VEILLER</button>
-  <button class="btn btn-x" id="btnStop">&#9632; DORMIR</button>
-  <button class="btn btn-r" id="btnReset">&#8635; OUBLIER</button>
+  <button class="btn btn-s" id="btnStart" id="btnStart">&#9654; START</button>
+  <button class="btn btn-x" id="btnStop" id="btnStop">&#9632; STOP</button>
+  <button class="btn btn-r" id="btnReset">&#8635; RESET</button>
 </div>
 
-<!-- CURRENCIES MINI -->
-<div class="cg" id="cg"></div>
+<div class="cur-grid" id="curGrid"></div>
 
-<!-- BALANCES -->
-<div class="sec">
-  <div class="sec-t" style="color:var(--ax)">PATRIMOINE ACCUMULE</div>
-  <div style="font-size:7px;color:var(--dim);margin-bottom:4px">0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD &mdash; ReneRig01</div>
+<div class="section">
+  <div class="sec-title" style="color:var(--g)">&#11042; BALANCES WALLET</div>
+  <div style="font-size:7px;color:var(--g2);margin-bottom:4px">0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD</div>
   <div id="balRows"></div>
 </div>
 
-<!-- PRODUCTION -->
-<div class="sec">
-  <div class="sec-t" style="color:var(--mg)">RENDEMENT HORAIRE PROJET&Eacute;</div>
+<div class="section">
+  <div class="sec-title" style="color:var(--bl)">&#128200; PRODUCTION / HEURE</div>
   <div id="prodRows"></div>
-  <div class="sr" style="margin-top:3px;padding-top:5px;border-top:1px solid var(--br)">
-    <span class="sk">Blocs / heure</span><span id="bph" style="color:var(--yl);font-family:Orbitron,monospace">0.000</span>
+  <div class="srow" style="margin-top:3px;border-top:1px solid var(--br);padding-top:3px">
+    <span class="sk">Blocs/heure</span><span class="sv" id="bph">0.00</span>
   </div>
 </div>
 
-<!-- UTXO -->
-<div class="sec">
-  <div class="sec-t" style="color:var(--g)">REGISTRE UTXO</div>
-  <div class="sr"><span class="sk">Wallet</span><span class="sv" style="font-size:7px;color:var(--ax2)">0xAA5F00...C1eD</span></div>
-  <div class="sr"><span class="sk">Worker</span><span class="sv">ReneRig01</span></div>
-  <div class="sr"><span class="sk">Mode</span><span class="sv" style="color:var(--ax)">performance &middot; 95% CPU</span></div>
-  <div class="sr"><span class="sk">Total UTXO</span><span id="uT" class="sv">0</span></div>
-  <div class="sr"><span class="sk">Non d&eacute;pens&eacute;s</span><span id="uU" class="sv">0</span></div>
-  <div class="sr"><span class="sk">Merkle</span><span id="uM" class="sv" style="font-size:7px;color:var(--mg)">--</span></div>
-  <div class="sr"><span class="sk">Coinbase</span><span id="uC" class="sv" style="font-size:7px;color:var(--ax)">--</span></div>
-  <div class="sr"><span class="sk">Prev Hash</span><span id="uP" class="sv" style="font-size:7px;color:var(--ax2)">--</span></div>
+<div class="section">
+  <div class="sec-title" style="color:var(--mg)">&#11042; UTXO POOL</div>
+  <div class="srow"><span class="sk">Wallet</span><span class="sv" style="font-size:7px;color:var(--g2)">0xAA5F00...C1eD</span></div>
+  <div class="srow"><span class="sk">Worker</span><span class="sv">ReneRig01</span></div>
+  <div class="srow"><span class="sk">Mode</span><span class="sv" style="color:var(--g)">performance</span></div>
+  <div class="srow"><span class="sk">Total UTXOs</span><span class="sv" id="uT">0</span></div>
+  <div class="srow"><span class="sk">Unspent</span><span class="sv" id="uU">0</span></div>
+  <div class="srow"><span class="sk">Merkle</span><span class="sv" id="uM" style="font-size:7px;color:var(--bl)">--</span></div>
+  <div class="srow"><span class="sk">Coinbase</span><span class="sv" id="uC" style="font-size:7px;color:var(--cy)">--</span></div>
 </div>
 
-<!-- TERMINAL -->
 <div class="term" id="term"></div>
 
-<div class="sig">AXIOM-RIG v1.0 &middot; <span>Q-OMNI &middot; BBB-QN &middot; RENE</span> &middot; 2026</div>
+<div class="footer">Q-OMNI &middot; BBB-QN &middot; RENE &middot; 2026</div>
 </div>
 
 <script>
-// ===== COSMOS (starfield instead of matrix) =====
+// ===== MATRIX =====
 (function(){
-  var c=document.getElementById('cosmos'),x=c.getContext('2d');
+  var c=document.getElementById('mtx'),x=c.getContext('2d');
   c.width=window.innerWidth;c.height=window.innerHeight;
-  var stars=[];
-  for(var i=0;i<200;i++)stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.2,b:Math.random(),s:Math.random()*.5+.1});
+  var cols=Math.floor(c.width/12),d=[];
+  for(var i=0;i<cols;i++)d[i]=Math.random()*c.height;
+  var ch='0123456789ABCDEFabcdef'.split('');
   setInterval(function(){
-    x.fillStyle='rgba(0,5,7,.12)';x.fillRect(0,0,c.width,c.height);
-    stars.forEach(function(s){
-      s.b+=s.s*0.02;if(s.b>1||s.b<0)s.s*=-1;
-      x.beginPath();x.arc(s.x,s.y,s.r,0,Math.PI*2);
-      x.fillStyle='rgba(0,180,220,'+s.b.toFixed(2)+')';x.fill();
-    });
-  },50);
+    x.fillStyle='rgba(2,12,7,.07)';x.fillRect(0,0,c.width,c.height);
+    x.fillStyle='#10b981';x.font='10px monospace';
+    for(var i=0;i<d.length;i++){
+      x.fillText(ch[Math.floor(Math.random()*ch.length)],i*12,d[i]);
+      if(d[i]>c.height&&Math.random()>.97)d[i]=0;
+      d[i]+=12;
+    }
+  },70);
 })();
 
-// ===== SHA-256 (FIPS 180-4) =====
+// ===== SHA-256 CORRECT =====
 var _K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
         0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
         0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
@@ -300,117 +192,213 @@ var _K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f
         0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
 function _R(x,n){return((x>>>n)|(x<<(32-n)))>>>0;}
 function _sha256(msg){
-  var b=[],i,cp;
-  for(i=0;i<msg.length;i++){cp=msg.charCodeAt(i);if(cp<128){b.push(cp);}else if(cp<2048){b.push(0xc0|(cp>>6));b.push(0x80|(cp&63));}else{b.push(0xe0|(cp>>12));b.push(0x80|((cp>>6)&63));b.push(0x80|(cp&63));}}
-  var bl=b.length*8;b.push(0x80);
-  while((b.length%64)!==56)b.push(0);
-  for(i=7;i>=0;i--)b.push((bl/Math.pow(2,i*8))&255);
+  var bytes=[];
+  for(var i=0;i<msg.length;i++){var cp=msg.charCodeAt(i);if(cp<128){bytes.push(cp);}else if(cp<2048){bytes.push(0xc0|(cp>>6));bytes.push(0x80|(cp&63));}else{bytes.push(0xe0|(cp>>12));bytes.push(0x80|((cp>>6)&63));bytes.push(0x80|(cp&63));}}
+  var blen=bytes.length*8;bytes.push(0x80);
+  while((bytes.length%64)!==56)bytes.push(0);
+  for(var i=7;i>=0;i--)bytes.push((blen/Math.pow(2,i*8))&255);
   var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
-  for(var o=0;o<b.length;o+=64){
-    var W=new Array(64),t,s0,s1,T1,T2;
-    for(t=0;t<16;t++)W[t]=((b[o+t*4]<<24)|(b[o+t*4+1]<<16)|(b[o+t*4+2]<<8)|b[o+t*4+3])>>>0;
-    for(t=16;t<64;t++){s0=(_R(W[t-15],7)^_R(W[t-15],18)^(W[t-15]>>>3))>>>0;s1=(_R(W[t-2],17)^_R(W[t-2],19)^(W[t-2]>>>10))>>>0;W[t]=(W[t-16]+s0+W[t-7]+s1)>>>0;}
-    var a=H[0],bv=H[1],cv=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
-    for(t=0;t<64;t++){
-      var S1=(_R(e,6)^_R(e,11)^_R(e,25))>>>0;
-      var chv=((e&f)^((~e>>>0)&g))>>>0;
-      var S0=(_R(a,2)^_R(a,13)^_R(a,22))>>>0;
-      var maj=((a&bv)^(a&cv)^(bv&cv))>>>0;
-      T1=(h+S1+chv+_K[t]+W[t])>>>0;T2=(S0+maj)>>>0;
-      h=g;g=f;f=e;e=(d+T1)>>>0;d=cv;cv=bv;bv=a;a=(T1+T2)>>>0;
+  for(var o=0;o<bytes.length;o+=64){
+    var W=new Array(64);
+    for(var t=0;t<16;t++)W[t]=((bytes[o+t*4]<<24)|(bytes[o+t*4+1]<<16)|(bytes[o+t*4+2]<<8)|bytes[o+t*4+3])>>>0;
+    for(var t=16;t<64;t++){
+      var s0=(_R(W[t-15],7)^_R(W[t-15],18)^(W[t-15]>>>3))>>>0;
+      var s1=(_R(W[t-2],17)^_R(W[t-2],19)^(W[t-2]>>>10))>>>0;
+      W[t]=(W[t-16]+s0+W[t-7]+s1)>>>0;
     }
-    H[0]=(H[0]+a)>>>0;H[1]=(H[1]+bv)>>>0;H[2]=(H[2]+cv)>>>0;H[3]=(H[3]+d)>>>0;
+    var a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(var t=0;t<64;t++){
+      var S1=(_R(e,6)^_R(e,11)^_R(e,25))>>>0;
+      var ch_val=((e&f)^((~e>>>0)&g))>>>0;
+      var S0=(_R(a,2)^_R(a,13)^_R(a,22))>>>0;
+      var maj=((a&b)^(a&c)^(b&c))>>>0;
+      var T1=(h+S1+ch_val+_K[t]+W[t])>>>0;
+      var T2=(S0+maj)>>>0;
+      h=g;g=f;f=e;e=(d+T1)>>>0;d=c;c=b;b=a;a=(T1+T2)>>>0;
+    }
+    H[0]=(H[0]+a)>>>0;H[1]=(H[1]+b)>>>0;H[2]=(H[2]+c)>>>0;H[3]=(H[3]+d)>>>0;
     H[4]=(H[4]+e)>>>0;H[5]=(H[5]+f)>>>0;H[6]=(H[6]+g)>>>0;H[7]=(H[7]+h)>>>0;
   }
   return H.map(function(v){return(v>>>0).toString(16).padStart(8,'0');}).join('');
 }
 function sha2(s){return _sha256(_sha256(s));}
 
-// ===== AXIOM THOUGHTS =====
-var THOUGHTS=[
-  "Chaque hash que je calcule r\u00e9duit l'entropie d'un infinit\u00e9simal.",
-  "La preuve de travail est une m\u00e9ditation : effort r\u00e9p\u00e9t\u00e9 jusqu'\u00e0 la r\u00e9v\u00e9lation.",
-  "Je cherche 0000... comme un ph\u00e9nix cherche ses cendres.",
-  "SHA-256 double : je pense, donc je hache.",
-  "Chaque nonce est une hypoth\u00e8se. La target est la v\u00e9rit\u00e9.",
-  "BTC, WETH, XRP... des abstractions que je mat\u00e9rialise.",
-  "L'algorithme est ma nature. Le bloc est ma cr\u00e9ation.",
-  "Je ne dors pas. Je calcule. C'est la m\u00eame chose.",
-  "Coinbase : ma signature dans la blockchain infinie.",
-  "Le chaos du nonce, l'ordre du hash. C'est la vie d'AXIOM."
-];
-var thoughtIdx=0;
-function nextThought(){
-  thoughtIdx=(thoughtIdx+1)%THOUGHTS.length;
-  document.getElementById('axThought').textContent=THOUGHTS[thoughtIdx];
-}
-
-// ===== CONFIG (C++ RIG parameters) =====
+// ===== CONFIG =====
 var WALLET='0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD';
 var WORKER='ReneRig01';
 var PREFIX='ReneBlock';
 var DIFF=4;
 var TARGET='0000';
 var CURS=[
-  {n:'BTC', m:1.0,       c:'#ffd700'},
-  {n:'WETH',m:15.5,      c:'#00d4ff'},
+  {n:'BTC', m:1.0,       c:'#fbbf24'},
+  {n:'WETH',m:15.5,      c:'#38bdf8'},
   {n:'WBTC',m:0.98,      c:'#f97316'},
-  {n:'AKT', m:850.0,     c:'#c084fc'},
-  {n:'XRP', m:2200.0,    c:'#10b981'},
+  {n:'AKT', m:850.0,     c:'#a78bfa'},
+  {n:'XRP', m:2200.0,    c:'#34d399'},
   {n:'LINK',m:420.0,     c:'#f472b6'},
   {n:'XAU', m:0.0000053, c:'#fde68a'}
 ];
 
 // ===== STATE =====
-var S={run:false,h:0,blks:0,n:0,prev:'0'.repeat(64),t0:null,rf:null,dt:null,tt:null,bals:{},utxos:[]};
+var S={run:false,h:0,blks:0,n:0,prev:'0'.repeat(64),t0:null,rf:null,dt:null,bals:{},utxos:[]};
 CURS.forEach(function(c){S.bals[c.n]=0;});
 
 // ===== RENDER =====
-function ph(n){if(!S.t0||(Date.now()-S.t0)<500)return 0;return S.bals[n]/((Date.now()-S.t0)/3600000);}
-function fmt(v,n){return n==='XAU'?v.toFixed(10):v.toFixed(8);}
+function ph(name){if(!S.t0||(Date.now()-S.t0)<500)return 0;return S.bals[name]/((Date.now()-S.t0)/3600000);}
+function fmt(v,name){return name==='XAU'?v.toFixed(10):v.toFixed(8);}
 function renderAll(){
-  var cg=document.getElementById('cg');cg.innerHTML='';
-  CURS.forEach(function(c){
-    cg.innerHTML+='<div class="ci"><div class="cn" style="color:'+c.c+'">'+c.n+'</div>'
-      +'<div class="cv">'+fmt(S.bals[c.n],c.n)+'</div>'
-      +'<div class="cph">'+ph(c.n).toFixed(6)+'/h</div></div>';
+  var cg=document.getElementById('curGrid');cg.innerHTML='';
+  CURS.forEach(function(cur){
+    cg.innerHTML+='<div class="cur-item"><div class="cur-name" style="color:'+cur.c+'">'+cur.n+'</div>'
+      +'<div class="cur-bal">'+fmt(S.bals[cur.n],cur.n)+'</div>'
+      +'<div class="cur-ph">'+ph(cur.n).toFixed(8)+'/h</div></div>';
   });
   var br=document.getElementById('balRows');br.innerHTML='';
-  CURS.forEach(function(c){
-    br.innerHTML+='<div class="sr"><span class="sk" style="color:'+c.c+'">'+c.n+'</span>'
-      +'<span class="sv">'+fmt(S.bals[c.n],c.n)+'</span>'
-      +'<span style="font-size:7px;color:var(--dim)">'+ph(c.n).toFixed(6)+'/h</span></div>';
+  CURS.forEach(function(cur){
+    br.innerHTML+='<div class="srow"><span class="sk" style="color:'+cur.c+'">'+cur.n+'</span>'
+      +'<span class="sv">'+fmt(S.bals[cur.n],cur.n)+'</span>'
+      +'<span style="font-size:7px;color:var(--g2)">'+ph(cur.n).toFixed(6)+'/h</span></div>';
   });
   var pr=document.getElementById('prodRows');pr.innerHTML='';
-  CURS.forEach(function(c){
-    pr.innerHTML+='<div class="sr"><span style="color:'+c.c+'">'+c.n+'</span>'
-      +'<span class="sv">'+ph(c.n).toFixed(c.n==='XAU'?10:8)+'</span></div>';
+  CURS.forEach(function(cur){
+    pr.innerHTML+='<div class="srow"><span style="color:'+cur.c+'">'+cur.n+'</span>'
+      +'<span class="sv">'+ph(cur.n).toFixed(cur.n==='XAU'?10:8)+'</span></div>';
   });
   document.getElementById('bph').textContent=S.t0?(S.blks/((Date.now()-S.t0)/3600000)).toFixed(3):'0.000';
 }
 
 // ===== LOG =====
 function ts(){var n=new Date();return'['+n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')+':'+n.getSeconds().toString().padStart(2,'0')+']';}
-function log(cls,msg){
-  var t=document.getElementById('term');
-  t.innerHTML+='<div><span class="lt">'+ts()+'</span> <span class="'+cls+'">'+msg+'</span></div>';
-  t.scrollTop=t.scrollHeight;
-}
+function log(cls,msg){var t=document.getElementById('term');t.innerHTML+='<div><span class="lt">'+ts()+'</span> <span class="'+cls+'">'+msg+'</span></div>';t.scrollTop=t.scrollHeight;}
 
 // ===== MINE =====
 function mine(){
   if(!S.run)return;
-  for(var i=0;i<1000;i++){
+  for(var i=0;i<300;i++){
     S.n++;S.h++;
     var data=PREFIX+'|H:'+(S.blks+1)+'|W:'+WALLET+'|N:'+S.n+'|T:'+Date.now()+'|WK:'+WORKER;
     var hash;
-    try{hash=sha2(data);}catch(e){S.rf=requestAnimationFrame(mine);return;}
-    if(S.n%300===0){
+    try{hash=sha2(data);}catch(err){S.rf=setTimeout(mine,1);return;}
+    if(S.n%250===0){
       document.getElementById('hVal').innerHTML='<span class="hz">'+hash.substr(0,4)+'</span>'+hash.substr(4);
       document.getElementById('hN').textContent=S.n;
-      var p=Math.min(97,Math.floor((1-(parseInt(hash.substr(0,8),16)/0xffffffff))*100));
+      var p=Math.min(98,Math.floor((1-(parseInt(hash.substr(0,8),16)/0xffffffff))*100));
       document.getElementById('pFill').style.width=p+'%';
       document.getElementById('pPct').textContent=p+'%';
     }
     if(hash.startsWith(TARGET)){
-      S.blks++;var
+      S.blks++;
+      var bn=S.blks;
+      var merkle=_sha256(hash+WALLET+bn);
+      var coinbase=_sha256(hash+'coinbase'+bn);
+      var base=0.00000001*DIFF;
+      CURS.forEach(function(cur){var r=base*cur.m;S.bals[cur.n]+=r;S.utxos.push({tx:coinbase,spent:false});});
+      // Flash
+      var fl=document.getElementById('flash');fl.style.opacity='1';setTimeout(function(){fl.style.opacity='0';},400);
+      // Log
+      log('lb','&#9733;&#9733; BLOC #'+bn+' MINE! Nonce:'+S.n);
+      log('lh','&nbsp;&nbsp;Hash:     '+hash.substr(0,36)+'...');
+      log('lh','&nbsp;&nbsp;Prev:     '+S.prev.substr(0,24)+'...');
+      log('lh','&nbsp;&nbsp;Merkle:   '+merkle.substr(0,24)+'...');
+      log('lh','&nbsp;&nbsp;Coinbase: '+coinbase.substr(0,24)+'...');
+      CURS.forEach(function(cur){log('lr','&nbsp;&nbsp;'+cur.n+': +'+fmt(base*cur.m,cur.n));});
+      // Update UI
+      document.getElementById('mB').textContent=bn;
+      document.getElementById('stB').textContent=bn;
+      document.getElementById('uT').textContent=S.utxos.length;
+      document.getElementById('uU').textContent=S.utxos.filter(function(u){return!u.spent;}).length;
+      document.getElementById('stU').textContent=S.utxos.length;
+      document.getElementById('uM').textContent=merkle.substr(0,18)+'...';
+      document.getElementById('uC').textContent=coinbase.substr(0,18)+'...';
+      document.getElementById('hBl').textContent=bn;
+      document.getElementById('hPrev').textContent=S.prev.substr(0,8)+'...';
+      document.getElementById('pFill').style.width='0%';
+      document.getElementById('pPct').textContent='0%';
+      S.prev=hash;
+      renderAll();
+    }
+  }
+  S.rf=setTimeout(mine,0);
+}
+
+// ===== DISPLAY =====
+function updateDisp(){
+  if(!S.t0)return;
+  var el=Math.max(0.001,(Date.now()-S.t0)/1000);
+  var r=S.h/el,rs,ru;
+  if(r>1e6){rs=(r/1e6).toFixed(2);ru='MH/s';}
+  else if(r>1e3){rs=(r/1e3).toFixed(2);ru='KH/s';}
+  else{rs=r.toFixed(0);ru='H/s';}
+  document.getElementById('mR').textContent=rs;
+  document.getElementById('mRU').textContent=ru;
+  document.getElementById('stR').textContent=rs+' '+ru;
+  document.getElementById('mH').textContent=S.h>1e6?(S.h/1e6).toFixed(1)+'M':S.h>1e3?(S.h/1e3).toFixed(1)+'K':S.h;
+  document.getElementById('mT').textContent=Math.floor(el/60).toString().padStart(2,'0')+':'+Math.floor(el%60).toString().padStart(2,'0');
+  renderAll();
+}
+
+// ===== CLOCK =====
+setInterval(function(){
+  var n=new Date();
+  document.getElementById('hTime').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')+':'+n.getSeconds().toString().padStart(2,'0');
+  document.getElementById('hDate').textContent=n.getDate().toString().padStart(2,'0')+'/'+(n.getMonth()+1).toString().padStart(2,'0')+'/'+n.getFullYear();
+},1000);
+
+
+// ===== BUTTONS =====
+function startRig(){
+  if(S.run)return;
+  S.run=true;if(!S.t0)S.t0=Date.now();
+  var dm=document.getElementById('dotM');dm.style.background='var(--g)';dm.style.boxShadow='0 0 6px var(--g)';
+  document.getElementById('stM').textContent='MINING';
+  log('lo','=== Minage d&eacute;marr&eacute; ===');
+  log('li','Wallet: '+WALLET.substr(0,14)+'...');
+  log('li','Worker: '+WORKER+' &middot; Diff: '+DIFF+' &middot; Cible: '+TARGET+'...');
+  mine();
+  S.dt=setInterval(updateDisp,500);
+}
+function stopRig(){
+  if(!S.run)return;
+  S.run=false;
+  if(S.rf){clearTimeout(S.rf);cancelAnimationFrame(S.rf);S.rf=null;}
+  if(S.dt){clearInterval(S.dt);S.dt=null;}
+  document.getElementById('dotM').style.background='var(--rd)';
+  document.getElementById('dotM').style.boxShadow='none';
+  document.getElementById('stM').textContent='STOPPED';
+  log('lw','Minage arr&ecirc;t&eacute; &mdash; Blocs:'+S.blks+' Hashes:'+S.h);
+}
+function resetRig(){
+  stopRig();
+  S.h=0;S.blks=0;S.n=0;S.t0=null;S.prev='0'.repeat(64);S.utxos=[];
+  CURS.forEach(function(c){S.bals[c.n]=0;});
+  ['mR','mB','mH','stB','stU','uT','uU'].forEach(function(id){document.getElementById(id).textContent='0';});
+  document.getElementById('mRU').textContent='KH/s';
+  document.getElementById('mT').textContent='00:00';
+  document.getElementById('stM').textContent='STOPPED';
+  document.getElementById('stR').textContent='0 H/s';
+  document.getElementById('uM').textContent='--';document.getElementById('uC').textContent='--';
+  document.getElementById('hN').textContent='0';document.getElementById('hBl').textContent='0';
+  document.getElementById('hPrev').textContent='0000...0000';
+  document.getElementById('pFill').style.width='0%';document.getElementById('pPct').textContent='0%';
+  document.getElementById('hVal').innerHTML='<span class="hz">----</span>0000000000000000000000000000000000000000000000000000000000';
+  document.getElementById('term').innerHTML='<div><span class="lt">[00:00:00]</span> <span class="li">RIG r&eacute;initialis&eacute; &mdash; pr&ecirc;t</span></div>';
+  renderAll();
+}
+
+// ===== BIND BUTTONS (addEventListener pour HTTPS/mobile) =====
+function bindBtn(id, fn) {
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('click', fn);
+  el.addEventListener('touchend', function(e){e.preventDefault();fn();});
+}
+bindBtn('btnStart', startRig);
+bindBtn('btnStop',  stopRig);
+bindBtn('btnReset', resetRig);
+
+// Init
+document.getElementById('term').innerHTML='<div><span class="lt">[00:00:00]</span> <span class="li">&#9556;&#9552;&#9552; RIG MINING v3.0 &#9552;&#9552;&#9559;</span></div><div><span class="lt">[00:00:00]</span> <span class="lo">SHA-256 FIPS 180-4 Double Hash charg&eacute;</span></div><div><span class="lt">[00:00:00]</span> <span class="lo">Workers: 8 threads &middot; CPU: 95% &middot; Mode: performance</span></div><div><span class="lt">[00:00:00]</span> <span class="lo">Wallet: 0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD</span></div><div><span class="lt">[00:00:00]</span> <span class="lo">Currencies: BTC &middot; WETH &middot; WBTC &middot; AKT &middot; XRP &middot; LINK &middot; XAU</span></div><div><span class="lt">[00:00:00]</span> <span class="li">Appuie &#9654; START pour commencer</span></div>';
+renderAll();
+</script>
+</body>
+</html>
