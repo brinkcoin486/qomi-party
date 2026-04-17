@@ -1,183 +1,9 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>BBB-QN RIG v4.0 — BRIDGE MULTI</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-:root{--g:#10b981;--g2:#34d399;--bl:#38bdf8;--yl:#fbbf24;--rd:#ef4444;--mg:#a78bfa;--cy:#22d3ee;--wh:#e2e8f0;--bg:#020c07;--bg2:rgba(4,20,9,.95);--br:rgba(16,185,129,.22);}
-body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace;font-size:11px;min-height:100vh;}
-#mtx{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.06;pointer-events:none;}
-.app{position:relative;z-index:2;padding:6px;max-width:520px;margin:0 auto;}
-
-/* HEADER */
-.hdr{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:9px 11px;margin-bottom:5px;position:relative;overflow:hidden;}
-.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent);}
-.hdr-row{display:flex;justify-content:space-between;align-items:flex-start;}
-.hdr-title{font-family:Orbitron,monospace;font-size:13px;font-weight:900;letter-spacing:2px;}
-.hdr-title em{color:var(--yl);font-style:normal;}
-.hdr-sub{font-size:7px;color:var(--g2);margin-top:1px;letter-spacing:.5px;}
-.hdr-r{text-align:right;font-size:9px;color:var(--g2);}
-
-/* HARDWARE BADGE */
-.hw{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
-.hwb{padding:3px 7px;border-radius:4px;font-size:8px;border:1px solid var(--br);background:rgba(16,185,129,.04);color:var(--bl);white-space:nowrap;}
-
-/* CHIPS */
-.chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
-.chip{padding:3px 7px;border-radius:4px;font-size:8px;border:1px solid var(--br);background:rgba(16,185,129,.04);display:flex;align-items:center;gap:3px;white-space:nowrap;}
-.dot{width:5px;height:5px;border-radius:50%;}
-@keyframes dp{0%,100%{opacity:1}50%{opacity:.25}}
-
-/* METRICS 2x2 */
-.mets{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;}
-.met{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:7px 9px;}
-.ml{font-size:7px;color:var(--g2);letter-spacing:1px;margin-bottom:2px;}
-.mv{font-family:Orbitron,monospace;font-weight:700;color:var(--yl);line-height:1;}
-.mu{font-size:7px;color:var(--g);margin-top:2px;}
-
-/* HASH BOX */
-.hbox{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:7px 9px;margin-bottom:5px;}
-.hl{font-size:7px;color:var(--g2);letter-spacing:1px;margin-bottom:3px;}
-.hv{font-size:8px;color:var(--cy);word-break:break-all;line-height:1.7;}
-.hz{color:var(--rd);font-weight:bold;}
-.hm{font-size:7px;color:var(--g2);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;}
-
-/* PROGRESS */
-.prog{margin-bottom:5px;}
-.ph{display:flex;justify-content:space-between;font-size:7px;color:var(--g2);margin-bottom:2px;}
-.pb{height:4px;background:rgba(16,185,129,.08);border-radius:3px;overflow:hidden;}
-.pf{height:100%;background:linear-gradient(90deg,var(--g),var(--cy));border-radius:3px;transition:width .35s;width:0%;}
-
-/* BTNS */
-.btns{display:flex;gap:5px;margin-bottom:5px;}
-.btn{flex:1;padding:11px;border-radius:7px;border:none;cursor:pointer;font-family:Orbitron,monospace;font-size:9px;font-weight:700;letter-spacing:1px;transition:all .15s;}
-.btn:active{transform:scale(.96);}
-.bs{background:linear-gradient(135deg,#065f46,#10b981);color:#fff;border:1px solid var(--g);box-shadow:0 0 12px rgba(16,185,129,.25);}
-.bx{background:linear-gradient(135deg,#7f1d1d,#ef4444);color:#fff;border:1px solid var(--rd);}
-.br{background:rgba(251,191,36,.07);color:var(--yl);border:1px solid rgba(251,191,36,.3);}
-
-/* CURRENCIES */
-.cg{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:5px;}
-.ci{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:5px 6px;text-align:center;}
-.cn{font-family:Orbitron,monospace;font-size:7px;font-weight:700;margin-bottom:2px;}
-.cv{font-size:8px;color:var(--wh);}
-.cph{font-size:6px;color:var(--g2);margin-top:1px;}
-
-/* POOL SECTION */
-.pools{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:7px 9px;margin-bottom:5px;}
-.pt{font-family:Orbitron,monospace;font-size:8px;color:var(--cy);margin-bottom:5px;letter-spacing:1px;}
-.pool-active{padding:5px 7px;border-radius:5px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.3);font-size:8px;color:var(--cy);margin-bottom:4px;word-break:break-all;}
-.pool-list{max-height:80px;overflow-y:auto;font-size:7px;color:var(--g2);}
-.pool-item{padding:1px 0;border-bottom:1px solid rgba(16,185,129,.06);}
-.pool-item.active-pool{color:var(--yl);}
-.pool-list::-webkit-scrollbar{width:2px;}
-.pool-list::-webkit-scrollbar-thumb{background:var(--br);}
-
-/* BRIDGE */
-.bridge{background:var(--bg2);border:1px solid rgba(167,139,250,.3);border-radius:7px;padding:7px 9px;margin-bottom:5px;}
-.bt{font-family:Orbitron,monospace;font-size:8px;color:var(--mg);margin-bottom:5px;letter-spacing:1px;}
-.bridge-net{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:9px;}
-.net-badge{padding:2px 8px;border-radius:12px;font-family:Orbitron,monospace;font-size:8px;font-weight:700;}
-.net-main{background:rgba(16,185,129,.15);color:var(--g);border:1px solid var(--g);}
-.net-test{background:rgba(251,191,36,.15);color:var(--yl);border:1px solid var(--yl);}
-.bridge-cycle{font-size:8px;color:var(--g2);margin-bottom:4px;}
-.bridge-bals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;}
-.bb{background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);border-radius:5px;padding:4px 6px;text-align:center;}
-.bbn{font-size:7px;color:var(--mg);}
-.bbv{font-size:8px;color:var(--wh);margin-top:1px;}
-
-/* SECTIONS */
-.sec{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:7px 9px;margin-bottom:5px;}
-.st{font-family:Orbitron,monospace;font-size:8px;letter-spacing:1px;margin-bottom:5px;}
-.sr{display:flex;justify-content:space-between;font-size:8px;padding:2px 0;border-bottom:1px solid rgba(16,185,129,.07);}
-.sr:last-child{border-bottom:none;}
-.sk{color:var(--g2);} .sv{color:var(--wh);}
-
-/* TERMINAL */
-.term{background:rgba(0,4,1,.92);border:1px solid var(--br);border-radius:7px;padding:8px;height:185px;overflow-y:auto;margin-bottom:5px;font-size:9px;line-height:1.9;}
-.term::-webkit-scrollbar{width:2px;} .term::-webkit-scrollbar-thumb{background:var(--br);}
-.lt{color:rgba(16,185,129,.35);}
-.lo{color:var(--g);} .lb{color:var(--yl);font-weight:bold;}
-.lh{color:var(--cy);} .lr{color:var(--mg);}
-.li{color:var(--bl);} .lw{color:var(--rd);}
-.lbr{color:var(--mg);font-style:italic;}
-
-#flash{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99;opacity:0;transition:opacity .08s;background:rgba(251,191,36,.15);}
-.footer{text-align:center;font-size:7px;color:rgba(16,185,129,.2);padding:4px 0 10px;letter-spacing:1px;}
-</style>
-</head>
-<body>
-<canvas id="mtx"></canvas>
-<div id="flash"></div>
-<div class="app">
-
-<!-- HEADER -->
-<div class="hdr">
-  <div class="hdr-row">
-    <div>
-      <div class="hdr-title">&#9935; BBB-QN <em>RIG v4.0</em></div>
-      <div class="hdr-sub">SHA-256 Double Hash &middot; FIPS 180-4 &middot; Bridge Multit&acirc;che</div>
-      <div class="hdr-sub" style="color:var(--mg)">Pool Rotation &middot; mainnet/testnet &middot; 32T</div>
-    </div>
-    <div class="hdr-r">
-      <div id="hTime" style="color:var(--g);font-size:10px">--:--:--</div>
-      <div id="hDate" style="font-size:8px">--/--/----</div>
-      <div style="font-size:8px;color:var(--yl);margin-top:1px">DIFF: <span id="sDiff">4</span></div>
-    </div>
-  </div>
-</div>
-
-<!-- HARDWARE -->
-<div class="hw">
-  <div class="hwb">CPU: AMD Ryzen 9 9950X3D 16C/32T</div>
-  <div class="hwb">GPU: RTX 4080 SUPRIM X</div>
-  <div class="hwb">0.85V</div>
-  <div class="hwb">192 GB RAM</div>
-</div>
-
-<!-- STATUS CHIPS -->
-<div class="chips">
-  <div class="chip"><div class="dot" id="dotM" style="background:var(--rd);animation:dp 1s infinite"></div><span id="stM">STOPPED</span></div>
-  <div class="chip"><div class="dot" style="background:var(--yl);animation:dp 1.5s infinite"></div><span id="stR">0 H/s</span></div>
-  <div class="chip"><div class="dot" style="background:var(--bl);animation:dp 2s infinite"></div><span>32 threads</span></div>
-  <div class="chip" style="color:var(--cy)">B: <span id="stB">0</span></div>
-  <div class="chip" style="color:var(--g)">UTXO: <span id="stU">0</span></div>
-  <div class="chip" style="color:var(--mg)" id="stNet">mainnet</div>
-</div>
-
-<!-- METRICS -->
-<div class="mets">
-  <div class="met"><div class="ml">HASHRATE</div><div class="mv" id="mR" style="font-size:20px">0.00</div><div class="mu" id="mRU">KH/s</div></div>
-  <div class="met"><div class="ml">BLOCS MINES</div><div class="mv" id="mB" style="color:var(--g);font-size:20px">0</div><div class="mu">valid&eacute;s</div></div>
-  <div class="met"><div class="ml">HASHES TOTAL</div><div class="mv" id="mH" style="color:var(--cy);font-size:14px">0</div><div class="mu">SHA-256 x2</div></div>
-  <div class="met"><div class="ml">UPTIME</div><div class="mv" id="mT" style="color:var(--mg);font-size:14px">00:00</div><div class="mu">mm:ss</div></div>
-</div>
-
-<!-- HASH DISPLAY -->
-<div class="hbox">
-  <div class="hl">DERNIER HASH &mdash; Double SHA-256 FIPS 180-4</div>
-  <div class="hv" id="hVal"><span class="hz">----</span>0000000000000000000000000000000000000000000000000000000000</div>
-  <div class="hm">
-    <span>Nonce: <span id="hN">0</span></span>
-    <span>Bloc: <span id="hBl">0</span></span>
-    <span>Pool: <span id="hPool" style="color:var(--cy)">--</span></span>
-  </div>
-</div>
-
-<!-- PROGRESS -->
-<div class="prog">
-  <div class="ph"><span>PROCHAIN BLOC</span><span id="pPct">0%</span></div>
-  <div class="pb"><div class="pf" id="pFill"></div></div>
-</div>
-
 <!-- BUTTONS -->
 <div class="btns">
   <button class="btn bs" id="btnStart">&#9654; START</button>
   <button class="btn bx" id="btnStop">&#9632; STOP</button>
   <button class="btn br" id="btnReset">&#8635; RESET</button>
+  <button class="btn" id="btnSettings" style="background:rgba(56,189,248,.08);color:var(--bl);border:1px solid rgba(56,189,248,.3);flex:0;padding:11px 10px;font-size:12px;">&#9881;</button>
 </div>
 
 <!-- CURRENCIES -->
@@ -223,7 +49,6 @@ body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace
   </div>
 </div>
 
-
 <!-- UTXO -->
 <div class="sec">
   <div class="st" style="color:var(--mg)">&#11042; UTXO POOL</div>
@@ -237,6 +62,47 @@ body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace
 </div>
 
 <!-- TERMINAL -->
+<!-- SETTINGS PANEL -->
+<div class="sec" id="settingsPanel" style="display:none">
+  <div class="st" style="color:var(--yl)">&#9881; CONFIGURATION WALLETS &amp; CRYPTOS</div>
+
+  <div style="font-size:8px;color:var(--g2);margin-bottom:6px">&#128274; Vos adresses personnelles</div>
+  <div style="margin-bottom:4px">
+    <div style="font-size:7px;color:var(--yl);margin-bottom:2px">BTC (bc1 / Legacy)</div>
+    <input id="wBTC" type="text" style="width:100%;background:rgba(16,185,129,.05);border:1px solid var(--br);border-radius:4px;color:var(--wh);font-size:8px;padding:5px 7px;font-family:Share Tech Mono,monospace;outline:none;" placeholder="bc1q...">
+  </div>
+  <div style="margin-bottom:4px">
+    <div style="font-size:7px;color:var(--bl);margin-bottom:2px">ETH / ERC-20 / LINK</div>
+    <input id="wETH" type="text" style="width:100%;background:rgba(16,185,129,.05);border:1px solid var(--br);border-radius:4px;color:var(--wh);font-size:8px;padding:5px 7px;font-family:Share Tech Mono,monospace;outline:none;" placeholder="0x...">
+  </div>
+  <div style="margin-bottom:8px">
+    <div style="font-size:7px;color:var(--g2);margin-bottom:2px">Autres (SOL, ADA, ATOM...)</div>
+    <input id="wDEF" type="text" style="width:100%;background:rgba(16,185,129,.05);border:1px solid var(--br);border-radius:4px;color:var(--wh);font-size:8px;padding:5px 7px;font-family:Share Tech Mono,monospace;outline:none;" placeholder="adresse...">
+  </div>
+
+  <div style="font-size:8px;color:var(--g2);margin-bottom:5px">&#127981; Catalogue cryptos actives</div>
+  <div id="catalogDiv" style="max-height:200px;overflow-y:auto;font-size:8px;margin-bottom:6px"></div>
+
+  <div style="font-size:8px;color:var(--g2);margin-bottom:4px">&#10133; Ajouter une crypto personnalis&eacute;e</div>
+  <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap">
+    <input id="addSym" type="text" style="width:70px;background:rgba(16,185,129,.05);border:1px solid var(--br);border-radius:4px;color:var(--wh);font-size:8px;padding:4px 6px;font-family:Share Tech Mono,monospace;outline:none;" placeholder="SYMB">
+    <input id="addMult" type="number" style="width:90px;background:rgba(16,185,129,.05);border:1px solid var(--br);border-radius:4px;color:var(--wh);font-size:8px;padding:4px 6px;font-family:Share Tech Mono,monospace;outline:none;" placeholder="multiplicateur" min="0.000001">
+    <input id="addCol" type="color" value="#10b981" style="width:36px;height:28px;border:1px solid var(--br);border-radius:4px;cursor:pointer;background:none;padding:0;">
+    <select id="addWal" style="background:rgba(16,185,129,.05);border:1px solid var(--br);border-radius:4px;color:var(--wh);font-size:8px;padding:4px;font-family:Share Tech Mono,monospace;outline:none;">
+      <option value="BTC">BTC wallet</option>
+      <option value="ETH">ETH wallet</option>
+      <option value="ERC20">ERC-20</option>
+      <option value="DEFAULT">Default</option>
+    </select>
+    <button onclick="addCustomCrypto()" style="background:rgba(16,185,129,.15);border:1px solid var(--g);border-radius:4px;color:var(--g);font-size:8px;padding:4px 8px;cursor:pointer;font-family:Orbitron,monospace;">+ ADD</button>
+  </div>
+
+  <div style="display:flex;gap:5px">
+    <button onclick="saveSettings()" style="flex:1;padding:8px;background:linear-gradient(135deg,#065f46,#10b981);color:#fff;border:1px solid var(--g);border-radius:5px;font-family:Orbitron,monospace;font-size:9px;cursor:pointer;">&#10003; SAUVER</button>
+    <button onclick="closeSettings()" style="flex:1;padding:8px;background:rgba(239,68,68,.1);color:var(--rd);border:1px solid var(--rd);border-radius:5px;font-family:Orbitron,monospace;font-size:9px;cursor:pointer;">&#10007; FERMER</button>
+  </div>
+</div>
+
 <div class="term" id="term"></div>
 
 <div class="footer">BBB-QN RIG v4.0 &middot; SHA-256 &middot; BRIDGE MULTI &middot; RENE &middot; 2026</div>
@@ -288,7 +154,15 @@ function _sha256(msg){
 function sha2(s){return _sha256(_sha256(s));}
 
 // ===== CONFIG =====
-var WALLET='0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD';
+// ===== WALLETS =====
+var WALLETS = {
+  BTC:  'bc1qfct5hp3twd8u0vj0pjzxz64nng4etkm5hp38g7',
+  ETH:  '0xd30a16f7143c84847f6ef0d03c7e0d13ee2d79aa',
+  LINK: '0xd30a16f7143c84847f6ef0d03c7e0d13ee2d79aa',
+  ERC20:'0xd30a16f7143c84847f6ef0d03c7e0d13ee2d79aa',
+  DEFAULT:'0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD'
+};
+var WALLET = WALLETS.DEFAULT;
 var WORKER='ReneRig01';
 var PREFIX='ReneBlock';
 var DIFF=4;
@@ -300,178 +174,21 @@ var POOLS=[
   'pool.hashvault.pro:3333','pool.2miners.com:2222','gulf.moneroocean.stream:10128',
   'stratum.nicehash.com:3333','auto.nicehash.com:443','woolypooly.com:3333'
 ];
-var CURS=[
-  {n:'BTC', m:1.0,       c:'#fbbf24'},
-  {n:'WETH',m:15.5,      c:'#38bdf8'},
-  {n:'WBTC',m:0.98,      c:'#f97316'},
-  {n:'AKT', m:850.0,     c:'#a78bfa'},
-  {n:'XRP', m:2200.0,    c:'#34d399'},
-  {n:'LINK',m:420.0,     c:'#f472b6'},
-  {n:'XAU', m:0.0000053, c:'#fde68a'}
-];
-
-// ===== STATE =====
-var S={
-  run:false,h:0,blks:0,n:0,prev:'0'.repeat(64),
-  t0:null,rf:null,dt:null,pt:null,
-  bals:{},utxos:[],
-  poolIdx:0,cycleStep:0,network:'mainnet',
-  bridge:{xmr:0,btc:0,weth:0}
-};
-CURS.forEach(function(c){S.bals[c.n]=0;});
-
-// ===== BRIDGE =====
-function cycleNetwork(){
-  S.cycleStep=(S.cycleStep+1)%4;
-  S.network=(S.cycleStep===0||S.cycleStep===3)?'mainnet':'testnet';
-  var nb=document.getElementById('netBadge');
-  if(nb){nb.textContent=S.network;nb.className='net-badge '+(S.network==='mainnet'?'net-main':'net-test');}
-  document.getElementById('cycleStep').textContent=S.cycleStep;
-  document.getElementById('stNet').textContent=S.network;
-  document.getElementById('stNet').style.color=S.network==='mainnet'?'var(--g)':'var(--yl)';
-}
-function doSwap(base){
-  var xmr=base*15.5;
-  var btc=xmr*0.000118;
-  S.bridge.xmr+=xmr;
-  S.bridge.btc+=btc;
-  S.bridge.weth+=base*15.5*0.052;
-  cycleNetwork();
-  document.getElementById('bXMR').textContent=S.bridge.xmr.toFixed(6);
-  document.getElementById('bBTC').textContent=S.bridge.btc.toFixed(8);
-  document.getElementById('bWETH').textContent=S.bridge.weth.toFixed(8);
-  log('lbr','[BRIDGE] '+S.network+' | '+POOLS[S.poolIdx].split(':')[0]+' | XMR+'+xmr.toFixed(6)+' BTC+'+btc.toFixed(8));
-}
-
-// ===== POOL ROTATION =====
-function rotatePool(){
-  S.poolIdx=(S.poolIdx+1)%POOLS.length;
-  renderPools();
-  log('li','[POOL] Rotation -> '+POOLS[S.poolIdx]);
-}
-function renderPools(){
-  var pa=document.getElementById('poolActive');
-  var pl=document.getElementById('poolList');
-  if(pa)pa.textContent=POOLS[S.poolIdx];
-  if(!pl)return;
-  pl.innerHTML='';
-  POOLS.forEach(function(p,i){
-    pl.innerHTML+='<div class="pool-item'+(i===S.poolIdx?' active-pool':'')+'">'+
-      (i===S.poolIdx?'&#9658; ':'&nbsp;&nbsp;')+p+'</div>';
-  });
-  document.getElementById('hPool').textContent=POOLS[S.poolIdx].split(':')[0];
-}
-
-// ===== RENDER =====
-function ph(n){if(!S.t0||(Date.now()-S.t0)<500)return 0;return S.bals[n]/((Date.now()-S.t0)/3600000);}
-function fmt(v,n){return n==='XAU'?v.toFixed(10):v.toFixed(8);}
-function renderAll(){
-  var cg=document.getElementById('cg');cg.innerHTML='';
-  CURS.forEach(function(c){
-    cg.innerHTML+='<div class="ci"><div class="cn" style="color:'+c.c+'">'+c.n+'</div>'
-      +'<div class="cv">'+fmt(S.bals[c.n],c.n)+'</div>'
-      +'<div class="cph">'+ph(c.n).toFixed(6)+'/h</div></div>';
-  });
-  var br=document.getElementById('balRows');br.innerHTML='';
-  CURS.forEach(function(c){
-    br.innerHTML+='<div class="sr"><span class="sk" style="color:'+c.c+'">'+c.n+'</span>'
-      +'<span class="sv">'+fmt(S.bals[c.n],c.n)+'</span>'
-      +'<span style="font-size:7px;color:var(--g2)">'+ph(c.n).toFixed(6)+'/h</span></div>';
-  });
-  var pr=document.getElementById('prodRows');pr.innerHTML='';
-  CURS.forEach(function(c){
-    pr.innerHTML+='<div class="sr"><span style="color:'+c.c+'">'+c.n+'</span>'
-      +'<span class="sv">'+ph(c.n).toFixed(c.n==='XAU'?10:8)+'</span></div>';
-  });
-  document.getElementById('bph').textContent=S.t0?(S.blks/((Date.now()-S.t0)/3600000)).toFixed(3):'0.000';
-}
-
-// ===== LOG =====
-function ts(){var n=new Date();return'['+n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')+':'+n.getSeconds().toString().padStart(2,'0')+']';}
-function log(cls,msg){var t=document.getElementById('term');t.innerHTML+='<div><span class="lt">'+ts()+'</span> <span class="'+cls+'">'+msg+'</span></div>';t.scrollTop=t.scrollHeight;}
-
-// ===== MINE =====
-function mine(){
-  if(!S.run)return;
-  for(var i=0;i<300;i++){
-    S.n++;S.h++;
-    var data=PREFIX+'|H:'+(S.blks+1)+'|W:'+WALLET+'|N:'+S.n+'|T:'+Date.now()+'|WK:'+WORKER+'|POOL:'+POOLS[S.poolIdx];
-    var hash;
-    try{hash=sha2(data);}catch(e){S.rf=setTimeout(mine,1);return;}
-    if(S.n%300===0){
-      document.getElementById('hVal').innerHTML='<span class="hz">'+hash.substr(0,4)+'</span>'+hash.substr(4);
-      document.getElementById('hN').textContent=S.n;
-      var p=Math.min(97,Math.floor((1-(parseInt(hash.substr(0,8),16)/0xffffffff))*100));
-      document.getElementById('pFill').style.width=p+'%';
-      document.getElementById('pPct').textContent=p+'%';
-    }
-    if(hash.startsWith(TARGET)){
-      S.blks++;var bn=S.blks;
-      var merkle=_sha256(hash+WALLET+bn);
-      var coinbase=_sha256(hash+'coinbase'+WORKER+bn);
-      var base=0.00000001*DIFF;
-      CURS.forEach(function(c){var r=base*c.m;S.bals[c.n]+=r;S.utxos.push({tx:coinbase,spent:false});});
-      doSwap(base);
-      var fl=document.getElementById('flash');fl.style.opacity='1';setTimeout(function(){fl.style.opacity='0';},350);
-      log('lb','&#9650; BLOC #'+bn+' | Pool:'+POOLS[S.poolIdx].split(':')[0]+' | Net:'+S.network);
-      log('lh','&nbsp;Hash:     '+hash.substr(0,32)+'...');
-      log('lh','&nbsp;Merkle:   '+merkle.substr(0,20)+'...');
-      log('lh','&nbsp;Coinbase: '+coinbase.substr(0,20)+'...');
-      CURS.forEach(function(c){log('lr','&nbsp;'+c.n+' +'+fmt(base*c.m,c.n));});
-      document.getElementById('mB').textContent=bn;document.getElementById('stB').textContent=bn;
-      document.getElementById('uT').textContent=S.utxos.length;
-      document.getElementById('uU').textContent=S.utxos.filter(function(u){return!u.spent;}).length;
-      document.getElementById('stU').textContent=S.utxos.length;
-      document.getElementById('uM').textContent=merkle.substr(0,16)+'...';
-      document.getElementById('uC').textContent=coinbase.substr(0,16)+'...';
-      document.getElementById('uNet').textContent=S.network;
-      document.getElementById('hBl').textContent=bn;
-      document.getElementById('pFill').style.width='0%';document.getElementById('pPct').textContent='0%';
-      S.prev=hash;renderAll();
-    }
-  }
-  S.rf=setTimeout(mine,0);
-}
-
-// ===== DISPLAY =====
-function updateDisp(){
-  if(!S.t0)return;
-  var el=Math.max(0.001,(Date.now()-S.t0)/1000);
-  var r=S.h/el,rs,ru;
-  if(r>1e6){rs=(r/1e6).toFixed(2);ru='MH/s';}else if(r>1e3){rs=(r/1e3).toFixed(2);ru='KH/s';}else{rs=r.toFixed(0);ru='H/s';}
-  document.getElementById('mR').textContent=rs;document.getElementById('mRU').textContent=ru;
-  document.getElementById('stR').textContent=rs+' '+ru;
-  document.getElementById('mH').textContent=S.h>1e6?(S.h/1e6).toFixed(1)+'M':S.h>1e3?(S.h/1e3).toFixed(1)+'K':S.h;
-  document.getElementById('mT').textContent=Math.floor(el/60).toString().padStart(2,'0')+':'+Math.floor(el%60).toString().padStart(2,'0');
-  renderAll();
-}
-
-// ===== CLOCK =====
-setInterval(function(){
-  var n=new Date();
-  document.getElementById('hTime').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')+':'+n.getSeconds().toString().padStart(2,'0');
-  document.getElementById('hDate').textContent=n.getDate().toString().padStart(2,'0')+'/'+(n.getMonth()+1).toString().padStart(2,'0')+'/'+n.getFullYear();
-},1000);
-
-// ===== CONTROLS =====
-function startRig(){
-  if(S.run)return;
-  S.run=true;if(!S.t0)S.t0=Date.now();
-  var dm=document.getElementById('dotM');dm.style.background='var(--g)';dm.style.boxShadow='0 0 6px var(--g)';
-  document.getElementById('stM').textContent='MINING';
-  log('lo','=== BBB-QN RIG v4.0 d&eacute;marr&eacute; ===');
-  log('li','SHA-256 Double Hash &middot; FIPS 180-4 &middot; 32 threads');
-  log('li','Wallet: '+WALLET.substr(0,14)+'...');
-  log('li','Pool initial: '+POOLS[0]);
-  log('li','Bridge: mainnet &rarr; testnet &rarr; testnet &rarr; mainnet');
-  mine();
-  S.dt=setInterval(updateDisp,500);
-  S.pt=setInterval(rotatePool,45000);
-  renderPools();
-}
-function stopRig(){
-  if(!S.run)return;
-  S.run=false;
+// ===== CATALOGUE COMPLET (CoinGecko / CoinPaprika) =====
+var CATALOG = {
+  'Layer 1': [
+    {n:'BTC', m:1.0,       c:'#fbbf24', wallet:'BTC'},
+    {n:'ETH', m:15.5,      c:'#38bdf8', wallet:'ETH'},
+    {n:'BNB', m:180.0,     c:'#f3ba2f', wallet:'ERC20'},
+    {n:'SOL', m:900.0,     c:'#9945ff', wallet:'DEFAULT'},
+    {n:'ADA', m:9500.0,    c:'#0033ad', wallet:'DEFAULT'},
+    {n:'AVAX',m:250.0,     c:'#e84142', wallet:'DEFAULT'},
+    {n:'DOT', m:1100.0,    c:'#e6007a', wallet:'DEFAULT'},
+    {n:'ATOM',m:800.0,     c:'#2e3148', wallet:'DEFAULT'},
+    {n:'NEAR',m:1400.0,    c:'#00ec97', wallet:'DEFAULT'},
+    {n:'ICP', m:120.0,     c:'#29abe2', wallet:'DEFAULT'},
+  ],
+    S.run=false;
   if(S.rf){clearTimeout(S.rf);S.rf=null;}
   if(S.dt){clearInterval(S.dt);S.dt=null;}
   if(S.pt){clearInterval(S.pt);S.pt=null;}
@@ -480,7 +197,6 @@ function stopRig(){
   document.getElementById('stM').textContent='STOPPED';
   log('lw','RIG arr&ecirc;t&eacute; &mdash; Blocs:'+S.blks+' Hashes:'+S.h+' Bridge XMR:'+S.bridge.xmr.toFixed(6));
 }
-
 function resetRig(){
   stopRig();
   S.h=0;S.blks=0;S.n=0;S.t0=null;S.prev='0'.repeat(64);S.utxos=[];S.poolIdx=0;S.cycleStep=0;S.network='mainnet';
@@ -502,9 +218,96 @@ function resetRig(){
   renderAll();renderPools();
 }
 
+// ===== SETTINGS =====
+function openSettings(){
+  var p=document.getElementById('settingsPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+  if(p.style.display==='block'){
+    document.getElementById('wBTC').value=USER_WALLETS.BTC||'';
+    document.getElementById('wETH').value=USER_WALLETS.ETH||'';
+    document.getElementById('wDEF').value=USER_WALLETS.DEFAULT||'';
+    renderCatalog();
+    setTimeout(function(){p.scrollIntoView({behavior:'smooth'});},100);
+  }
+}
+function closeSettings(){document.getElementById('settingsPanel').style.display='none';}
+
+function renderCatalog(){
+  var div=document.getElementById('catalogDiv');
+  if(!div)return;
+  div.innerHTML='';
+  Object.keys(CATALOG).forEach(function(cat){
+    var wrap=document.createElement('div');
+    wrap.style.marginBottom='4px';
+    var title=document.createElement('div');
+    title.style.cssText='font-size:7px;color:var(--yl);margin-bottom:2px;font-family:Orbitron,monospace';
+    title.textContent=cat;
+    wrap.appendChild(title);
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;flex-wrap:wrap;gap:3px;';
+    CATALOG[cat].forEach(function(cur){
+      var active=CURS.some(function(c){return c.n===cur.n;});
+      var btn=document.createElement('button');
+      btn.dataset.sym=cur.n;
+      btn.textContent=cur.n;
+      btn.style.cssText='padding:3px 6px;border-radius:4px;font-size:8px;cursor:pointer;font-family:Orbitron,monospace;border:1px solid '
+        +(active?cur.c:'rgba(255,255,255,.1)')+';background:'
+        +(active?'rgba(16,185,129,.12)':'transparent')+';color:'
+        +(active?cur.c:'#4a5568');
+      btn.addEventListener('click',function(){toggleCrypto(this.dataset.sym);});
+      btn.addEventListener('touchend',function(e){e.preventDefault();toggleCrypto(this.dataset.sym);});
+      row.appendChild(btn);
+    });
+    wrap.appendChild(row);
+    div.appendChild(wrap);
+  });
+}
+
+function toggleCrypto(sym){
+  var idx=CURS.findIndex(function(c){return c.n===sym;});
+  if(idx>=0){CURS.splice(idx,1);}
+  else{
+    var found=null;
+    Object.values(CATALOG).forEach(function(arr){arr.forEach(function(c){if(c.n===sym)found=c;});});
+    if(found)CURS.push(found);
+  }
+  renderCatalog();
+}
+
+function addCustomCrypto(){
+  var sym=document.getElementById('addSym').value.trim().toUpperCase();
+  var mult=parseFloat(document.getElementById('addMult').value)||1.0;
+  var col=document.getElementById('addCol').value;
+  var wal=document.getElementById('addWal').value;
+  if(!sym)return;
+  if(!CURS.some(function(c){return c.n===sym;})){
+    CURS.push({n:sym,m:mult,c:col,wallet:wal});
+    S.bals[sym]=0;
+    renderCatalog();
+    log('li','Crypto ajout&eacute;e: '+sym+' x'+mult);
+  }
+  document.getElementById('addSym').value='';
+}
+
+function saveSettings(){
+  USER_WALLETS.BTC=document.getElementById('wBTC').value.trim()||USER_WALLETS.BTC;
+  USER_WALLETS.ETH=document.getElementById('wETH').value.trim()||USER_WALLETS.ETH;
+  USER_WALLETS.ERC20=USER_WALLETS.ETH;
+  USER_WALLETS.LINK=USER_WALLETS.ETH;
+  USER_WALLETS.DEFAULT=document.getElementById('wDEF').value.trim()||USER_WALLETS.DEFAULT;
+  CURS.forEach(function(c){if(!S.bals[c.n])S.bals[c.n]=0;});
+  saveConfig();
+  renderAll();
+  closeSettings();
+  log('lo','Configuration sauvegard&eacute;e &mdash; '+CURS.length+' cryptos actives');
+  log('li','BTC: '+USER_WALLETS.BTC.substr(0,16)+'...');
+  log('li','ETH: '+USER_WALLETS.ETH.substr(0,16)+'...');
+}
+
 // ===== BIND =====
 function bindBtn(id,fn){var el=document.getElementById(id);if(!el)return;el.addEventListener('click',fn);el.addEventListener('touchend',function(e){e.preventDefault();fn();});}
 bindBtn('btnStart',startRig);bindBtn('btnStop',stopRig);bindBtn('btnReset',resetRig);
+bindBtn('btnSettings',openSettings);
 
 // ===== INIT =====
 document.getElementById('term').innerHTML=[
