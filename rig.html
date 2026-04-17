@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>RIG MINING v3 — RENE</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#10b981;--g2:#34d399;--bl:#38bdf8;--yl:#fbbf24;
+  --rd:#ef4444;--mg:#a78bfa;--cy:#22d3ee;--wh:#e2e8f0;
+  --bg:#020c07;--bg2:rgba(4,20,9,.95);--br:rgba(16,185,129,.2);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--bg);color:var(--g);
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  min-height:100vh;overflow-x:hidden;
+}
+
+/* MATRIX BG */
+#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.07;pointer-events:none;}
+
+/* SCAN LINE */
+body::after{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+  pointer-events:none;z-index:1;
+}
+
+.wrap{position:relative;z-index:2;padding:8px;max-width:480px;margin:0 auto;}
+
+/* HEADER */
+.hdr{
+  border:1px solid var(--br);border-radius:6px;
+  padding:8px 10px;margin-bottom:6px;
+  background:var(--bg2);
+  display:flex;justify-content:space-between;align-items:center;
+  animation:flicker 8s infinite;
+}
+.hdr-title{font-family:Orbitron,monospace;font-size:10px;font-weight:900;color:var(--g);letter-spacing:2px;}
+.hdr-title span{color:var(--yl);}
+.hdr-right{font-size:9px;color:var(--g2);text-align:right;}
+@keyframes flicker{0%,100%{opacity:1}97%{opacity:1}97.5%{opacity:.8}98%{opacity:1}}
+
+/* STATUS BAR */
+.status{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;
+}
+.st-chip{
+  padding:3px 8px;border-radius:4px;font-size:9px;
+  border:1px solid var(--br);background:rgba(16,185,129,.06);
+  display:flex;align-items:center;gap:4px;
+}
+.st-chip .dot{width:5px;height:5px;border-radius:50%;animation:pulse 2s infinite;}
+.dot-g{background:var(--g);box-shadow:0 0 6px var(--g);}
+.dot-y{background:var(--yl);box-shadow:0 0 6px var(--yl);}
+.dot-b{background:var(--bl);box-shadow:0 0 6px var(--bl);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* METRICS GRID */
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px;}
+.metric{
+  background:var(--bg2);border:1px solid var(--br);border-radius:6px;
+  padding:7px 9px;
+}
+.metric-label{font-size:7px;color:var(--g2);margin-bottom:2px;letter-spacing:1px;}
+.metric-value{font-size:15px;font-family:Orbitron,monospace;font-weight:700;color:var(--yl);line-height:1;}
+.metric-unit{font-size:7px;color:var(--g);margin-top:1px;}
+
+/* HASH DISPLAY */
+.hash-box{
+  background:var(--bg2);border:1px solid var(--br);border-radius:6px;
+  padding:7px 9px;margin-bottom:6px;
+}
+.hash-label{font-size:7px;color:var(--g2);margin-bottom:3px;letter-spacing:1px;}
+.hash-val{
+  font-size:9px;color:var(--cy);word-break:break-all;line-height:1.6;
+  font-family:'Share Tech Mono',monospace;
+}
+.hash-val .z{color:var(--rd);font-weight:bold;}
+
+/* CURRENCIES */
+.currencies{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px;}
+.cur{
+  background:var(--bg2);border:1px solid var(--br);border-radius:6px;
+  padding:6px 8px;
+}
+.cur-name{font-size:8px;font-family:Orbitron,monospace;font-weight:700;margin-bottom:2px;}
+.cur-val{font-size:10px;color:var(--wh);}
+.cur-ph{font-size:7px;color:var(--g2);margin-top:1px;}
+
+/* CONTROLS */
+.controls{display:flex;gap:6px;margin-bottom:6px;}
+.btn{
+  flex:1;padding:8px;border-radius:6px;border:none;cursor:pointer;
+  font-family:Orbitron,monospace;font-size:9px;font-weight:700;letter-spacing:1px;
+  transition:all .2s;
+}
+.btn-start{background:linear-gradient(135deg,#065f46,#10b981);color:#fff;border:1px solid var(--g);}
+.btn-start:hover{background:linear-gradient(135deg,#10b981,#34d399);box-shadow:0 0 15px rgba(16,185,129,.4);}
+.btn-stop{background:linear-gradient(135deg,#7f1d1d,#ef4444);color:#fff;border:1px solid var(--rd);}
+.btn-stop:hover{background:linear-gradient(135deg,#ef4444,#f87171);}
+.btn-reset{background:rgba(251,191,36,.1);color:var(--yl);border:1px solid rgba(251,191,36,.3);}
+
+/* TERMINAL LOG */
+.terminal{
+  background:rgba(0,5,2,.8);border:1px solid var(--br);border-radius:6px;
+  padding:8px;height:220px;overflow-y:auto;margin-bottom:6px;
+  font-size:9px;line-height:1.8;
+}
+.terminal::-webkit-scrollbar{width:2px;}
+.terminal::-webkit-scrollbar-thumb{background:var(--br);}
+.log-time{color:rgba(16,185,129,.5);}
+.log-ok{color:var(--g);}
+.log-block{color:var(--yl);font-weight:bold;}
+.log-hash{color:var(--cy);}
+.log-reward{color:var(--mg);}
+.log-info{color:var(--bl);}
+.log-warn{color:var(--rd);}
+
+/* UTXO */
+.utxo{
+  background:var(--bg2);border:1px solid var(--br);border-radius:6px;
+  padding:7px 9px;margin-bottom:6px;
+}
+.utxo-title{font-family:Orbitron,monospace;font-size:8px;color:var(--mg);margin-bottom:5px;letter-spacing:1px;}
+.utxo-row{display:flex;justify-content:space-between;margin-bottom:2px;font-size:8px;}
+.utxo-key{color:var(--g2);}
+.utxo-val{color:var(--wh);}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:6px;}
+.progress-label{font-size:7px;color:var(--g2);margin-bottom:2px;display:flex;justify-content:space-between;}
+.progress-bar{height:4px;background:rgba(16,185,129,.1);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--cy));border-radius:2px;transition:width .3s;}
+
+/* GLOW BLOCK */
+.block-found{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(251,191,36,.05);z-index:10;pointer-events:none;
+  animation:blockglow .6s ease;display:none;
+}
+@keyframes blockglow{0%{background:rgba(251,191,36,.3)}100%{background:transparent}}
+
+.footer{font-size:7px;color:rgba(16,185,129,.3);text-align:center;padding:4px 0 8px;}
+</style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<div class="block-found" id="blockFlash"></div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div>
+      <div class="hdr-title">⛏ RIG <span>MINING</span></div>
+      <div style="font-size:7px;color:var(--g2);margin-top:1px;">SHA-256 · FIPS 180-4 · RENE</div>
+    </div>
+    <div class="hdr-right">
+      <div id="hdrTime">--:--:--</div>
+      <div style="margin-top:2px;" id="hdrDate">--/--/----</div>
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status">
+    <div class="st-chip"><div class="dot dot-g" id="dotMine"></div><span id="stMine">STOPPED</span></div>
+    <div class="st-chip"><div class="dot dot-y"></div><span id="stRate">0 H/s</span></div>
+    <div class="st-chip"><div class="dot dot-b"></div><span id="stThreads">4 threads</span></div>
+    <div class="st-chip" style="color:var(--mg)">DIFF: <span id="stDiff">4</span></div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">HASHRATE</div>
+      <div class="metric-value" id="mRate">0.00</div>
+      <div class="metric-unit" id="mRateU">KH/s</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">BLOCS MINES</div>
+      <div class="metric-value" style="color:var(--g)" id="mBlocks">0</div>
+      <div class="metric-unit">total</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">HASHES</div>
+      <div class="metric-value" style="color:var(--cy);font-size:12px;" id="mHashes">0</div>
+      <div class="metric-unit">calculés</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">UPTIME</div>
+      <div class="metric-value" style="color:var(--mg);font-size:12px;" id="mUptime">00:00</div>
+      <div class="metric-unit">mm:ss</div>
+    </div>
+  </div>
+
+  <!-- LAST HASH -->
+  <div class="hash-box">
+    <div class="hash-label">DERNIER HASH</div>
+    <div class="hash-val" id="lastHash">
+      <span class="z">----</span>0000000000000000000000000000000000000000000000000000000000
+    </div>
+    <div style="font-size:7px;color:var(--g2);margin-top:3px;">Nonce: <span id="lastNonce">0</span> · Bloc: <span id="lastBlock">0</span></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-label"><span>PROCHAIN BLOC</span><span id="progPct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="btn btn-start" onclick="startRig()">▶ START</button>
+    <button class="btn btn-stop" onclick="stopRig()">■ STOP</button>
+    <button class="btn btn-reset" onclick="resetRig()">↺</button>
+  </div>
+
+  <!-- CURRENCIES -->
+  <div class="currencies" id="currencies"></div>
+
+  <!-- UTXO -->
+  <div class="utxo">
+    <div class="utxo-title">⬡ UTXO POOL</div>
+    <div class="utxo-row"><span class="utxo-key">Wallet</span><span class="utxo-val" style="font-size:7px;color:var(--g2)">0xAA5F00...C1eD</span></div>
+    <div class="utxo-row"><span class="utxo-key">Total UTXOs</span><span class="utxo-val" id="utxoTotal">0</span></div>
+    <div class="utxo-row"><span class="utxo-key">Unspent</span><span class="utxo-val" id="utxoUnspent">0</span></div>
+    <div class="utxo-row"><span class="utxo-key">Dernier coinbase</span><span class="utxo-val" id="utxoCoinbase" style="font-size:7px;color:var(--cy)">--</span></div>
+  </div>
+
+  <!-- TERMINAL LOG -->
+  <div class="terminal" id="terminal">
+    <div><span class="log-time">[00:00:00]</span> <span class="log-info">RIG MINING v3.0 initialisé</span></div>
+    <div><span class="log-time">[00:00:00]</span> <span class="log-ok">SHA-256 FIPS 180-4 chargé</span></div>
+    <div><span class="log-time">[00:00:00]</span> <span class="log-ok">Workers: 4 threads WebWorker</span></div>
+    <div><span class="log-time">[00:00:00]</span> <span class="log-ok">Wallet: 0xAA5F00...C1eD</span></div>
+    <div><span class="log-time">[00:00:00]</span> <span class="log-info">Appuie START pour miner</span></div>
+  </div>
+
+  <div class="footer">Q-OMNI · BBB-QN · RENE · 2026</div>
+</div>
+
+<script>
+// ===== MATRIX =====
+(function(){
+  var c=document.getElementById('matrix');
+  var ctx=c.getContext('2d');
+  c.width=window.innerWidth;c.height=window.innerHeight;
+  var cols=Math.floor(c.width/14);
+  var drops=[];for(var i=0;i<cols;i++)drops[i]=Math.random()*c.height;
+  var ch='0123456789ABCDEF∑∂∇Ω∆ΨΦΠΘabcdef'.split('');
+  setInterval(function(){
+    ctx.fillStyle='rgba(2,12,7,.08)';ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle='#10b981';ctx.font='12px monospace';
+    for(var i=0;i<drops.length;i++){
+      ctx.fillText(ch[Math.floor(Math.random()*ch.length)],i*14,drops[i]);
+      if(drops[i]>c.height&&Math.random()>.97)drops[i]=0;
+      drops[i]+=14;
+    }
+  },60);
+})();
+
+// ===== SHA-256 =====
+var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+       0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+       0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+       0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+       0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+       0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+       0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+       0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+
+function rotr(x,n){return((x>>>n)|(x<<(32-n)))>>>0;}
+function sha256(msg){
+  var bytes=[];for(var i=0;i<msg.length;i++){var c=msg.charCodeAt(i);if(c<128)bytes.push(c);else{bytes.push(0xc0|(c>>6));bytes.push(0x80|(c&0x3f));}}
+  var bitLen=bytes.length*8;bytes.push(0x80);
+  while((bytes.length%64)!==56)bytes.push(0);
+  for(var i=7;i>=0;i--)bytes.push((bitLen>>>(i*8))&0xff);
+  var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  for(var off=0;off<bytes.length;off+=64){
+    var W=new Array(64);
+    for(var t=0;t<16;t++)W[t]=(bytes[off+t*4]<<24)|(bytes[off+t*4+1]<<16)|(bytes[off+t*4+2]<<8)|bytes[off+t*4+3];
+    for(var t=16;t<64;t++){var s0=rotr(W[t-15],7)^rotr(W[t-15],18)^(W[t-15]>>>3);var s1=rotr(W[t-2],17)^rotr(W[t-2],19)^(W[t-2]>>>10);W[t]=(W[t-16]+s0+W[t-7]+s1)>>>0;}
+    var a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(var t=0;t<64;t++){
+      var T1=(h+((rotr(e,6)^rotr(e,11)^rotr(e,25))>>>0)+(((e&f)^(~e&g))>>>0)+K[t]+W[t])>>>0;
+      var T2=((rotr(a,2)^rotr(a,13)^rotr(a,22))>>>0)+((((a&b)^(a&c)^(b&c))>>>0))>>>0;
+      h=g;g=f;f=e;e=(d+T1)>>>0;d=c;c=b;b=a;a=(T1+T2)>>>0;
+    }
+    H[0]=(H[0]+a)>>>0;H[1]=(H[1]+b)>>>0;H[2]=(H[2]+c)>>>0;H[3]=(H[3]+d)>>>0;
+    H[4]=(H[4]+e)>>>0;H[5]=(H[5]+f)>>>0;H[6]=(H[6]+g)>>>0;H[7]=(H[7]+h)>>>0;
+  }
+  return H.map(function(v){return v.toString(16).padStart(8,'0');}).join('');
+}
+function sha256d(s){return sha256(sha256(s));}
+
+// ===== STATE =====
+var WALLET='0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD';
+var DIFFICULTY=4;
+var TARGET='0000';
+var CURRENCIES=[
+  {name:'BTC',mult:1.0,col:'#fbbf24'},
+  {name:'WETH',mult:15.5,col:'#38bdf8'},
+  {name:'WBTC',mult:0.98,col:'#f97316'},
+  {name:'AKT',mult:850.0,col:'#a78bfa'},
+  {name:'XRP',mult:2200.0,col:'#34d399'},
+  {name:'LINK',mult:420.0,col:'#f472b6'},
+  {name:'XAU',mult:0.0000053,col:'#fde68a'}
+];
+
+var state={
+  running:false,
+  hashes:0,blocks:0,nonce:0,
+  prevHash:'0'.repeat(64),
+  startTime:null,
+  totals:{},
+  utxos:[],
+  timer:null,
+  dispTimer:null
+};
+CURRENCIES.forEach(function(c){state.totals[c.name]=0;});
+
+// ===== RENDER CURRENCIES =====
+function renderCurrencies(){
+  var el=document.getElementById('currencies');
+  el.innerHTML='';
+  CURRENCIES.forEach(function(c){
+    var bal=state.totals[c.name].toFixed(8);
+    var ph=state.startTime&&(Date.now()-state.startTime)>1000
+      ?(state.totals[c.name]/((Date.now()-state.startTime)/3600000)).toFixed(6):'0.000000';
+    el.innerHTML+='<div class="cur"><div class="cur-name" style="color:'+c.col+'">'+c.name+'</div>'
+      +'<div class="cur-val">'+bal+'</div>'
+      +'<div class="cur-ph">'+ph+'/h</div></div>';
+  });
+}
+
+// ===== LOG =====
+function log(cls,msg){
+  var t=document.getElementById('terminal');
+  var now=new Date();
+  var ts='['+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0')+']';
+  t.innerHTML+='<div><span class="log-time">'+ts+'</span> <span class="'+cls+'">'+msg+'</span></div>';
+  t.scrollTop=t.scrollHeight;
+}
+
+// ===== MINING LOOP =====
+function mineStep(){
+  if(!state.running)return;
+  var steps=800;
+  for(var i=0;i<steps;i++){
+    state.nonce++;state.hashes++;
+    var data='ReneBlock|H:'+(state.blocks+1)+'|W:'+WALLET+'|N:'+state.nonce+'|T:'+Date.now();
+    var hash=sha256d(data);
+    // Update last hash display occasionally
+    if(state.nonce%200===0){
+      var z=hash.substring(0,4);var rest=hash.substring(4);
+      document.getElementById('lastHash').innerHTML='<span class="z">'+z+'</span>'+rest;
+      document.getElementById('lastNonce').textContent=state.nonce;
+      // Progress estimation
+      var prog=Math.min(99,Math.floor((parseInt(z,16)/0xffff)*100));
+      document.getElementById('progFill').style.width=prog+'%';
+      document.getElementById('progPct').textContent=prog+'%';
+    }
+    if(hash.startsWith(TARGET)){
+      // BLOCK FOUND!
+      state.blocks++;
+      var bnum=state.blocks;
+      var coinbase=sha256(hash+'coinbase'+bnum);
+      var base=0.00000001*DIFFICULTY;
+      CURRENCIES.forEach(function(c){
+        var r=base*c.mult;
+        state.totals[c.name]+=r;
+        state.utxos.push({tx:coinbase,idx:state.utxos.length,addr:WALLET,amt:r,cur:c.name,spent:false,blk:bnum});
+      });
+      // Flash
+      var fl=document.getElementById('blockFlash');fl.style.display='block';setTimeout(function(){fl.style.display='none';},600);
+      // Log
+      log('log-block','★ BLOC #'+bnum+' MINE! Nonce:'+state.nonce);
+      log('log-hash','  Hash: '+hash.substring(0,32)+'...');
+      log('log-reward','  Rewards: BTC+'+(base*1.0).toFixed(8)+' WETH+'+(base*15.5).toFixed(8));
+      // UTXO
+      document.getElementById('utxoTotal').textContent=state.utxos.length;
+      document.getElementById('utxoUnspent').textContent=state.utxos.filter(function(u){return!u.spent;}).length;
+      document.getElementById('utxoCoinbase').textContent=coinbase.substring(0,20)+'...';
+      document.getElementById('lastBlock').textContent=bnum;
+      document.getElementById('mBlocks').textContent=bnum;
+      document.getElementById('progFill').style.width='0%';
+      document.getElementById('progPct').textContent='0%';
+      state.prevHash=hash;
+      renderCurrencies();
+    }
+  }
+  state.timer=requestAnimationFrame(mineStep);
+}
+
+// ===== DISPLAY UPDATE =====
+function updateDisplay(){
+  if(!state.running)return;
+  var elapsed=(Date.now()-state.startTime)/1000;
+  var rate=state.hashes/elapsed;
+  var rs,ru;
+  if(rate>1e6){rs=(rate/1e6).toFixed(2);ru='MH/s';}
+  else if(rate>1e3){rs=(rate/1e3).toFixed(2);ru='KH/s';}
+  else{rs=rate.toFixed(0);ru='H/s';}
+  document.getElementById('mRate').textContent=rs;
+  document.getElementById('mRateU').textContent=ru;
+  document.getElementById('stRate').textContent=rs+' '+ru;
+  document.getElementById('mHashes').textContent=state.hashes>1e6?(state.hashes/1e6).toFixed(1)+'M':state.hashes>1e3?(state.hashes/1e3).toFixed(0)+'K':state.hashes;
+  var mm=Math.floor(elapsed/60).toString().padStart(2,'0');
+  var ss=Math.floor(elapsed%60).toString().padStart(2,'0');
+  document.getElementById('mUptime').textContent=mm+':'+ss;
+}
+
+// ===== CLOCK =====
+setInterval(function(){
+  var n=new Date();
+  document.getElementById('hdrTime').textContent=
+    n.getHours().toString().padStart(2,'0')+':'+
+    n.getMinutes().toString().padStart(2,'0')+':'+
+    n.getSeconds().toString().padStart(2,'0');
+  document.getElementById('hdrDate').textContent=
+    n.getDate().toString().padStart(2,'0')+'/'+(n.getMonth()+1).toString().padStart(2,'0')+'/'+n.getFullYear();
+},1000);
+
+// ===== CONTROLS =====
+function startRig(){
+  if(state.running)return;
+  state.running=true;
+  if(!state.startTime)state.startTime=Date.now();
+  document.getElementById('stMine').textContent='MINING';
+  document.getElementById('dotMine').className='dot dot-g';
+  log('log-ok','Minage démarré — Difficulté: '+DIFFICULTY+' ('+TARGET+'...)');
+  log('log-info','Wallet: '+WALLET.substring(0,12)+'...');
+  mineStep();
+  state.dispTimer=setInterval(updateDisplay,500);
+}
+
+function stopRig(){
+  state.running=false;
+  if(state.timer){cancelAnimationFrame(state.timer);state.timer=null;}
+  if(state.dispTimer){clearInterval(state.dispTimer);state.dispTimer=null;}
+  document.getElementById('stMine').textContent='STOPPED';
+  log('log-warn','Minage arrêté — Blocs: '+state.blocks+' Hashes: '+state.hashes);
+}
+
+function resetRig(){
+  stopRig();
+  state.hashes=0;state.blocks=0;state.nonce=0;state.startTime=null;
+  state.prevHash='0'.repeat(64);state.utxos=[];
+  CURRENCIES.forEach(function(c){state.totals[c.name]=0;});
+  document.getElementById('mRate').textContent='0.00';
+  document.getElementById('mRateU').textContent='KH/s';
+  document.getElementById('mBlocks').textContent='0';
+  document.getElementById('mHashes').textContent='0';
+  document.getElementById('mUptime').textContent='00:00';
+  document.getElementById('stRate').textContent='0 H/s';
+  document.getElementById('utxoTotal').textContent='0';
+  document.getElementById('utxoUnspent').textContent='0';
+  document.getElementById('utxoCoinbase').textContent='--';
+  document.getElementById('progFill').style.width='0%';
+  document.getElementById('progPct').textContent='0%';
+  document.getElementById('lastHash').innerHTML='<span class="z">----</span>0000000000000000000000000000000000000000000000000000000000';
+  document.getElementById('lastNonce').textContent='0';
+  document.getElementById('lastBlock').textContent='0';
+  document.getElementById('terminal').innerHTML='<div><span class="log-time">[00:0
