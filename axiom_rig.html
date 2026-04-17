@@ -3,61 +3,110 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>RIG MINING v3 — RENE</title>
+<title>BBB-QN RIG v4.0 — BRIDGE MULTI</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{--g:#10b981;--g2:#34d399;--bl:#38bdf8;--yl:#fbbf24;--rd:#ef4444;--mg:#a78bfa;--cy:#22d3ee;--wh:#e2e8f0;--bg:#020c07;--bg2:rgba(4,20,9,.95);--br:rgba(16,185,129,.25);}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{--g:#10b981;--g2:#34d399;--bl:#38bdf8;--yl:#fbbf24;--rd:#ef4444;--mg:#a78bfa;--cy:#22d3ee;--wh:#e2e8f0;--bg:#020c07;--bg2:rgba(4,20,9,.95);--br:rgba(16,185,129,.22);}
 body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace;font-size:11px;min-height:100vh;}
 #mtx{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.06;pointer-events:none;}
-.app{position:relative;z-index:2;padding:6px;max-width:500px;margin:0 auto;}
-.hdr{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:8px 10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;}
-.hdr-title{font-family:Orbitron,monospace;font-size:11px;font-weight:900;color:var(--g);letter-spacing:2px;}
+.app{position:relative;z-index:2;padding:6px;max-width:520px;margin:0 auto;}
+
+/* HEADER */
+.hdr{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:9px 11px;margin-bottom:5px;position:relative;overflow:hidden;}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent);}
+.hdr-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.hdr-title{font-family:Orbitron,monospace;font-size:13px;font-weight:900;letter-spacing:2px;}
 .hdr-title em{color:var(--yl);font-style:normal;}
-.hdr-sub{font-size:7px;color:var(--g2);margin-top:1px;}
+.hdr-sub{font-size:7px;color:var(--g2);margin-top:1px;letter-spacing:.5px;}
 .hdr-r{text-align:right;font-size:9px;color:var(--g2);}
+
+/* HARDWARE BADGE */
+.hw{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
+.hwb{padding:3px 7px;border-radius:4px;font-size:8px;border:1px solid var(--br);background:rgba(16,185,129,.04);color:var(--bl);white-space:nowrap;}
+
+/* CHIPS */
 .chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
-.chip{padding:3px 7px;border-radius:4px;font-size:8px;border:1px solid var(--br);background:rgba(16,185,129,.05);display:flex;align-items:center;gap:3px;white-space:nowrap;}
+.chip{padding:3px 7px;border-radius:4px;font-size:8px;border:1px solid var(--br);background:rgba(16,185,129,.04);display:flex;align-items:center;gap:3px;white-space:nowrap;}
 .dot{width:5px;height:5px;border-radius:50%;}
-@keyframes dp{0%,100%{opacity:1}50%{opacity:.3}}
-.metrics{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;}
-.met{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:7px 9px;}
-.met-lbl{font-size:7px;color:var(--g2);letter-spacing:1px;margin-bottom:2px;}
-.met-val{font-family:Orbitron,monospace;font-weight:700;color:var(--yl);line-height:1;}
-.met-unit{font-size:7px;color:var(--g);margin-top:2px;}
-.hbox{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:7px 9px;margin-bottom:5px;}
-.hbox-lbl{font-size:7px;color:var(--g2);letter-spacing:1px;margin-bottom:3px;}
-.hbox-val{font-size:8px;color:var(--cy);word-break:break-all;line-height:1.6;}
+@keyframes dp{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* METRICS 2x2 */
+.mets{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;}
+.met{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:7px 9px;}
+.ml{font-size:7px;color:var(--g2);letter-spacing:1px;margin-bottom:2px;}
+.mv{font-family:Orbitron,monospace;font-weight:700;color:var(--yl);line-height:1;}
+.mu{font-size:7px;color:var(--g);margin-top:2px;}
+
+/* HASH BOX */
+.hbox{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:7px 9px;margin-bottom:5px;}
+.hl{font-size:7px;color:var(--g2);letter-spacing:1px;margin-bottom:3px;}
+.hv{font-size:8px;color:var(--cy);word-break:break-all;line-height:1.7;}
 .hz{color:var(--rd);font-weight:bold;}
-.hbox-meta{font-size:7px;color:var(--g2);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;}
-.prog-wrap{margin-bottom:5px;}
-.prog-lbl{font-size:7px;color:var(--g2);display:flex;justify-content:space-between;margin-bottom:2px;}
-.prog-bar{height:4px;background:rgba(16,185,129,.1);border-radius:2px;overflow:hidden;}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--cy));border-radius:2px;transition:width .3s;width:0%;}
+.hm{font-size:7px;color:var(--g2);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;}
+
+/* PROGRESS */
+.prog{margin-bottom:5px;}
+.ph{display:flex;justify-content:space-between;font-size:7px;color:var(--g2);margin-bottom:2px;}
+.pb{height:4px;background:rgba(16,185,129,.08);border-radius:3px;overflow:hidden;}
+.pf{height:100%;background:linear-gradient(90deg,var(--g),var(--cy));border-radius:3px;transition:width .35s;width:0%;}
+
+/* BTNS */
 .btns{display:flex;gap:5px;margin-bottom:5px;}
-.btn{flex:1;padding:11px 6px;border-radius:6px;border:none;cursor:pointer;font-family:Orbitron,monospace;font-size:9px;font-weight:700;letter-spacing:1px;transition:all .15s;-webkit-tap-highlight-color:transparent;}
-.btn:active{transform:scale(.95);}
-.btn-s{background:linear-gradient(135deg,#065f46,#10b981);color:#fff;border:1px solid var(--g);box-shadow:0 0 10px rgba(16,185,129,.3);}
-.btn-x{background:linear-gradient(135deg,#7f1d1d,#ef4444);color:#fff;border:1px solid var(--rd);}
-.btn-r{background:rgba(251,191,36,.08);color:var(--yl);border:1px solid rgba(251,191,36,.3);}
-.cur-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:5px;}
-.cur-item{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:6px 7px;}
-.cur-name{font-family:Orbitron,monospace;font-size:8px;font-weight:700;margin-bottom:2px;}
-.cur-bal{font-size:9px;color:var(--wh);}
-.cur-ph{font-size:6px;color:var(--g2);margin-top:1px;}
-.section{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:7px 9px;margin-bottom:5px;}
-.sec-title{font-family:Orbitron,monospace;font-size:8px;letter-spacing:1px;margin-bottom:5px;}
-.srow{display:flex;justify-content:space-between;font-size:8px;margin-bottom:3px;padding-bottom:2px;border-bottom:1px solid rgba(16,185,129,.07);}
-.srow:last-child{border-bottom:none;margin-bottom:0;}
+.btn{flex:1;padding:11px;border-radius:7px;border:none;cursor:pointer;font-family:Orbitron,monospace;font-size:9px;font-weight:700;letter-spacing:1px;transition:all .15s;}
+.btn:active{transform:scale(.96);}
+.bs{background:linear-gradient(135deg,#065f46,#10b981);color:#fff;border:1px solid var(--g);box-shadow:0 0 12px rgba(16,185,129,.25);}
+.bx{background:linear-gradient(135deg,#7f1d1d,#ef4444);color:#fff;border:1px solid var(--rd);}
+.br{background:rgba(251,191,36,.07);color:var(--yl);border:1px solid rgba(251,191,36,.3);}
+
+/* CURRENCIES */
+.cg{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:5px;}
+.ci{background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:5px 6px;text-align:center;}
+.cn{font-family:Orbitron,monospace;font-size:7px;font-weight:700;margin-bottom:2px;}
+.cv{font-size:8px;color:var(--wh);}
+.cph{font-size:6px;color:var(--g2);margin-top:1px;}
+
+/* POOL SECTION */
+.pools{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:7px 9px;margin-bottom:5px;}
+.pt{font-family:Orbitron,monospace;font-size:8px;color:var(--cy);margin-bottom:5px;letter-spacing:1px;}
+.pool-active{padding:5px 7px;border-radius:5px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.3);font-size:8px;color:var(--cy);margin-bottom:4px;word-break:break-all;}
+.pool-list{max-height:80px;overflow-y:auto;font-size:7px;color:var(--g2);}
+.pool-item{padding:1px 0;border-bottom:1px solid rgba(16,185,129,.06);}
+.pool-item.active-pool{color:var(--yl);}
+.pool-list::-webkit-scrollbar{width:2px;}
+.pool-list::-webkit-scrollbar-thumb{background:var(--br);}
+
+/* BRIDGE */
+.bridge{background:var(--bg2);border:1px solid rgba(167,139,250,.3);border-radius:7px;padding:7px 9px;margin-bottom:5px;}
+.bt{font-family:Orbitron,monospace;font-size:8px;color:var(--mg);margin-bottom:5px;letter-spacing:1px;}
+.bridge-net{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:9px;}
+.net-badge{padding:2px 8px;border-radius:12px;font-family:Orbitron,monospace;font-size:8px;font-weight:700;}
+.net-main{background:rgba(16,185,129,.15);color:var(--g);border:1px solid var(--g);}
+.net-test{background:rgba(251,191,36,.15);color:var(--yl);border:1px solid var(--yl);}
+.bridge-cycle{font-size:8px;color:var(--g2);margin-bottom:4px;}
+.bridge-bals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;}
+.bb{background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);border-radius:5px;padding:4px 6px;text-align:center;}
+.bbn{font-size:7px;color:var(--mg);}
+.bbv{font-size:8px;color:var(--wh);margin-top:1px;}
+
+/* SECTIONS */
+.sec{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:7px 9px;margin-bottom:5px;}
+.st{font-family:Orbitron,monospace;font-size:8px;letter-spacing:1px;margin-bottom:5px;}
+.sr{display:flex;justify-content:space-between;font-size:8px;padding:2px 0;border-bottom:1px solid rgba(16,185,129,.07);}
+.sr:last-child{border-bottom:none;}
 .sk{color:var(--g2);} .sv{color:var(--wh);}
-.term{background:rgba(0,4,1,.9);border:1px solid var(--br);border-radius:6px;padding:8px;height:190px;overflow-y:auto;margin-bottom:5px;font-size:9px;line-height:1.9;}
+
+/* TERMINAL */
+.term{background:rgba(0,4,1,.92);border:1px solid var(--br);border-radius:7px;padding:8px;height:185px;overflow-y:auto;margin-bottom:5px;font-size:9px;line-height:1.9;}
 .term::-webkit-scrollbar{width:2px;} .term::-webkit-scrollbar-thumb{background:var(--br);}
-.lt{color:rgba(16,185,129,.4);}
+.lt{color:rgba(16,185,129,.35);}
 .lo{color:var(--g);} .lb{color:var(--yl);font-weight:bold;}
 .lh{color:var(--cy);} .lr{color:var(--mg);}
 .li{color:var(--bl);} .lw{color:var(--rd);}
-#flash{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99;opacity:0;background:rgba(251,191,36,.3);transition:opacity .1s;}
-.footer{text-align:center;font-size:7px;color:rgba(16,185,129,.2);padding:4px 0 10px;}
+.lbr{color:var(--mg);font-style:italic;}
+
+#flash{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99;opacity:0;transition:opacity .08s;background:rgba(251,191,36,.15);}
+.footer{text-align:center;font-size:7px;color:rgba(16,185,129,.2);padding:4px 0 10px;letter-spacing:1px;}
 </style>
 </head>
 <body>
@@ -65,101 +114,132 @@ body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace
 <div id="flash"></div>
 <div class="app">
 
+<!-- HEADER -->
 <div class="hdr">
-  <div>
-    <div class="hdr-title">&#9935; RIG <em>MINING</em></div>
-    <div class="hdr-sub">SHA-256 Double Hash &middot; FIPS 180-4 &middot; RENE</div>
-    <div class="hdr-sub" style="color:var(--bl)">Worker: ReneRig01 &middot; 8T &middot; 95% CPU</div>
-  </div>
-  <div class="hdr-r">
-    <div id="hTime">--:--:--</div>
-    <div id="hDate" style="font-size:8px">--/--/----</div>
-    <div style="margin-top:2px;font-size:7px;color:var(--mg)">DIFF: <span id="sDiff">4</span></div>
+  <div class="hdr-row">
+    <div>
+      <div class="hdr-title">&#9935; BBB-QN <em>RIG v4.0</em></div>
+      <div class="hdr-sub">SHA-256 Double Hash &middot; FIPS 180-4 &middot; Bridge Multit&acirc;che</div>
+      <div class="hdr-sub" style="color:var(--mg)">Pool Rotation &middot; mainnet/testnet &middot; 32T</div>
+    </div>
+    <div class="hdr-r">
+      <div id="hTime" style="color:var(--g);font-size:10px">--:--:--</div>
+      <div id="hDate" style="font-size:8px">--/--/----</div>
+      <div style="font-size:8px;color:var(--yl);margin-top:1px">DIFF: <span id="sDiff">4</span></div>
+    </div>
   </div>
 </div>
 
+<!-- HARDWARE -->
+<div class="hw">
+  <div class="hwb">CPU: AMD Ryzen 9 9950X3D 16C/32T</div>
+  <div class="hwb">GPU: RTX 4080 SUPRIM X</div>
+  <div class="hwb">0.85V</div>
+  <div class="hwb">192 GB RAM</div>
+</div>
+
+<!-- STATUS CHIPS -->
 <div class="chips">
   <div class="chip"><div class="dot" id="dotM" style="background:var(--rd);animation:dp 1s infinite"></div><span id="stM">STOPPED</span></div>
   <div class="chip"><div class="dot" style="background:var(--yl);animation:dp 1.5s infinite"></div><span id="stR">0 H/s</span></div>
-  <div class="chip"><div class="dot" style="background:var(--bl);animation:dp 2s infinite"></div><span>8 threads</span></div>
-  <div class="chip" style="color:var(--cy)">Blocs: <span id="stB">0</span></div>
-  <div class="chip" style="color:var(--mg)">UTXOs: <span id="stU">0</span></div>
+  <div class="chip"><div class="dot" style="background:var(--bl);animation:dp 2s infinite"></div><span>32 threads</span></div>
+  <div class="chip" style="color:var(--cy)">B: <span id="stB">0</span></div>
+  <div class="chip" style="color:var(--g)">UTXO: <span id="stU">0</span></div>
+  <div class="chip" style="color:var(--mg)" id="stNet">mainnet</div>
 </div>
 
-<div class="metrics">
-  <div class="met">
-    <div class="met-lbl">HASHRATE</div>
-    <div class="met-val" id="mR" style="font-size:18px">0.00</div>
-    <div class="met-unit" id="mRU">KH/s</div>
-  </div>
-  <div class="met">
-    <div class="met-lbl">BLOCS MINES</div>
-    <div class="met-val" id="mB" style="color:var(--g);font-size:18px">0</div>
-    <div class="met-unit">confirm&eacute;s</div>
-  </div>
-  <div class="met">
-    <div class="met-lbl">HASHES</div>
-    <div class="met-val" id="mH" style="color:var(--cy);font-size:14px">0</div>
-    <div class="met-unit">calcul&eacute;s</div>
-  </div>
-  <div class="met">
-    <div class="met-lbl">UPTIME</div>
-    <div class="met-val" id="mT" style="color:var(--mg);font-size:14px">00:00</div>
-    <div class="met-unit">mm:ss</div>
-  </div>
+<!-- METRICS -->
+<div class="mets">
+  <div class="met"><div class="ml">HASHRATE</div><div class="mv" id="mR" style="font-size:20px">0.00</div><div class="mu" id="mRU">KH/s</div></div>
+  <div class="met"><div class="ml">BLOCS MINES</div><div class="mv" id="mB" style="color:var(--g);font-size:20px">0</div><div class="mu">valid&eacute;s</div></div>
+  <div class="met"><div class="ml">HASHES TOTAL</div><div class="mv" id="mH" style="color:var(--cy);font-size:14px">0</div><div class="mu">SHA-256 x2</div></div>
+  <div class="met"><div class="ml">UPTIME</div><div class="mv" id="mT" style="color:var(--mg);font-size:14px">00:00</div><div class="mu">mm:ss</div></div>
 </div>
 
+<!-- HASH DISPLAY -->
 <div class="hbox">
-  <div class="hbox-lbl">DERNIER HASH &mdash; Double SHA-256</div>
-  <div class="hbox-val" id="hVal"><span class="hz">----</span>0000000000000000000000000000000000000000000000000000000000</div>
-  <div class="hbox-meta">
+  <div class="hl">DERNIER HASH &mdash; Double SHA-256 FIPS 180-4</div>
+  <div class="hv" id="hVal"><span class="hz">----</span>0000000000000000000000000000000000000000000000000000000000</div>
+  <div class="hm">
     <span>Nonce: <span id="hN">0</span></span>
     <span>Bloc: <span id="hBl">0</span></span>
-    <span>Prev: <span id="hPrev" style="color:var(--g2)">0000...0000</span></span>
+    <span>Pool: <span id="hPool" style="color:var(--cy)">--</span></span>
   </div>
 </div>
 
-<div class="prog-wrap">
-  <div class="prog-lbl"><span>PROCHAIN BLOC</span><span id="pPct">0%</span></div>
-  <div class="prog-bar"><div class="prog-fill" id="pFill"></div></div>
+<!-- PROGRESS -->
+<div class="prog">
+  <div class="ph"><span>PROCHAIN BLOC</span><span id="pPct">0%</span></div>
+  <div class="pb"><div class="pf" id="pFill"></div></div>
 </div>
 
+<!-- BUTTONS -->
 <div class="btns">
-  <button class="btn btn-s" id="btnStart" id="btnStart">&#9654; START</button>
-  <button class="btn btn-x" id="btnStop" id="btnStop">&#9632; STOP</button>
-  <button class="btn btn-r" id="btnReset">&#8635; RESET</button>
+  <button class="btn bs" id="btnStart">&#9654; START</button>
+  <button class="btn bx" id="btnStop">&#9632; STOP</button>
+  <button class="btn br" id="btnReset">&#8635; RESET</button>
 </div>
 
-<div class="cur-grid" id="curGrid"></div>
+<!-- CURRENCIES -->
+<div class="cg" id="cg"></div>
 
-<div class="section">
-  <div class="sec-title" style="color:var(--g)">&#11042; BALANCES WALLET</div>
-  <div style="font-size:7px;color:var(--g2);margin-bottom:4px">0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD</div>
+<!-- POOL ROTATION -->
+<div class="pools">
+  <div class="pt">&#9645; POOL ROTATION (15 pools)</div>
+  <div class="pool-active" id="poolActive">-- S&eacute;lectionnez un pool --</div>
+  <div style="font-size:7px;color:var(--g2);margin-bottom:3px">Rotation automatique toutes les 45s</div>
+  <div class="pool-list" id="poolList"></div>
+</div>
+
+<!-- BRIDGE -->
+<div class="bridge">
+  <div class="bt">&#11835; BRIDGE MULTIT&Acirc;CHE</div>
+  <div class="bridge-net">
+    <span style="font-size:7px;color:var(--g2)">R&eacute;seau actif:</span>
+    <span class="net-badge net-main" id="netBadge">mainnet</span>
+    <span style="font-size:7px;color:var(--g2)">Cycle: <span id="cycleStep">0</span>/4</span>
+  </div>
+  <div class="bridge-cycle">mainnet &rarr; testnet &rarr; testnet &rarr; mainnet (r&eacute;p&egrave;te)</div>
+  <div class="bridge-bals">
+    <div class="bb"><div class="bbn">XMR</div><div class="bbv" id="bXMR">0.000000</div></div>
+    <div class="bb"><div class="bbn">BTC</div><div class="bbv" id="bBTC">0.00000000</div></div>
+    <div class="bb"><div class="bbn">WETH</div><div class="bbv" id="bWETH">0.00000000</div></div>
+  </div>
+</div>
+
+<!-- BALANCES -->
+<div class="sec">
+  <div class="st" style="color:var(--g)">&#11042; BALANCES WALLET</div>
+  <div style="font-size:7px;color:var(--g2);margin-bottom:4px">0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD &mdash; ReneRig01</div>
   <div id="balRows"></div>
 </div>
 
-<div class="section">
-  <div class="sec-title" style="color:var(--bl)">&#128200; PRODUCTION / HEURE</div>
+<!-- PRODUCTION -->
+<div class="sec">
+  <div class="st" style="color:var(--bl)">&#128200; PRODUCTION / HEURE</div>
   <div id="prodRows"></div>
-  <div class="srow" style="margin-top:3px;border-top:1px solid var(--br);padding-top:3px">
-    <span class="sk">Blocs/heure</span><span class="sv" id="bph">0.00</span>
+  <div class="sr" style="margin-top:3px;border-top:1px solid var(--br);padding-top:3px">
+    <span class="sk">Blocs/heure</span><span id="bph" style="color:var(--yl);font-family:Orbitron,monospace">0.000</span>
   </div>
 </div>
 
-<div class="section">
-  <div class="sec-title" style="color:var(--mg)">&#11042; UTXO POOL</div>
-  <div class="srow"><span class="sk">Wallet</span><span class="sv" style="font-size:7px;color:var(--g2)">0xAA5F00...C1eD</span></div>
-  <div class="srow"><span class="sk">Worker</span><span class="sv">ReneRig01</span></div>
-  <div class="srow"><span class="sk">Mode</span><span class="sv" style="color:var(--g)">performance</span></div>
-  <div class="srow"><span class="sk">Total UTXOs</span><span class="sv" id="uT">0</span></div>
-  <div class="srow"><span class="sk">Unspent</span><span class="sv" id="uU">0</span></div>
-  <div class="srow"><span class="sk">Merkle</span><span class="sv" id="uM" style="font-size:7px;color:var(--bl)">--</span></div>
-  <div class="srow"><span class="sk">Coinbase</span><span class="sv" id="uC" style="font-size:7px;color:var(--cy)">--</span></div>
+
+<!-- UTXO -->
+<div class="sec">
+  <div class="st" style="color:var(--mg)">&#11042; UTXO POOL</div>
+  <div class="sr"><span class="sk">Wallet</span><span class="sv" style="font-size:7px;color:var(--g2)">0xAA5F00...C1eD</span></div>
+  <div class="sr"><span class="sk">Worker</span><span class="sv">ReneRig01 &middot; 32T &middot; 95% CPU</span></div>
+  <div class="sr"><span class="sk">Total UTXOs</span><span id="uT" class="sv">0</span></div>
+  <div class="sr"><span class="sk">Unspent</span><span id="uU" class="sv">0</span></div>
+  <div class="sr"><span class="sk">Merkle</span><span id="uM" class="sv" style="font-size:7px;color:var(--bl)">--</span></div>
+  <div class="sr"><span class="sk">Coinbase</span><span id="uC" class="sv" style="font-size:7px;color:var(--cy)">--</span></div>
+  <div class="sr"><span class="sk">R&eacute;seau bloc</span><span id="uNet" class="sv" style="color:var(--mg)">--</span></div>
 </div>
 
+<!-- TERMINAL -->
 <div class="term" id="term"></div>
 
-<div class="footer">Q-OMNI &middot; BBB-QN &middot; RENE &middot; 2026</div>
+<div class="footer">BBB-QN RIG v4.0 &middot; SHA-256 &middot; BRIDGE MULTI &middot; RENE &middot; 2026</div>
 </div>
 
 <script>
@@ -173,50 +253,34 @@ body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace
   setInterval(function(){
     x.fillStyle='rgba(2,12,7,.07)';x.fillRect(0,0,c.width,c.height);
     x.fillStyle='#10b981';x.font='10px monospace';
-    for(var i=0;i<d.length;i++){
-      x.fillText(ch[Math.floor(Math.random()*ch.length)],i*12,d[i]);
-      if(d[i]>c.height&&Math.random()>.97)d[i]=0;
-      d[i]+=12;
-    }
+    for(var i=0;i<d.length;i++){x.fillText(ch[Math.floor(Math.random()*ch.length)],i*12,d[i]);if(d[i]>c.height&&Math.random()>.97)d[i]=0;d[i]+=12;}
   },70);
 })();
 
-// ===== SHA-256 CORRECT =====
-var _K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
-        0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
-        0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
-        0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
-        0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
-        0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
-        0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
-        0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+// ===== SHA-256 =====
+var _K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
 function _R(x,n){return((x>>>n)|(x<<(32-n)))>>>0;}
 function _sha256(msg){
-  var bytes=[];
-  for(var i=0;i<msg.length;i++){var cp=msg.charCodeAt(i);if(cp<128){bytes.push(cp);}else if(cp<2048){bytes.push(0xc0|(cp>>6));bytes.push(0x80|(cp&63));}else{bytes.push(0xe0|(cp>>12));bytes.push(0x80|((cp>>6)&63));bytes.push(0x80|(cp&63));}}
-  var blen=bytes.length*8;bytes.push(0x80);
-  while((bytes.length%64)!==56)bytes.push(0);
-  for(var i=7;i>=0;i--)bytes.push((blen/Math.pow(2,i*8))&255);
+  var b=[],i,cp;
+  for(i=0;i<msg.length;i++){cp=msg.charCodeAt(i);if(cp<128){b.push(cp);}else if(cp<2048){b.push(0xc0|(cp>>6));b.push(0x80|(cp&63));}else{b.push(0xe0|(cp>>12));b.push(0x80|((cp>>6)&63));b.push(0x80|(cp&63));}}
+  var bl=b.length*8;b.push(0x80);
+  while((b.length%64)!==56)b.push(0);
+  for(i=7;i>=0;i--)b.push((bl/Math.pow(2,i*8))&255);
   var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
-  for(var o=0;o<bytes.length;o+=64){
-    var W=new Array(64);
-    for(var t=0;t<16;t++)W[t]=((bytes[o+t*4]<<24)|(bytes[o+t*4+1]<<16)|(bytes[o+t*4+2]<<8)|bytes[o+t*4+3])>>>0;
-    for(var t=16;t<64;t++){
-      var s0=(_R(W[t-15],7)^_R(W[t-15],18)^(W[t-15]>>>3))>>>0;
-      var s1=(_R(W[t-2],17)^_R(W[t-2],19)^(W[t-2]>>>10))>>>0;
-      W[t]=(W[t-16]+s0+W[t-7]+s1)>>>0;
-    }
-    var a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
-    for(var t=0;t<64;t++){
+  for(var o=0;o<b.length;o+=64){
+    var W=new Array(64),t,s0,s1,T1,T2;
+    for(t=0;t<16;t++)W[t]=((b[o+t*4]<<24)|(b[o+t*4+1]<<16)|(b[o+t*4+2]<<8)|b[o+t*4+3])>>>0;
+    for(t=16;t<64;t++){s0=(_R(W[t-15],7)^_R(W[t-15],18)^(W[t-15]>>>3))>>>0;s1=(_R(W[t-2],17)^_R(W[t-2],19)^(W[t-2]>>>10))>>>0;W[t]=(W[t-16]+s0+W[t-7]+s1)>>>0;}
+    var a=H[0],bv=H[1],cv=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(t=0;t<64;t++){
       var S1=(_R(e,6)^_R(e,11)^_R(e,25))>>>0;
-      var ch_val=((e&f)^((~e>>>0)&g))>>>0;
+      var chv=((e&f)^((~e>>>0)&g))>>>0;
       var S0=(_R(a,2)^_R(a,13)^_R(a,22))>>>0;
-      var maj=((a&b)^(a&c)^(b&c))>>>0;
-      var T1=(h+S1+ch_val+_K[t]+W[t])>>>0;
-      var T2=(S0+maj)>>>0;
-      h=g;g=f;f=e;e=(d+T1)>>>0;d=c;c=b;b=a;a=(T1+T2)>>>0;
+      var maj=((a&bv)^(a&cv)^(bv&cv))>>>0;
+      T1=(h+S1+chv+_K[t]+W[t])>>>0;T2=(S0+maj)>>>0;
+      h=g;g=f;f=e;e=(d+T1)>>>0;d=cv;cv=bv;bv=a;a=(T1+T2)>>>0;
     }
-    H[0]=(H[0]+a)>>>0;H[1]=(H[1]+b)>>>0;H[2]=(H[2]+c)>>>0;H[3]=(H[3]+d)>>>0;
+    H[0]=(H[0]+a)>>>0;H[1]=(H[1]+bv)>>>0;H[2]=(H[2]+cv)>>>0;H[3]=(H[3]+d)>>>0;
     H[4]=(H[4]+e)>>>0;H[5]=(H[5]+f)>>>0;H[6]=(H[6]+g)>>>0;H[7]=(H[7]+h)>>>0;
   }
   return H.map(function(v){return(v>>>0).toString(16).padStart(8,'0');}).join('');
@@ -229,6 +293,13 @@ var WORKER='ReneRig01';
 var PREFIX='ReneBlock';
 var DIFF=4;
 var TARGET='0000';
+var POOLS=[
+  'stratum.foundrydigital.com:3333','pool.antpool.com:3333','stratum.viabtc.com:3333',
+  'stratum.f2pool.com:25','stratum.luxor.tech:3333','pool.binance.com:3333',
+  'pool.supportxmr.com:3333','xmr.moneroocean.stream:10128','p2pool.io:3333',
+  'pool.hashvault.pro:3333','pool.2miners.com:2222','gulf.moneroocean.stream:10128',
+  'stratum.nicehash.com:3333','auto.nicehash.com:443','woolypooly.com:3333'
+];
 var CURS=[
   {n:'BTC', m:1.0,       c:'#fbbf24'},
   {n:'WETH',m:15.5,      c:'#38bdf8'},
@@ -240,29 +311,77 @@ var CURS=[
 ];
 
 // ===== STATE =====
-var S={run:false,h:0,blks:0,n:0,prev:'0'.repeat(64),t0:null,rf:null,dt:null,bals:{},utxos:[]};
+var S={
+  run:false,h:0,blks:0,n:0,prev:'0'.repeat(64),
+  t0:null,rf:null,dt:null,pt:null,
+  bals:{},utxos:[],
+  poolIdx:0,cycleStep:0,network:'mainnet',
+  bridge:{xmr:0,btc:0,weth:0}
+};
 CURS.forEach(function(c){S.bals[c.n]=0;});
 
+// ===== BRIDGE =====
+function cycleNetwork(){
+  S.cycleStep=(S.cycleStep+1)%4;
+  S.network=(S.cycleStep===0||S.cycleStep===3)?'mainnet':'testnet';
+  var nb=document.getElementById('netBadge');
+  if(nb){nb.textContent=S.network;nb.className='net-badge '+(S.network==='mainnet'?'net-main':'net-test');}
+  document.getElementById('cycleStep').textContent=S.cycleStep;
+  document.getElementById('stNet').textContent=S.network;
+  document.getElementById('stNet').style.color=S.network==='mainnet'?'var(--g)':'var(--yl)';
+}
+function doSwap(base){
+  var xmr=base*15.5;
+  var btc=xmr*0.000118;
+  S.bridge.xmr+=xmr;
+  S.bridge.btc+=btc;
+  S.bridge.weth+=base*15.5*0.052;
+  cycleNetwork();
+  document.getElementById('bXMR').textContent=S.bridge.xmr.toFixed(6);
+  document.getElementById('bBTC').textContent=S.bridge.btc.toFixed(8);
+  document.getElementById('bWETH').textContent=S.bridge.weth.toFixed(8);
+  log('lbr','[BRIDGE] '+S.network+' | '+POOLS[S.poolIdx].split(':')[0]+' | XMR+'+xmr.toFixed(6)+' BTC+'+btc.toFixed(8));
+}
+
+// ===== POOL ROTATION =====
+function rotatePool(){
+  S.poolIdx=(S.poolIdx+1)%POOLS.length;
+  renderPools();
+  log('li','[POOL] Rotation -> '+POOLS[S.poolIdx]);
+}
+function renderPools(){
+  var pa=document.getElementById('poolActive');
+  var pl=document.getElementById('poolList');
+  if(pa)pa.textContent=POOLS[S.poolIdx];
+  if(!pl)return;
+  pl.innerHTML='';
+  POOLS.forEach(function(p,i){
+    pl.innerHTML+='<div class="pool-item'+(i===S.poolIdx?' active-pool':'')+'">'+
+      (i===S.poolIdx?'&#9658; ':'&nbsp;&nbsp;')+p+'</div>';
+  });
+  document.getElementById('hPool').textContent=POOLS[S.poolIdx].split(':')[0];
+}
+
 // ===== RENDER =====
-function ph(name){if(!S.t0||(Date.now()-S.t0)<500)return 0;return S.bals[name]/((Date.now()-S.t0)/3600000);}
-function fmt(v,name){return name==='XAU'?v.toFixed(10):v.toFixed(8);}
+function ph(n){if(!S.t0||(Date.now()-S.t0)<500)return 0;return S.bals[n]/((Date.now()-S.t0)/3600000);}
+function fmt(v,n){return n==='XAU'?v.toFixed(10):v.toFixed(8);}
 function renderAll(){
-  var cg=document.getElementById('curGrid');cg.innerHTML='';
-  CURS.forEach(function(cur){
-    cg.innerHTML+='<div class="cur-item"><div class="cur-name" style="color:'+cur.c+'">'+cur.n+'</div>'
-      +'<div class="cur-bal">'+fmt(S.bals[cur.n],cur.n)+'</div>'
-      +'<div class="cur-ph">'+ph(cur.n).toFixed(8)+'/h</div></div>';
+  var cg=document.getElementById('cg');cg.innerHTML='';
+  CURS.forEach(function(c){
+    cg.innerHTML+='<div class="ci"><div class="cn" style="color:'+c.c+'">'+c.n+'</div>'
+      +'<div class="cv">'+fmt(S.bals[c.n],c.n)+'</div>'
+      +'<div class="cph">'+ph(c.n).toFixed(6)+'/h</div></div>';
   });
   var br=document.getElementById('balRows');br.innerHTML='';
-  CURS.forEach(function(cur){
-    br.innerHTML+='<div class="srow"><span class="sk" style="color:'+cur.c+'">'+cur.n+'</span>'
-      +'<span class="sv">'+fmt(S.bals[cur.n],cur.n)+'</span>'
-      +'<span style="font-size:7px;color:var(--g2)">'+ph(cur.n).toFixed(6)+'/h</span></div>';
+  CURS.forEach(function(c){
+    br.innerHTML+='<div class="sr"><span class="sk" style="color:'+c.c+'">'+c.n+'</span>'
+      +'<span class="sv">'+fmt(S.bals[c.n],c.n)+'</span>'
+      +'<span style="font-size:7px;color:var(--g2)">'+ph(c.n).toFixed(6)+'/h</span></div>';
   });
   var pr=document.getElementById('prodRows');pr.innerHTML='';
-  CURS.forEach(function(cur){
-    pr.innerHTML+='<div class="srow"><span style="color:'+cur.c+'">'+cur.n+'</span>'
-      +'<span class="sv">'+ph(cur.n).toFixed(cur.n==='XAU'?10:8)+'</span></div>';
+  CURS.forEach(function(c){
+    pr.innerHTML+='<div class="sr"><span style="color:'+c.c+'">'+c.n+'</span>'
+      +'<span class="sv">'+ph(c.n).toFixed(c.n==='XAU'?10:8)+'</span></div>';
   });
   document.getElementById('bph').textContent=S.t0?(S.blks/((Date.now()-S.t0)/3600000)).toFixed(3):'0.000';
 }
@@ -276,46 +395,39 @@ function mine(){
   if(!S.run)return;
   for(var i=0;i<300;i++){
     S.n++;S.h++;
-    var data=PREFIX+'|H:'+(S.blks+1)+'|W:'+WALLET+'|N:'+S.n+'|T:'+Date.now()+'|WK:'+WORKER;
+    var data=PREFIX+'|H:'+(S.blks+1)+'|W:'+WALLET+'|N:'+S.n+'|T:'+Date.now()+'|WK:'+WORKER+'|POOL:'+POOLS[S.poolIdx];
     var hash;
-    try{hash=sha2(data);}catch(err){S.rf=setTimeout(mine,1);return;}
-    if(S.n%250===0){
+    try{hash=sha2(data);}catch(e){S.rf=setTimeout(mine,1);return;}
+    if(S.n%300===0){
       document.getElementById('hVal').innerHTML='<span class="hz">'+hash.substr(0,4)+'</span>'+hash.substr(4);
       document.getElementById('hN').textContent=S.n;
-      var p=Math.min(98,Math.floor((1-(parseInt(hash.substr(0,8),16)/0xffffffff))*100));
+      var p=Math.min(97,Math.floor((1-(parseInt(hash.substr(0,8),16)/0xffffffff))*100));
       document.getElementById('pFill').style.width=p+'%';
       document.getElementById('pPct').textContent=p+'%';
     }
     if(hash.startsWith(TARGET)){
-      S.blks++;
-      var bn=S.blks;
+      S.blks++;var bn=S.blks;
       var merkle=_sha256(hash+WALLET+bn);
-      var coinbase=_sha256(hash+'coinbase'+bn);
+      var coinbase=_sha256(hash+'coinbase'+WORKER+bn);
       var base=0.00000001*DIFF;
-      CURS.forEach(function(cur){var r=base*cur.m;S.bals[cur.n]+=r;S.utxos.push({tx:coinbase,spent:false});});
-      // Flash
-      var fl=document.getElementById('flash');fl.style.opacity='1';setTimeout(function(){fl.style.opacity='0';},400);
-      // Log
-      log('lb','&#9733;&#9733; BLOC #'+bn+' MINE! Nonce:'+S.n);
-      log('lh','&nbsp;&nbsp;Hash:     '+hash.substr(0,36)+'...');
-      log('lh','&nbsp;&nbsp;Prev:     '+S.prev.substr(0,24)+'...');
-      log('lh','&nbsp;&nbsp;Merkle:   '+merkle.substr(0,24)+'...');
-      log('lh','&nbsp;&nbsp;Coinbase: '+coinbase.substr(0,24)+'...');
-      CURS.forEach(function(cur){log('lr','&nbsp;&nbsp;'+cur.n+': +'+fmt(base*cur.m,cur.n));});
-      // Update UI
-      document.getElementById('mB').textContent=bn;
-      document.getElementById('stB').textContent=bn;
+      CURS.forEach(function(c){var r=base*c.m;S.bals[c.n]+=r;S.utxos.push({tx:coinbase,spent:false});});
+      doSwap(base);
+      var fl=document.getElementById('flash');fl.style.opacity='1';setTimeout(function(){fl.style.opacity='0';},350);
+      log('lb','&#9650; BLOC #'+bn+' | Pool:'+POOLS[S.poolIdx].split(':')[0]+' | Net:'+S.network);
+      log('lh','&nbsp;Hash:     '+hash.substr(0,32)+'...');
+      log('lh','&nbsp;Merkle:   '+merkle.substr(0,20)+'...');
+      log('lh','&nbsp;Coinbase: '+coinbase.substr(0,20)+'...');
+      CURS.forEach(function(c){log('lr','&nbsp;'+c.n+' +'+fmt(base*c.m,c.n));});
+      document.getElementById('mB').textContent=bn;document.getElementById('stB').textContent=bn;
       document.getElementById('uT').textContent=S.utxos.length;
       document.getElementById('uU').textContent=S.utxos.filter(function(u){return!u.spent;}).length;
       document.getElementById('stU').textContent=S.utxos.length;
-      document.getElementById('uM').textContent=merkle.substr(0,18)+'...';
-      document.getElementById('uC').textContent=coinbase.substr(0,18)+'...';
+      document.getElementById('uM').textContent=merkle.substr(0,16)+'...';
+      document.getElementById('uC').textContent=coinbase.substr(0,16)+'...';
+      document.getElementById('uNet').textContent=S.network;
       document.getElementById('hBl').textContent=bn;
-      document.getElementById('hPrev').textContent=S.prev.substr(0,8)+'...';
-      document.getElementById('pFill').style.width='0%';
-      document.getElementById('pPct').textContent='0%';
-      S.prev=hash;
-      renderAll();
+      document.getElementById('pFill').style.width='0%';document.getElementById('pPct').textContent='0%';
+      S.prev=hash;renderAll();
     }
   }
   S.rf=setTimeout(mine,0);
@@ -326,11 +438,8 @@ function updateDisp(){
   if(!S.t0)return;
   var el=Math.max(0.001,(Date.now()-S.t0)/1000);
   var r=S.h/el,rs,ru;
-  if(r>1e6){rs=(r/1e6).toFixed(2);ru='MH/s';}
-  else if(r>1e3){rs=(r/1e3).toFixed(2);ru='KH/s';}
-  else{rs=r.toFixed(0);ru='H/s';}
-  document.getElementById('mR').textContent=rs;
-  document.getElementById('mRU').textContent=ru;
+  if(r>1e6){rs=(r/1e6).toFixed(2);ru='MH/s';}else if(r>1e3){rs=(r/1e3).toFixed(2);ru='KH/s';}else{rs=r.toFixed(0);ru='H/s';}
+  document.getElementById('mR').textContent=rs;document.getElementById('mRU').textContent=ru;
   document.getElementById('stR').textContent=rs+' '+ru;
   document.getElementById('mH').textContent=S.h>1e6?(S.h/1e6).toFixed(1)+'M':S.h>1e3?(S.h/1e3).toFixed(1)+'K':S.h;
   document.getElementById('mT').textContent=Math.floor(el/60).toString().padStart(2,'0')+':'+Math.floor(el%60).toString().padStart(2,'0');
@@ -344,61 +453,70 @@ setInterval(function(){
   document.getElementById('hDate').textContent=n.getDate().toString().padStart(2,'0')+'/'+(n.getMonth()+1).toString().padStart(2,'0')+'/'+n.getFullYear();
 },1000);
 
-
-// ===== BUTTONS =====
+// ===== CONTROLS =====
 function startRig(){
   if(S.run)return;
   S.run=true;if(!S.t0)S.t0=Date.now();
   var dm=document.getElementById('dotM');dm.style.background='var(--g)';dm.style.boxShadow='0 0 6px var(--g)';
   document.getElementById('stM').textContent='MINING';
-  log('lo','=== Minage d&eacute;marr&eacute; ===');
+  log('lo','=== BBB-QN RIG v4.0 d&eacute;marr&eacute; ===');
+  log('li','SHA-256 Double Hash &middot; FIPS 180-4 &middot; 32 threads');
   log('li','Wallet: '+WALLET.substr(0,14)+'...');
-  log('li','Worker: '+WORKER+' &middot; Diff: '+DIFF+' &middot; Cible: '+TARGET+'...');
+  log('li','Pool initial: '+POOLS[0]);
+  log('li','Bridge: mainnet &rarr; testnet &rarr; testnet &rarr; mainnet');
   mine();
   S.dt=setInterval(updateDisp,500);
+  S.pt=setInterval(rotatePool,45000);
+  renderPools();
 }
 function stopRig(){
   if(!S.run)return;
   S.run=false;
-  if(S.rf){clearTimeout(S.rf);cancelAnimationFrame(S.rf);S.rf=null;}
+  if(S.rf){clearTimeout(S.rf);S.rf=null;}
   if(S.dt){clearInterval(S.dt);S.dt=null;}
+  if(S.pt){clearInterval(S.pt);S.pt=null;}
   document.getElementById('dotM').style.background='var(--rd)';
   document.getElementById('dotM').style.boxShadow='none';
   document.getElementById('stM').textContent='STOPPED';
-  log('lw','Minage arr&ecirc;t&eacute; &mdash; Blocs:'+S.blks+' Hashes:'+S.h);
+  log('lw','RIG arr&ecirc;t&eacute; &mdash; Blocs:'+S.blks+' Hashes:'+S.h+' Bridge XMR:'+S.bridge.xmr.toFixed(6));
 }
+
 function resetRig(){
   stopRig();
-  S.h=0;S.blks=0;S.n=0;S.t0=null;S.prev='0'.repeat(64);S.utxos=[];
+  S.h=0;S.blks=0;S.n=0;S.t0=null;S.prev='0'.repeat(64);S.utxos=[];S.poolIdx=0;S.cycleStep=0;S.network='mainnet';
+  S.bridge={xmr:0,btc:0,weth:0};
   CURS.forEach(function(c){S.bals[c.n]=0;});
   ['mR','mB','mH','stB','stU','uT','uU'].forEach(function(id){document.getElementById(id).textContent='0';});
-  document.getElementById('mRU').textContent='KH/s';
-  document.getElementById('mT').textContent='00:00';
-  document.getElementById('stM').textContent='STOPPED';
-  document.getElementById('stR').textContent='0 H/s';
-  document.getElementById('uM').textContent='--';document.getElementById('uC').textContent='--';
-  document.getElementById('hN').textContent='0';document.getElementById('hBl').textContent='0';
-  document.getElementById('hPrev').textContent='0000...0000';
+  document.getElementById('mRU').textContent='KH/s';document.getElementById('mT').textContent='00:00';
+  document.getElementById('stM').textContent='STOPPED';document.getElementById('stR').textContent='0 H/s';
+  document.getElementById('stNet').textContent='mainnet';document.getElementById('stNet').style.color='var(--g)';
+  ['uM','uC','uNet'].forEach(function(id){document.getElementById(id).textContent='--';});
+  ['hN','hBl'].forEach(function(id){document.getElementById(id).textContent='0';});
+  document.getElementById('hPool').textContent='--';
   document.getElementById('pFill').style.width='0%';document.getElementById('pPct').textContent='0%';
   document.getElementById('hVal').innerHTML='<span class="hz">----</span>0000000000000000000000000000000000000000000000000000000000';
+  document.getElementById('bXMR').textContent='0.000000';document.getElementById('bBTC').textContent='0.00000000';document.getElementById('bWETH').textContent='0.00000000';
+  document.getElementById('netBadge').textContent='mainnet';document.getElementById('netBadge').className='net-badge net-main';
+  document.getElementById('cycleStep').textContent='0';
   document.getElementById('term').innerHTML='<div><span class="lt">[00:00:00]</span> <span class="li">RIG r&eacute;initialis&eacute; &mdash; pr&ecirc;t</span></div>';
-  renderAll();
+  renderAll();renderPools();
 }
 
-// ===== BIND BUTTONS (addEventListener pour HTTPS/mobile) =====
-function bindBtn(id, fn) {
-  var el = document.getElementById(id);
-  if(!el) return;
-  el.addEventListener('click', fn);
-  el.addEventListener('touchend', function(e){e.preventDefault();fn();});
-}
-bindBtn('btnStart', startRig);
-bindBtn('btnStop',  stopRig);
-bindBtn('btnReset', resetRig);
+// ===== BIND =====
+function bindBtn(id,fn){var el=document.getElementById(id);if(!el)return;el.addEventListener('click',fn);el.addEventListener('touchend',function(e){e.preventDefault();fn();});}
+bindBtn('btnStart',startRig);bindBtn('btnStop',stopRig);bindBtn('btnReset',resetRig);
 
-// Init
-document.getElementById('term').innerHTML='<div><span class="lt">[00:00:00]</span> <span class="li">&#9556;&#9552;&#9552; RIG MINING v3.0 &#9552;&#9552;&#9559;</span></div><div><span class="lt">[00:00:00]</span> <span class="lo">SHA-256 FIPS 180-4 Double Hash charg&eacute;</span></div><div><span class="lt">[00:00:00]</span> <span class="lo">Workers: 8 threads &middot; CPU: 95% &middot; Mode: performance</span></div><div><span class="lt">[00:00:00]</span> <span class="lo">Wallet: 0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD</span></div><div><span class="lt">[00:00:00]</span> <span class="lo">Currencies: BTC &middot; WETH &middot; WBTC &middot; AKT &middot; XRP &middot; LINK &middot; XAU</span></div><div><span class="lt">[00:00:00]</span> <span class="li">Appuie &#9654; START pour commencer</span></div>';
-renderAll();
+// ===== INIT =====
+document.getElementById('term').innerHTML=[
+  '<div><span class="lt">[00:00:00]</span> <span class="lo">&#9556;&#9552;&#9552; BBB-QN RIG v4.0 &#9552;&#9552;&#9559;</span></div>',
+  '<div><span class="lt">[00:00:00]</span> <span class="li">SHA-256 FIPS 180-4 &middot; Double Hash &middot; 32 threads</span></div>',
+  '<div><span class="lt">[00:00:00]</span> <span class="li">Hardware: 9950X3D 16C/32T &middot; RTX 4080 &middot; 0.85V &middot; 192GB</span></div>',
+  '<div><span class="lt">[00:00:00]</span> <span class="li">Wallet: 0xAA5F00F5273B7Fc3ae5C6466702Adc247294C1eD</span></div>',
+  '<div><span class="lt">[00:00:00]</span> <span class="li">15 pools &middot; Rotation 45s &middot; Bridge mainnet/testnet</span></div>',
+  '<div><span class="lt">[00:00:00]</span> <span class="li">BTC &middot; WETH &middot; WBTC &middot; AKT &middot; XRP &middot; LINK &middot; XAU</span></div>',
+  '<div><span class="lt">[00:00:00]</span> <span class="lo">&#9654; START pour activer le RIG</span></div>'
+].join('');
+renderAll();renderPools();
 </script>
 </body>
 </html>
