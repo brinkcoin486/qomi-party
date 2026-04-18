@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>rig-wallet-bridge-v5.html</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050807;--surface:#09110d;--surface2:#0d1712;--surface3:#101d16;--line:#1f372a;
+  --text:#dcf6e4;--muted:#78a28b;--faint:#557261;--accent:#57efad;--accent2:#7bc8ff;--warn:#ffd46e;--danger:#ff7b7b;
+  --radius:18px;--radius2:14px;--shadow:0 14px 34px rgba(0,0,0,.35);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --font:'Satoshi',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{font-family:var(--font);background:radial-gradient(circle at 15% 0%, rgba(54,115,84,.22), transparent 24%),linear-gradient(180deg,#07110d,#050706 44%,#030403 100%);color:var(--text)}
+body:before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.06;background:repeating-linear-gradient(to bottom, rgba(255,255,255,.2) 0 1px, transparent 1px 4px)}
+.app{max-width:1260px;margin:0 auto;padding:14px;display:grid;gap:14px}
+.card{background:linear-gradient(180deg,rgba(11,19,15,.96),rgba(6,10,8,.98));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.cardin{padding:14px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.brand{display:grid;gap:4px}.brand small{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}.brand h1{font-size:22px;letter-spacing:.03em}.brand h1 span{color:var(--accent)}
+.badges{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}.badge{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface2);font:12px var(--mono);color:var(--muted)}.badge.live{color:var(--accent)}.gainbox{display:grid;gap:2px;min-width:140px;padding:8px 12px;border-radius:16px;border:1px solid rgba(87,239,173,.28);background:linear-gradient(180deg,rgba(14,27,20,.96),rgba(8,16,12,.98));text-align:right}.gainbox .k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.gainbox .v{font:700 18px var(--mono);color:var(--accent)}
+.layout1{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}@media (max-width:980px){.layout1{grid-template-columns:1fr}}
+.head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}.head h2{font-size:12px;text-transform:uppercase;letter-spacing:.18em;color:var(--muted)}.tag{padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface2);font:11px var(--mono);color:var(--accent2)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}@media (max-width:760px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{padding:14px;border-radius:16px;background:var(--surface2);border:1px solid var(--line)}.metric .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}.metric .v{font:700 28px/1 var(--mono)}.metric .s{font-size:11px;color:var(--muted);margin-top:8px}
+.actions{display:grid;grid-template-columns:1fr 1fr .8fr;gap:10px;margin-top:12px}@media (max-width:760px){.actions{grid-template-columns:1fr 1fr}}.address-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}.progress-card{margin-top:10px;padding:12px;border-radius:16px;background:var(--surface2);border:1px solid var(--line)}.progress-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.progress-head span{font:12px var(--mono);color:var(--muted)}.progress-bar{height:12px;border-radius:999px;overflow:hidden;background:#08100c;border:1px solid #1b2a21}.progress-fill{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2),#d4ff83);box-shadow:0 0 18px rgba(87,239,173,.28);transition:width .35s ease}.progress-grid{margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}@media (max-width:760px){.progress-grid{grid-template-columns:1fr}}.mini{padding:10px 12px;border-radius:12px;background:var(--surface3);border:1px solid var(--line)}.mini .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}.mini .v{font:700 14px var(--mono);color:var(--text)}
+button{border:0;border-radius:16px;padding:14px 16px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;box-shadow:var(--shadow)}
+.start{background:linear-gradient(180deg,#7bf4c5,#31d58d);color:#032315}.stop{background:linear-gradient(180deg,#ff9892,#ef5d5d);color:#2f0606}.mode{background:linear-gradient(180deg,#272d2a,#151b18);color:#e4ece7;border:1px solid #2d3932}.settings{background:linear-gradient(180deg,#7bc8ff,#3c8ed2);color:#061725}
+.matrix{display:grid;gap:10px}.group{padding:12px;border-radius:16px;background:var(--surface2);border:1px solid var(--line)}.group h3{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:9px 10px;border-radius:12px;border:1px solid #264535;background:#0b1712;font:12px var(--mono);color:#caecd7;min-width:68px;text-align:center}.chip.active{border-color:rgba(87,239,173,.45);color:var(--accent);box-shadow:inset 0 0 0 1px rgba(87,239,173,.08)}
+.layout2{display:grid;grid-template-columns:1.12fr .88fr;gap:14px}@media (max-width:1020px){.layout2{grid-template-columns:1fr}}
+.termhead{display:flex;justify-content:space-between;align-items:center;padding:14px;border-bottom:1px solid var(--line)}.terminal{min-height:460px;max-height:660px;overflow:auto;padding:16px;background:linear-gradient(180deg,rgba(9,14,12,.98),rgba(4,6,5,.98));font:13px/1.55 var(--mono)}.line{display:grid;grid-template-columns:auto 1fr auto;gap:12px;padding:2px 0}.ts{color:#77a38e}.ok{color:var(--accent)}.er{color:var(--danger)}.wa{color:var(--warn)}.tg{color:var(--accent2)}
+.side{display:grid;gap:14px}.list{display:grid;gap:10px}.row{display:flex;justify-content:space-between;gap:12px;padding:12px;border-radius:14px;background:var(--surface2);border:1px solid var(--line)}.row .m{font:12px var(--mono);color:var(--muted);margin-top:4px}.row .r{font:12px var(--mono);color:var(--accent2);text-align:right;word-break:break-all;max-width:48%}
+.pools{max-height:330px;overflow:auto;display:grid;gap:10px}.pool{display:flex;justify-content:space-between;gap:12px;padding:12px;border-radius:14px;background:var(--surface2);border:1px solid var(--line)}.pool .meta{font:12px var(--mono);color:var(--muted);margin-top:4px}.pool .pct{font:12px var(--mono);color:var(--accent2)}
+.overlay{position:fixed;inset:0;background:rgba(2,5,4,.72);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;padding:14px;z-index:30}.overlay.open{display:flex}.sheet{width:min(760px,100%);background:linear-gradient(180deg,rgba(12,19,16,.98),rgba(6,10,8,.99));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}.sheethead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}.sheetbody{padding:16px;display:grid;gap:12px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media (max-width:760px){.formgrid{grid-template-columns:1fr}}
+.field{display:grid;gap:8px}.field label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.field input,.field select,.field textarea{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font:14px var(--font)}.field textarea{min-height:92px;resize:vertical;font-family:var(--mono)}.field small{color:var(--faint);font-size:12px}.coin-manual{display:grid;gap:8px;padding:12px;border-radius:14px;background:var(--surface2);border:1px solid var(--line)}.coin-tags{display:flex;flex-wrap:wrap;gap:8px}.coin-tag{padding:8px 10px;border-radius:12px;background:var(--surface3);border:1px solid var(--line);font:12px var(--mono);color:var(--accent2)}
+.sheetactions{display:flex;gap:10px;justify-content:flex-end;padding-top:4px}.ghost{background:linear-gradient(180deg,#242a27,#141916);color:#e2ebe6;border:1px solid #2c3931}.save{background:linear-gradient(180deg,#7af4c4,#31d58d);color:#052415}
+.footer{padding:2px 4px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="card"><div class="cardin top">
+    <div class="brand"><small>Perplexity Signature Mining Surface</small><h1>Rig <span>Wallet Bridge v5</span></h1></div>
+    <div class="badges">
+      <div class="badge live" id="clock">00:00:00</div>
+      <div class="badge" id="uptime">UP 00:00:00</div>
+      <div class="badge" id="networkBadge">MAINNET</div>
+      <div class="badge" id="walletBadge">NO ADDRESS</div>
+      <div class="gainbox"><div class="k">Gains total</div><div class="v" id="totalGains">0.00000000</div></div>
+    </div>
+  </div></section>
+
+  <section class="layout1">
+    <div class="card"><div class="cardin">
+      <div class="head"><h2>Core Metrics</h2><div class="tag" id="algoPill">BTC Â· SHA256AsicBoost</div></div>
+      <div class="metrics">
+        <div class="metric"><div class="k">Hashrate</div><div class="v" id="hashrate">22.89</div><div class="s">network rate</div></div>
+        <div class="metric"><div class="k">Processor</div><div class="v" id="processor">5</div><div class="s">active lanes</div></div>
+        <div class="metric"><div class="k">Hashage</div><div class="v" id="hashage">518.5K</div><div class="s">rig output</div></div>
+        <div class="metric"><div class="k">Blocks</div><div class="v" id="blocks">0</div><div class="s">validated</div></div>
+      </div>
+      <div class="actions">
+        <button class="start" id="startBtn">Start</button>
+        <button class="stop" id="stopBtn">Stop</button>
+        <button class="mode" id="modeBtn">Auto</button>
+      </div>
+      <div class="address-row">
+        <button class="settings" id="settingsBtn">Adresse</button>
+      </div>
+      <div class="progress-card">
+        <div class="progress-head">
+          <span id="progressLabel">Performance globale</span>
+          <span id="progressPct">0%</span>
+        </div>
+          </div>
+      <div class="progress-card">
+        <div class="progress-head">
+          <span id="progressLabel">Performance globale</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-bar"><span class="progress-fill" id="progressFill"></span></div>
+        <div class="progress-grid">
+          <div class="mini"><div class="k">Accepted rate</div><div class="v" id="acceptedRate">0%</div></div>
+          <div class="mini"><div class="k">Hash efficiency</div><div class="v" id="efficiency">0.00</div></div>
+          <div class="mini"><div class="k">Bridge load</div><div class="v" id="bridgeLoad">0%</div></div>
+        </div>
+      </div>
+    </div></div>
+
+    <div class="card"><div class="cardin matrix">
+      <div class="head"><h2>Parameter Matrix</h2><div class="tag">wallet linked</div></div>
+      <div class="group"><h3>Ko</h3><div class="chips" id="koChips"></div></div>
+      <div class="group"><h3>Octets</h3><div class="chips" id="octetChips"></div></div>
+      <div class="group"><h3>Niveaux</h3><div class="chips" id="levelChips"></div></div>
+      <div class="group"><h3>Bridge Modes</h3><div class="chips" id="bridgeChips"></div></div>
+    </div></div>
+  </section>
+
+  <section class="layout2">
+    <div class="card">
+      <div class="termhead">
+        <div><strong style="letter-spacing:.15em;text-transform:uppercase;font-size:13px">Main Rig Terminal</strong><div style="color:var(--muted);font:12px var(--mono);margin-top:4px" id="subtitle">ko=48 Â· octets=48 Â· niveau=4 Â· mode=mainnet</div></div>
+        <div class="tag" id="signal">streaming</div>
+      </div>
+      <div class="terminal" id="terminal"></div>
+    </div>
+
+    <div class="side">
+      <div class="card"><div class="cardin">
+        <div class="head"><h2>Wallet Runtime</h2><div class="tag">in app</div></div>
+        <div class="list">
+          <div class="row"><div><strong>Coin</strong><div class="m">selected asset</div></div><div class="r" id="coinState">BTC</div></div>
+          <div class="row"><div><strong>Pool</strong><div class="m">selected pool</div></div><div class="r" id="poolState">NiceHash</div></div>
+          <div class="row"><div><strong>Login mode</strong><div class="m">wallet or mining address</div></div><div class="r" id="loginModeState">wallet</div></div>
+          <div class="row"><div><strong>Address</strong><div class="m">receiving address</div></div><div class="r" id="addressState">not configured</div></div>
+          <div class="row"><div><strong>Worker</strong><div class="m">rig identity</div></div><div class="r" id="workerState">rig-mainnet-01</div></div>
+          <div class="row"><div><strong>Stratum login</strong><div class="m">computed from settings</div></div><div class="r" id="loginState">not configured</div></div>
+        </div>
+      </div></div>
+
+      <div class="card"><div class="cardin">
+        <div class="head"><h2>All Pools</h2><div class="tag">multi crypto</div></div>
+        <div class="pools">
+          <div class="pool"><div><strong>NiceHash</strong><div class="meta">sha256asicboost.auto.nicehash.com:9200</div></div><div class="pct">BTC</div></div>
+          <div class="pool"><div><strong>Foundry USA</strong><div class="meta">Bitcoin pool reference</div></div><div class="pct">BTC</div></div>
+          <div class="pool"><div><strong>AntPool</strong><div class="meta">Multi-asset mining pool</div></div><div class="pct">BTC/BCH/LTC</div></div>
+          <div class="pool"><div><strong>F2Pool</strong><div class="meta">Multi-crypto pool</div></div><div class="pct">BTC/LTC/KAS</div></div>
+          <div class="pool"><div><strong>ViaBTC</strong><div class="meta">Pool with multiple mineable assets</div></div><div class="pct">BTC/BCH/LTC/KAS</div></div>
+          <div class="pool"><div><strong>Luxor</strong><div class="meta">Bitcoin focused pool</div></div><div class="pct">BTC</div></div>
+          <div class="pool"><div><strong>EMCD</strong><div class="meta">Multi-coin pool</div></div><div class="pct">BTC/DOGE/etc</div></div>
+          <div class="pool"><div><strong>Minerstat index</strong><div class="meta">Directory support for pools</div></div><div class="pct">multi</div></div>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <div class="footer">Real app structure with in-app wallet settings</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div class="sheethead">
+      <div>
+        <strong style="letter-spacing:.15em;text-transform:uppercase;font-size:13px">ParamÃ¨tres de rÃ©ception</strong>
+        <div style="color:var(--muted);font:12px var(--mono);margin-top:4px">Adresse, worker, coin, pool et mode de login</div>
+      </div>
+      <button class="ghost" id="closeSettings" style="padding:10px 14px">Fermer</button>
+    </div>
+    <div class="sheetbody">
+      <div class="formgrid">
+        <div class="field">
+          <label for="coinInput">Crypto</label>
+          <select id="coinInput"></select>
+        </div>
+        <div class="field">
+          <label for="poolInput">Pool</label>
+          <select id="poolInput">
+            <option>NiceHash</option><option>Foundry USA</option><option>AntPool</option><option>F2Pool</option><option>ViaBTC</option><option>Luxor</option><option>EMCD</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="loginModeInput">Mode de login</label>
+          <select id="loginModeInput">
+            <option value="wallet">wallet</option>
+            <option value="mining-address">mining-address</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="workerInput">Worker</label>
+          <input id="workerInput" type="text" value="rig-mainnet-01" placeholder="rig-mainnet-01" />
+        </div>
+      </div>
+      <div class="coin-manual">
+        <label for="manualCoinsInput" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)">Liste manuelle crypto</label>
+        <textarea id="manualCoinsInput" placeholder="ETH, BTC, USDT, XAUT, XTM, SOL, BNB, AVAX, POL, XRP"></textarea>
+        <small>Ajoute ici les symboles sÃ©parÃ©s par virgules. Ils seront intÃ©grÃ©s dans le sÃ©lecteur systÃ¨me.</small>
+        <div class="coin-tags" id="coinTags"></div>
+      </div>
+      <div class="field">
+        <label for="addressInput">Adresse de rÃ©ception</label>
+        <textarea id="addressInput" placeholder="Entre ici l'adresse wallet ou la mining address"></textarea>
+        <small>L'application construit automatiquement l'identitÃ© de connexion affichÃ©e dans le runtime et le terminal.</small>
+      </div>
+      <div class="sheetactions">
+        <button class="ghost" id="clearSettings">Vider</button>
+        <button class="save" id="saveSettings">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KO=[8,12,16,24,32,48,96,128,192,256,512];
+const OCTETS=[8,12,16,24,32,48,96,128,192,256,512];
+const LEVELS=[2,3,4,5,6];
+const BRIDGES=['mainnet','testnet','testnet-mainnet','hashrate','processor','hashage','bridge'];
+const state={running:true,autoMode:true,ko:48,octet:48,level:4,bridge:'mainnet',hashrate:22.89,processor:5,hashage:518.5,uptime:0,accepted:0,rejected:0,total:0,blocks:0,totalGains:0,coin:'BTC',algo:'SHA256AsicBoost',pool:'NiceHash',loginMode:'wallet',address:'',worker:'rig-mainnet-01',manualCoins:['ETH','BTC','USDT','XAUT','XTM','SOL','BNB','AVAX','POL','XRP'],terminal:[]};
+const $=id=>document.getElementById(id);
+const el={}; ['clock','uptime','networkBadge','walletBadge','totalGains','algoPill','hashrate','processor','hashage','blocks','subtitle','signal','terminal','coinState','poolState','loginModeState','addressState','workerState','loginState','overlay','coinInput','poolInput','loginModeInput','workerInput','addressInput','manualCoinsInput','coinTags','progressLabel','progressPct','progressFill','acceptedRate','efficiency','bridgeLoad'].forEach(i=>el[i]=$(i));
+function chipHTML(v,active){return `<div class="chip ${active?'active':''}">${v}</div>`}
+function renderChips(){ $('koChips').innerHTML=KO.map(v=>chipHTML(v+' ko',v===state.ko)).join(''); $('octetChips').innerHTML=OCTETS.map(v=>chipHTML(v+' octets',v===state.octet)).join(''); $('levelChips').innerHTML=LEVELS.map(v=>chipHTML(v+' niveaux',v===state.level)).join(''); $('bridgeChips').innerHTML=BRIDGES.map(v=>chipHTML(v,v===state.bridge)).join(''); }
+function pad(n){return String(n).padStart(2,'0')} function hms(sec){const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return `${pad(h)}:${pad(m)}:${pad(s)}`} function now(){const d=new Date();return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+
+function uniqueCoins(list){ return [...new Set(list.map(x=>x.trim().toUpperCase()).filter(Boolean))]; }
+function systemCoins(){ return uniqueCoins(['BTC','BCH','LTC','DOGE','KAS','ETC','XMR','RVN','NEXA','ZEC',...state.manualCoins]); }
+function renderCoinOptions(){ const coins=systemCoins(); el.coinInput.innerHTML=coins.map(c=>`<option>${c}</option>`).join(''); if(coins.includes(state.coin)) el.coinInput.value=state.coin; else { state.coin=coins[0]||'BTC'; el.coinInput.value=state.coin; } el.coinTags.innerHTML=coins.map(c=>`<div class="coin-tag">${c}</div>`).join(''); el.manualCoinsInput.value=state.manualCoins.join(', '); }
+
+function shortAddress(a){ if(!a) return 'not configured'; return a.length>20 ? a.slice(0,10)+'â€¦'+a.slice(-8) : a }
+function loginString(){ if(!state.address) return 'not configured'; return `${state.address}.${state.worker}` }
+function push(msg,cls='tg',tag='state'){state.terminal.push({t:now(),msg,cls,tag}); if(state.terminal.length>70) state.terminal.shift(); renderTerminal()}
+function renderTerminal(){el.terminal.innerHTML=state.terminal.map(l=>`<div class="line"><span class="ts">[${l.t}]</span><span>${l.msg}</span><span class="${l.cls}">${l.tag}</span></div>`).join(''); el.terminal.scrollTop=el.terminal.scrollHeight}
+function render(){
+  el.clock.textContent=now(); el.uptime.textContent='UP '+hms(state.uptime); el.networkBadge.textContent=state.bridge.toUpperCase(); el.walletBadge.textContent=state.address?'ADDRESS SET':'NO ADDRESS';
+  el.algoPill.textContent=`${state.coin} Â· ${state.algo}`; el.hashrate.textContent=state.hashrate.toFixed(2); el.processor.textContent=state.processor; el.hashage.textContent=state.hashage.toFixed(1)+'K'; el.blocks.textContent=state.blocks; el.totalGains.textContent=state.totalGains.toFixed(8);
+  el.subtitle.textContent=`ko=${state.ko} Â· octets=${state.octet} Â· niveau=${state.level} Â· mode=${state.bridge}`; el.signal.textContent=state.running?'streaming':'paused';
+  el.coinState.textContent=state.coin; el.poolState.textContent=state.pool; el.loginModeState.textContent=state.loginMode; el.addressState.textContent=shortAddress(state.address); el.workerState.textContent=state.worker; el.loginState.textContent=loginString();
+  const acceptedRate = state.total ? (state.accepted / state.total) * 100 : 0;
+  const efficiency = state.hashrate > 0 ? (state.hashage / state.hashrate) : 0;
+  const bridgeLoad = Math.min(100, Math.round((state.level / 6) * 100 + (state.ko / 512) * 35));
+  const perf = Math.max(0, Math.min(100, Math.round(acceptedRate * 0.6 + Math.min(efficiency, 30) * 1.1 + bridgeLoad * 0.15)));
+  el.progressLabel.textContent = `Performance ${state.bridge}`;
+  el.progressPct.textContent = perf + '%';
+  el.progressFill.style.width = perf + '%';
+  el.acceptedRate.textContent = acceptedRate.toFixed(1) + '%';
+  el.efficiency.textContent = efficiency.toFixed(2);
+  el.bridgeLoad.textContent = bridgeLoad + '%';
+  renderChips();
+  renderCoinOptions();
+}
+function cycle(arr,current){const i=arr.indexOf(current); return arr[(i+1)%arr.length]}
+function tick(){
+  if(!state.running){render(); return;}
+  state.uptime++; state.hashrate += (Math.random()-.5)*0.15; state.hashage += (Math.random()-.5)*8;
+  if(state.autoMode){ state.ko=cycle(KO,state.ko); state.octet=cycle(OCTETS,state.octet); state.level=cycle(LEVELS,state.level); state.bridge=cycle(BRIDGES,state.bridge); state.processor=2+(state.level-2); }
+  const accepted = Math.random()>.28; state.total++;
+  if(accepted){ state.accepted++; state.totalGains += 0.00000042; push(`pool=${state.pool} coin=${state.coin} login=${loginString()} ko=${state.ko} octets=${state.octet} niveau=${state.level} share accepted`, 'ok','accepted'); }
+  else { state.rejected++; push(`pool=${state.pool} coin=${state.coin} login=${loginString()} ko=${state.ko} octets=${state.octet} niveau=${state.level} share rejected`, 'er','rejected'); }
+  if(state.accepted && state.accepted % 6 === 0){ state.blocks++; state.totalGains += 0.00000312; push(`block validated coin=${state.coin} pool=${state.pool} receiver=${shortAddress(state.address)}`, 'wa','block'); }
+  render();
+}
+function openSettings(){ renderCoinOptions(); el.coinInput.value=state.coin; el.poolInput.value=state.pool; el.loginModeInput.value=state.loginMode; el.workerInput.value=state.worker; el.addressInput.value=state.address; el.overlay.classList.add('open'); }
+function closeSettings(){ el.overlay.classList.remove('open'); }
+$('settingsBtn').onclick=openSettings; $('closeSettings').onclick=closeSettings; el.overlay.addEventListener('click',e=>{ if(e.target===el.overlay) closeSettings(); });
+$('clearSettings').onclick=()=>{ el.addressInput.value=''; el.workerInput.value='rig-mainnet-01'; el.manualCoinsInput.value='ETH, BTC, USDT, XAUT, XTM, SOL, BNB, AVAX, POL, XRP'; };
+$('saveSettings').onclick=()=>{ state.manualCoins = uniqueCoins(el.manualCoinsInput.value.split(',')); renderCoinOptions(); state.coin=el.coinInput.value; state.pool=el.poolInput.value; state.loginMode=el.loginModeInput.value; state.worker=el.workerInput.value.trim()||'rig-mainnet-01'; state.address=el.addressInput.value.trim(); push(`settings saved coin=${state.coin} pool=${state.pool} mode=${state.loginMode} worker=${state.worker}`, 'tg','settings'); push(`system coins loaded ${systemCoins().join('/')}`, 'tg','coins'); if(state.address) push(`receiver linked ${shortAddress(state.address)}`, 'ok','wallet'); closeSettings(); render(); };
+$('startBtn').onclick=()=>{ state.running=true; push('rig stream started','ok','start'); render(); };
+$('stopBtn').onclick=()=>{ state.running=false; push('rig stream paused','er','stop'); render(); };
+$('modeBtn').onclick=()=>{ state.autoMode=!state.autoMode; $('modeBtn').textContent=state.autoMode?'Auto':'Manual'; push('mode '+(state.autoMode?'auto':'manual'),'wa','mode'); render(); };
+push('boot sequence loaded', 'wa', 'boot'); push('in-app settings ready for crypto receiving address', 'tg', 'ui'); push('system coins preset ETH/BTC/USDT/XAUT/XTM/SOL/BNB/AVAX/POL/XRP', 'tg', 'coins'); render(); setInterval(()=>render(),1000); setInterval(tick,1300);
+</script>
+</body>
+</html>
