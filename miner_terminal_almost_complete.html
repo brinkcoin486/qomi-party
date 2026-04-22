@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rig Miner Terminal v2 · BBB-QN Multi-Miner</title>
+  <style>
+    :root {
+      --bg: #040816;
+      --bg-soft: #071226;
+      --panel: rgba(10, 20, 42, 0.86);
+      --panel-strong: rgba(7, 17, 36, 0.96);
+      --line: rgba(110, 180, 255, 0.14);
+      --line-strong: rgba(98, 220, 255, 0.28);
+      --text: #eef4ff;
+      --muted: #8ea5cb;
+      --accent: #7dfff1;
+      --accent-2: #8fc2ff;
+      --warn: #ffc46b;
+      --danger: #ff7d9b;
+      --success: #52ffb1;
+      --shadow: 0 26px 60px rgba(0, 0, 0, 0.42);
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+      --sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(29, 191, 255, 0.16), transparent 26%),
+        radial-gradient(circle at 85% 10%, rgba(125, 255, 241, 0.11), transparent 28%),
+        linear-gradient(180deg, #050b18 0%, #040714 52%, #02040b 100%);
+      letter-spacing: 0.01em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 42px 42px;
+      opacity: 0.18;
+      mix-blend-mode: screen;
+    }
+
+    .app {
+      position: relative;
+      display: grid;
+      grid-template-columns: 310px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      min-height: 100vh;
+      padding: 28px 22px;
+      background: linear-gradient(180deg, rgba(4, 11, 25, 0.92), rgba(3, 8, 20, 0.78));
+      border-right: 1px solid rgba(135, 202, 255, 0.12);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand-box,
+    .nav-group,
+    .signal-group,
+    .side-note,
+    .panel,
+    .fleet-panel,
+    .settings-card,
+    .tab-panel,
+    .logs-panel {
+      background: linear-gradient(180deg, rgba(9, 20, 42, 0.92), rgba(5, 13, 28, 0.88));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .brand-box,
+    .nav-group,
+    .signal-group,
+    .side-note { padding: 18px 18px 20px; }
+
+    .brand-box {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .brand-box::after {
+      content: "";
+      position: absolute;
+      inset: -35% -10% auto 40%;
+      height: 180px;
+      background: radial-gradient(circle, rgba(125, 255, 241, 0.22), transparent 68%);
+      pointer-events: none;
+    }
+
+    .brand-kicker,
+    .group-title,
+    .section-kicker,
+    .eyebrow,
+    .mini-label,
+    .label,
+    .chip-label {
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      font-size: 11px;
+      color: #9cc8ff;
+    }
+
+    .brand-title,
+    .section-title,
+    .banner h1,
+    .metric-value,
+    .fleet-name,
+    .table-title {
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-title {
+      margin-top: 8px;
+      font-size: 31px;
+      line-height: 1.02;
+    }
+
+    .brand-sub,
+    .section-sub,
+    .side-note,
+    .banner p,
+    .muted,
+    .fleet-sub,
+    .table-sub,
+    .log-sub,
+    td,
+    .command-value,
+    .info-sub,
+    .mini-sub {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .nav-group,
+    .signal-group { margin-bottom: 18px; }
+
+    .nav-btn,
+    .tab-chip,
+    .btn,
+    .scope-btn,
+    .filter-btn,
+    .fleet-select-btn {
+      appearance: none;
+      border: 1px solid rgba(124, 197, 255, 0.14);
+      background: rgba(10, 21, 44, 0.82);
+      color: var(--text);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: 180ms ease;
+      font-family: inherit;
+    }
+
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      padding: 13px 14px;
+      margin-top: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .nav-btn:hover,
+    .tab-chip:hover,
+    .btn:hover,
+    .scope-btn:hover,
+    .filter-btn:hover,
+    .fleet-card:hover,
+    .metric-card:hover,
+    .engine-card:hover,
+    .hardware-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(125, 255, 241, 0.34);
+      box-shadow: 0 20px 36px rgba(0, 0, 0, 0.22);
+    }
+
+    .nav-btn.active,
+    .tab-chip.active,
+    .btn.active,
+    .scope-btn.active,
+    .filter-btn.active {
+      border-color: rgba(125, 255, 241, 0.52);
+      color: #04111f;
+      background: linear-gradient(135deg, rgba(125, 255, 241, 0.96), rgba(141, 196, 255, 0.92));
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 0 26px rgba(125, 255, 241, 0.24);
+    }
+
+    .signal-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 14px;
+    }
+
+    .signal-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .signal-value { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.16);
+      box-shadow: 0 0 0 0 rgba(255,255,255,0.14);
+    }
+    .dot.live { background: var(--success); box-shadow: 0 0 0 8px rgba(82,255,177,0.08); }
+    .dot.warn { background: var(--warn); box-shadow: 0 0 0 8px rgba(255,196,107,0.07); }
+    .dot.stop { background: var(--danger); box-shadow: 0 0 0 8px rgba(255,125,155,0.08); }
+
+    .side-note { font-size: 13px; }
+
+    .main {
+      padding: 30px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .banner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.95fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .banner-copy,
+    .banner-meta,
+    .panel-body,
+    .fleet-panel,
+    .tab-panel,
+    .logs-panel { padding: 22px; }
+
+    .banner-copy,
+    .banner-meta {
+      background: linear-gradient(180deg, rgba(8, 18, 40, 0.92), rgba(4, 10, 22, 0.92));
+      border: 1px solid rgba(125, 255, 241, 0.14);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .banner-copy::before,
+    .banner-meta::before,
+    .fleet-panel::before,
+    .tab-panel::before,
+    .logs-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(circle, rgba(125,255,241,0.12), transparent 70%);
+      pointer-events: none;
+    }
+
+    .banner h1 {
+      margin-top: 12px;
+      font-size: clamp(34px, 5vw, 52px);
+      line-height: 0.96;
+    }
+
+    .banner p { max-width: 820px; font-size: 15px; }
+
+    .tab-bar,
+    .scope-row,
+    .filter-row,
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .tab-chip,
+    .scope-btn,
+    .filter-btn {
+      padding: 10px 13px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+
+    .sticky-toolbar {
+      position: sticky;
+      top: 18px;
+      z-index: 40;
+      margin-top: -4px;
+    }
+
+    .sticky-tab-bar {
+      padding: 14px;
+      border-radius: 22px;
+      border: 1px solid rgba(125, 255, 241, 0.16);
+      background: rgba(6, 15, 32, 0.88);
+      box-shadow: 0 22px 42px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(18px);
+    }
+
+    .inline-link,
+    .btn-link {
+      color: #9ffdf1;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(159, 253, 241, 0.28);
+    }
+
+    .inline-link:hover,
+    .btn-link:hover {
+      color: #ffffff;
+      border-bottom-color: rgba(255, 255, 255, 0.4);
+    }
+
+    a.btn {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .status-stack,
+    .metrics-grid,
+    .bridge-grid,
+    .balances-grid,
+    .hardware-grid,
+    .catalog-grid,
+    .operator-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .status-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metrics-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .bridge-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .balances-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .hardware-grid { grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr); }
+    .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .operator-grid { grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr); }
+
+     .mini-card,
+    .metric-card,
+    .info-card,
+    .command-box,
+    .fleet-card,
+    .bridge-card,
+    .balance-card,
+    .engine-card,
+    .hardware-card,
+    .table-card {
+      background: rgba(6, 15, 32, 0.86);
+      border: 1px solid rgba(126, 187, 255, 0.12);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mini-value,
+    .metric-value,
+    .info-value,
+    .fleet-name,
+    .bridge-value,
+    .balance-value,
+    .command-value {
+      font-size: 28px;
+      line-height: 1.02;
+      margin-top: 8px;
+      color: var(--text);
+      letter-spacing: -0.04em;
+    }
+
+    .mini-sub,
+    .info-sub,
+    .fleet-sub,
+    .bridge-sub,
+    .balance-sub { margin-top: 8px; font-size: 13px; }
+
+    .metric-card .metric-value,
+    .bridge-card .bridge-value,
+    .balance-card .balance-value {
+      font-size: 25px;
+    }
+
+    .fleet-panel {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section-head,
+    .split-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+     .section-title { font-size: 28px; margin-top: 8px; }
+
+    .pill,
+    .tiny-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(125, 255, 241, 0.22);
+      background: rgba(125, 255, 241, 0.08);
+      color: #cafdf5;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .fleet-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .fleet-card {
+      cursor: pointer;
+      transition: 180ms ease;
+      min-height: 170px;
+    }
+
+    .fleet-card.active {
+      border-color: rgba(125, 255, 241, 0.46);
+      box-shadow: 0 0 0 1px rgba(125, 255, 241, 0.18), 0 26px 60px rgba(0, 0, 0, 0.34);
+    }
+
+    .fleet-card.live::after {
+      content: "";
+      position: absolute;
+      inset: auto -15% -30% auto;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(82,255,177,0.18), transparent 68%);
+    }
+
+    .fleet-top,
+    .fleet-bottom,
+    .control-grid,
+    .settings-grid,
+    .summary-grid,
+    .command-stack,
+    .job-grid,
+    .balance-table-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .fleet-top { grid-template-columns: 1fr auto; align-items: start; }
+    .fleet-bottom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .control-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .settings-grid { grid-template-columns: 1fr 1fr; }
+    .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .command-stack { grid-template-columns: 1fr; }
+    .job-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .balance-table-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 0.96fr); }
+
+    .btn {
+      padding: 14px 14px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 800;
+    }
+
+    .btn.ghost { background: rgba(7, 16, 35, 0.55); }
+    .btn.critical { border-color: rgba(255,125,155,0.28); }
+
+    .field,
+    select.field {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(126, 187, 255, 0.14);
+      background: rgba(6, 15, 32, 0.94);
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+
+    .field:focus,
+    select.field:focus {
+      border-color: rgba(125,255,241,0.45);
+      box-shadow: 0 0 0 3px rgba(125,255,241,0.08);
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+    }
+
+    .settings-grid > div,
+    .summary-grid > div { min-width: 0; }
+
+    .command-value {
+      font-family: var(--mono);
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      color: #bfeaff;
+      word-break: break-word;
+    }
+
+    .tab-panel { display: none; position: relative; }
+    .tab-panel.active { display: block; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      text-align: left;
+      vertical-align: top;
+      }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #9cc8ff;
+      font-weight: 700;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .table-card { padding: 0; overflow: hidden; }
+    .table-head { padding: 16px 18px 0; }
+    .table-title { font-size: 23px; }
+    .table-sub { margin-top: 6px; }
+    .table-wrap { padding: 8px 18px 16px; overflow-x: auto; }
+
+    .engine-card.active,
+    .hardware-card.active {
+      border-color: rgba(125,255,241,0.42);
+      box-shadow: 0 0 0 1px rgba(125,255,241,0.16);
+    }
+
+    .engine-card h3,
+    .hardware-card h3,
+    .table-card h3,
+    .bridge-card h3,
+    .balance-card h3 { margin: 0; font-size: 20px; }
+
+    .catalog-grid .engine-card,
+    .catalog-grid .hardware-card { min-height: 190px; }
+
+    .mono { font-family: var(--mono); }
+    .ok { color: var(--success); }
+    .warn { color: var(--warn); }
+    .danger { color: var(--danger); }
+
+    .tv-frame {
+      width: 100%;
+      min-height: 380px;
+      border: 0;
+      border-radius: 18px;
+      background: rgba(6, 15, 32, 0.9);
+    }
+
+    .logs-panel { position: relative; overflow: hidden; }
+    .log-tools { display: grid; gap: 14px; margin-bottom: 16px; }
+    .log-stream {
+      background: rgba(3, 9, 20, 0.92);
+      border: 1px solid rgba(125, 255, 241, 0.1);
+      border-radius: 18px;
+      padding: 14px;
+      max-height: 430px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .log-line {
+      display: grid;
+      grid-template-columns: 128px 72px 78px minmax(72px, 108px) minmax(0, 1fr);
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.04);
+    }
+
+    .log-line:last-child { border-bottom: 0; }
+    .log-zone { color: #9cc8ff; }
+    .log-miner { color: #9fffe9; }
+    .log-level.INFO { color: #b8d7ff; }
+    .log-level.SUCCESS { color: var(--success); }
+    .log-level.WARN { color: var(--warn); }
+    .log-level.ERROR { color: var(--danger); }
+    .right { text-align: right; }
+
+    .empty {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px dashed rgba(126, 187, 255, 0.16);
+      color: var(--muted);
+      text-align: center;
+      background: rgba(7, 16, 35, 0.5);
+    }
+
+    @media (max-width: 1340px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: relative; min-height: auto; border-right: 0; border-bottom: 1px solid rgba(135, 202, 255, 0.12); }
+      .banner,
+      .operator-grid,
+      .hardware-grid,
+      .balance-table-grid { grid-template-columns: 1fr; }
+      .fleet-grid,
+      .metrics-grid,
+      .bridge-grid,
+      .balances-grid,
+      .catalog-grid,
+      .control-grid,
+      .settings-grid,
+      .job-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 860px) {
+      .main { padding: 18px; }
+      .fleet-grid,
+      .metrics-grid,
+      .bridge-grid,
+      .balances-grid,
+      .catalog-grid,
+      .control-grid,
+      .settings-grid,
+      .job-grid,
+      .summary-grid,
+      .status-stack { grid-template-columns: 1fr; }
+      .log-line { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand-box">
+        <div class="brand-kicker">real mining + bridge + fleet</div>
+        <h2 class="brand-title">BBB-QN Multi-Miner Layer</h2>
+        <p class="brand-sub">
+          Console opérateur unifiée branchée sur le service local propriétaire, capable de piloter une
+          <strong>flotte de miners</strong> sur le même lien stable, avec agrégats globaux, sélection active et vues détaillées.
+        </p>
+      </div>
+
+      <div class="nav-group">
+        <div class="group-title">Navigation BBB-QN</div>
+        <button class="nav-btn active" data-tab="mining">Mining Fleet</button>
+         <button class="nav-btn" data-tab="bridge">Bridge & Stratum</button>
+        <button class="nav-btn" data-tab="balances">Balances & Rewards</button>
+        <button class="nav-btn" data-tab="hardware">Hardware Matrix</button>
+      </div>
+
+      <div class="signal-group">
+        <div class="group-title">Signaux temps réel</div>
+        <div class="signal-item"><span>Flotte</span><span class="signal-value"><span class="dot" id="sig-fleet"></span><span id="sig-fleet-text">--</span></span></div>
+        <div class="signal-item"><span>Miner actif</span><span class="signal-value"><span class="dot" id="sig-active"></span><span id="sig-active-text">--</span></span></div>
+        <div class="signal-item"><span>API</span><span class="signal-value"><span class="dot" id="sig-api"></span><span id="sig-api-text">--</span></span></div>
+        <div class="signal-item"><span>Stratum</span><span class="signal-value"><span class="dot" id="sig-stratum"></span><span id="sig-stratum-text">--</span></span></div>
+        <div class="signal-item"><span>Scope</span><span class="signal-value"><span class="dot" id="sig-scope"></span><span id="sig-scope-text">--</span></span></div>
+      </div>
+
+      <div class="side-note">
+        <div class="group-title">Lien stable</div>
+        Le même fichier public reste utilisé. La différence majeure de cette itération est la généralisation du modèle
+        mono-miner vers une <strong>flotte opérable</strong>, sans casser la lecture BBB-QN déjà validée.
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="banner">
+        <div class="banner-copy">
+          <div class="eyebrow">rig miner terminal v2 · bbb-qn multi-miner · local api · uint_256</div>
+          <h1>Rig Miner Terminal v2</h1>
+          <p>
+            La console passe en <strong>mode multi-miner</strong>. L’opérateur peut maintenant sélectionner un miner,
+            piloter la flotte entière, comparer les profils actifs, suivre les revenus agrégés et inspecter les couches
+            bridge / balances / hardware depuis une seule surface HTML standalone.
+          </p>
+           <div class="tab-bar" id="top-tabs">
+            <button class="tab-chip active" data-tab="mining">Mining</button>
+            <button class="tab-chip" data-tab="bridge">Bridge</button>
+            <button class="tab-chip" data-tab="balances">Balances</button>
+            <button class="tab-chip" data-tab="hardware">Hardware</button>
+          </div>
+        </div>
+        <div class="banner-meta">
+          <div class="status-stack">
+            <div class="mini-card">
+              <div class="mini-label">Hashrate flotte</div>
+              <div class="mini-value" id="banner-fleet-hashrate">--</div>
+              <div class="mini-sub" id="banner-fleet-sub">--</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-label">Miner actif</div>
+              <div class="mini-value" id="banner-active-miner">--</div>
+              <div class="mini-sub" id="banner-active-sub">--</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-label">Daily PnL flotte</div>
+              <div class="mini-value" id="banner-daily-usd">--</div>
+              <div class="mini-sub" id="banner-runtime-usd">--</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-label">Scope opérateur</div>
+              <div class="mini-value" id="banner-scope">--</div>
+              <div class="mini-sub" id="banner-scope-sub">--</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sticky-toolbar">
+        <div class="tab-bar sticky-tab-bar">
+          <button class="tab-chip active" data-tab="mining">Mining</button>
+          <button class="tab-chip" data-tab="bridge">Bridge</button>
+          <button class="tab-chip" data-tab="balances">Balances</button>
+          <button class="tab-chip" data-tab="hardware">Hardware</button>
+          <button class="btn ghost" id="btn-gains-total" data-tab="balances">Gains totaux --</button>
+        </div>
+      </section>
+
+      <section class="fleet-panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Flotte active</div>
+            <h2 class="section-title">Miners pilotables</h2>
+            <div class="section-sub">Chaque carte représente un miner sélectionnable avec ses métriques réelles, son profil actif et sa connexion stratum.</div>
+          </div>
+          <div class="top-actions">
+            <span class="pill" id="fleet-pill">--</span>
+            <div class="scope-row">
+              <button class="scope-btn active" data-scope="active">Miner actif</button>
+              <button class="scope-btn" data-scope="all">Toute flotte</button>
+            </div>
+          </div>
+        </div>
+        <div class="fleet-grid" id="fleet-cards"></div>
+      </section>
+
+      <section class="operator-grid">
+        <div class="panel">
+          <div class="panel-body">
+            <div class="section-head">
+              <div>
+                 <div class="section-kicker">Opérateur temps réel</div>
+                <h2 class="section-title">Contrôle multi-miner</h2>
+                <div class="section-sub">Toutes les commandes conservent l’esprit BBB-QN, mais elles ciblent désormais le miner actif ou la flotte entière selon le scope sélectionné.</div>
+              </div>
+              <span class="pill" id="status-pill">--</span>
+            </div>
+
+            <div class="control-grid">
+              <button class="btn" id="btn-start">Start</button>
+              <button class="btn" id="btn-stop">Stop</button>
+              <button class="btn" id="btn-auto">Auto</button>
+              <button class="btn critical" id="btn-force">Force Stop</button>
+              <button class="btn ghost" id="btn-selector">Pool/Crypto</button>
+              <button class="btn ghost" id="btn-bench">Benchmark</button>
+              <button class="btn ghost" id="btn-settings">Paramètres</button>
+              <button class="btn ghost" id="btn-engine">Moteur</button>
+              <button class="btn ghost" id="btn-hardware">Hardware</button>
+              <button class="btn ghost" id="btn-next-miner">Next Miner</button>
+              <button class="btn ghost" id="btn-refresh">Refresh</button>
+            </div>
+
+            <div class="summary-grid" style="margin-top:16px;">
+              <div class="info-card">
+                <div class="label">Focus opérateur</div>
+                <div class="info-value" id="focus-selection">--</div>
+                <div class="info-sub" id="focus-selection-sub">--</div>
+              </div>
+              <div class="info-card">
+                <div class="label">État service</div>
+                <div class="info-value" id="service-state">--</div>
+                <div class="info-sub" id="service-sub">--</div>
+              </div>
+            </div>
+
+            <div class="command-box" style="margin-top:14px;">
+              <div class="label">Commande active générée</div>
+              <div class="command-value" id="launch-command">--</div>
+            </div>
+
+            <div class="command-box" style="margin-top:14px;">
+               <div class="section-kicker">Opérateur temps réel</div>
+                <h2 class="section-title">Contrôle multi-miner</h2>
+                <div class="section-sub">Toutes les commandes conservent l’esprit BBB-QN, mais elles ciblent désormais le miner actif ou la flotte entière selon le scope sélectionné.</div>
+              </div>
+              <span class="pill" id="status-pill">--</span>
+            </div>
+
+            <div class="control-grid">
+              <button class="btn" id="btn-start">Start</button>
+              <button class="btn" id="btn-stop">Stop</button>
+              <button class="btn" id="btn-auto">Auto</button>
+              <button class="btn critical" id="btn-force">Force Stop</button>
+              <button class="btn ghost" id="btn-selector">Pool/Crypto</button>
+              <button class="btn ghost" id="btn-bench">Benchmark</button>
+              <button class="btn ghost" id="btn-settings">Paramètres</button>
+              <button class="btn ghost" id="btn-engine">Moteur</button>
+              <button class="btn ghost" id="btn-hardware">Hardware</button>
+              <button class="btn ghost" id="btn-next-miner">Next Miner</button>
+              <button class="btn ghost" id="btn-refresh">Refresh</button>
+            </div>
+
+            <div class="summary-grid" style="margin-top:16px;">
+              <div class="info-card">
+                <div class="label">Focus opérateur</div>
+                <div class="info-value" id="focus-selection">--</div>
+                <div class="info-sub" id="focus-selection-sub">--</div>
+              </div>
+              <div class="info-card">
+                <div class="label">État service</div>
+                <div class="info-value" id="service-state">--</div>
+                <div class="info-sub" id="service-sub">--</div>
+              </div>
+            </div>
+
+            <div class="command-box" style="margin-top:14px;">
+              <div class="label">Commande active générée</div>
+              <div class="command-value" id="launch-command">--</div>
+            </div>
+
+            <div class="command-box" style="margin-top:14px;">
+               <div class="label">Liens temps réel</div>
+              <div class="top-actions" id="live-links-row" style="margin-top:12px;">
+                <a class="btn ghost" id="btn-block-merkle" href="https://duckduckgo.com/" target="_blank" rel="noopener noreferrer">Bloc validé / Merkle</a>
+                <a class="btn ghost" id="btn-hash-lookup" href="https://duckduckgo.com/" target="_blank" rel="noopener noreferrer">Hash sur Internet</a>
+                <a class="btn ghost" id="btn-explorer-home" href="https://duckduckgo.com/" target="_blank" rel="noopener noreferrer">Explorer</a>
+                <a class="btn ghost" id="btn-etherscan" href="https://etherscan.io/" target="_blank" rel="noopener noreferrer">Etherscan</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card" id="settings-card">
+          <div class="panel-body">
+            <div class="section-head">
+              <div>
+                <div class="section-kicker">Paramètres BBB-QN</div>
+                <h2 class="section-title">Wallet + tuning + ciblage</h2>
+                <div class="section-sub">Le réglage s’applique au miner choisi dans le formulaire, indépendamment du scope global des commandes.</div>
+              </div>
+            </div>
+
+            <div class="settings-grid">
+              <div>
+                <label class="label" for="miner-select">Miner ciblé</label>
+                <select class="field" id="miner-select"></select>
+              </div>
+              <div>
+                <label class="label" for="worker-input">Worker</label>
+                <input class="field" id="worker-input" placeholder="Worker / rig name" />
+              </div>
+                         <div style="grid-column:1 / -1;">
+                <label class="label" for="wallet-input">Wallet</label>
+                <input class="field" id="wallet-input" placeholder="Adresse crypto à reconnaître automatiquement" />
+              </div>
+              <div>
+                <label class="label" for="cpu-threads">Threads</label>
+                <input class="field" id="cpu-threads" type="number" min="1" max="256" />
+              </div>
+              <div>
+                <label class="label" for="cpu-cache-slots">Cache slots</label>
+                <input class="field" id="cpu-cache-slots" type="number" min="16" max="1024" />
+              </div>
+              <div>
+                <label class="label" for="cpu-lanes">Lane count</label>
+                <input class="field" id="cpu-lanes" type="number" min="1" max="256" />
+              </div>
+              <div>
+                <label class="label" for="cpu-chunk">Chunk actif</label>
+                <select class="field" id="cpu-chunk"></select>
+              </div>
+            </div>
+
+            <div class="scope-row" style="margin-top:14px;">
+              <button class="btn ghost" id="btn-recognize">Reconnaître l’adresse</button>
+              <button class="btn" id="btn-save-cpu">Appliquer CPU</button>
+            </div>
+
+            <div class="command-box" style="margin-top:14px;">
+              <div class="label">Retour opérateur</div>
+              <div class="command-value" id="wallet-detection">--</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel active" id="panel-mining">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Mining runtime</div>
+            <h2 class="section-title">Vue active + agrégats</h2>
+            <div class="section-sub">Le panneau Mining garde le focus détaillé sur le miner actif tout en exposant une lecture synthétique de la flotte entière.</div>
+          </div>
+          <span class="pill" id="mining-pill">--</span>
+        </div>
+        <div class="metrics-grid" id="mining-metrics"></div>
+        <div class="job-grid" style="margin-top:16px;">
+          <div class="table-card">
+            <div class="table-head">
+              <div class="table-title">Snapshot actif</div>
+              <div class="table-sub">Profil runtime, digest, chunks, worker, wallet et moteur réellement sélectionnés.</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <tbody id="mining-snapshot-table"></tbody>
+              </table>
+            </div>
+          </div>
+                <div class="table-card">
+            <div class="table-head">
+              <div class="table-title">Job & share actifs</div>
+              <div class="table-sub">Lecture du job courant et de la dernière share remontée pour le miner ciblé.</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <tbody id="job-share-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="panel-bridge">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Stratum + bridge</div>
+            <h2 class="section-title">Transport et couches actives</h2>
+            <div class="section-sub">Lecture immédiate du couple pool/latence du miner actif, plus comparaison de connectivité sur l’ensemble de la flotte.</div>
+          </div>
+          <span class="pill" id="bridge-pill">--</span>
+        </div>
+        <div class="bridge-grid" id="bridge-cards"></div>
+        <div class="balance-table-grid" style="margin-top:16px;">
+          <div class="table-card">
+            <div class="table-head">
+              <div class="table-title">Couche active</div>
+              <div class="table-sub">Détail du bridge réel pour le miner actif.</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <tbody id="bridge-detail-table"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-head">
+              <div class="table-title">Stratum fleet board</div>
+              <div class="table-sub">État de la flotte par miner, pool et connectivité observée.</div>
+            </div>
+             <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Miner</th><th>Pool</th><th>Latence</th><th>État</th></tr>
+                </thead>
+                <tbody id="fleet-stratum-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="panel-balances">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">PnL runtime</div>
+            <h2 class="section-title">Balances, rewards et market board</h2>
+            <div class="section-sub">Le miner actif dispose d’une vue de valorisation détaillée, tandis que le tableau flotte expose la contribution relative de chaque miner.</div>
+          </div>
+          <span class="pill" id="balances-pill">--</span>
+        </div>
+        <div class="balances-grid" 
+   <div class="balances-grid" id="balances-cards"></div>
+        <div class="balance-table-grid" style="margin-top:16px;">
+          <div class="table-card">
+            <div class="table-head">
+              <div class="table-title">Gains accumulés exploitables</div>
+              <div class="table-sub">Réserve exploitable du miner actif, structurée par crypto pour un futur re-mining sans confondre projection et gains réellement accumulés.</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Coin</th><th>Montant</th><th>Valeur USD</th><th>Pool</th></tr>
+                </thead>
+                <tbody id="active-treasury-table"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-head">
+              <div class="table-title">Trésorerie flotte par crypto</div>
+              <div class="table-sub">Vue agrégée par actif pour piloter la réallocation, suivre les gains réutilisables et comparer les réserves réellement constituées.</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Coin</th><th>Total coin</th><th>Valeur USD</th><th>Prix spot</th></tr>
+                </thead>
+                <tbody id="fleet-treasury-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="balance-table-grid" style="margin-top:16px;">
+          <div class="table-card">
+            <div class="table-head">
+              <div class="table-title">Fleet PnL board</div>
+              <div class="table-sub">Runtime, projection 24h recalibrée, gains accumulés et hashrate par miner.</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Miner</th><th>Coin</th><th>Hashrate</th><th>Runtime USD</th><th>24h USD</th><th>Accum. USD</th></tr>
+                </thead>
+                <tbody id="fleet-balance-table"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-head">
+              <div class="table-title">Marché actif</div>
+              <div class="table-sub">Board live des cryptos suivies et widget TradingView synchronisé sur la sélection réellement active du miner courant.</div>
+            </div>
+            <div class="table-wrap">
+              <iframe class="tv-frame" id="tv-frame" title="TradingView"></iframe>
+              <div style="height:14px"></div>
+              <table>
+                <thead>
+                  <tr><th>Coin</th><th>Prix USD</th><th>24h</th><th>Pool</th></tr>
+                </thead>
+                <tbody id="market-board-            <tbody id="market-board-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="panel-hardware">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Hardware + moteurs</div>
+            <h2 class="section-title">Matrice active et catalogues</h2>
+            <div class="section-sub">Vue détaillée du CPU du miner actif, puis inventaire des moteurs et profils hardware actuellement orchestrables dans la flotte.</div>
+          </div>
+          <span class="pill" id="hardware-pill">--</span>
+        </div>
+        <div class="hardware-grid">
+          <div class="table-card">
+            <div class="table-head">
+              <div class="table-title">Matrice hardware active</div>
+              <div class="table-sub">Réunion du CPU modifiable, du profil hardware actif et du moteur logiciel courant.</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <tbody id="hardware-matrix-table"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-head">
+              <div class="table-title">Fleet hardware board</div>
+              <div class="table-sub">Répartition des profils matériels et moteurs dans la flotte.</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Miner</th><th>Hardware</th><th>Moteur</th><th>Puissance</th></tr>
+                </thead>
+                <tbody id="fleet-hardware-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-grid" style="margin-top:16px;">
+          <div>
+            <div class="table-title" style="margin-bottom:10px;">Engines</div>
+            <div id="engine-cards" class="catalog-grid"></div>
+          </div>
+          <div>
+            <div class="table-title" style="margin-bottom:10px;">Hardware</div>
+            <div id="hardware-cards" class="catalog-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="logs-panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Journal opérateur</div>
+            <h2 class="section-title">Logs filtrables</h2>
+            <div class="section-sub">Les lignes de logs restent unifiées, mais chaque entrée conserve désormais le <strong>miner_id</strong> pour la lecture multi-miner.</div>
+          </div>
+          <span class="pill" id="logs-pill">--</span>
+        </div>
+
+        <div class="log-tools">
+          <input class="field" id="quick-search" placeholder="Filtrer logs, miner, algo, coin, pool, job ou share" />
+          <div class="filter-row" id="zone-filters"></div>
+          <div class="filter-row" id="level-filters"></div>
+        </div>
+
+        <div class="log-stream" id="log-stream"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API = '/rig/v1';
+    const STATE = {
+      activeTab: 'mining',
+      controlScope: 'active',
+      activeMinerId: null,
+      summary: null,
+      config: null,
+      fleet: [],
+      aggregate: null,
+      currentJob: null,
+      currentShare: null,
+      stratum: null,
+      logs: [],
+      engines: [],
+      hardwareCatalog: [],
+      marketBoard: [],
+      zoneFilter: 'ALL',
+      levelFilter: 'ALL',
+      settingsMinerId: null,
+    };
+
+    const ZONES = ['ALL', 'SYSTEM', 'CORE', 'BENCH', 'CFG', 'STRATUM', 'API'];
+    const LEVELS = ['ALL', 'INFO', 'SUCCESS', 'WARN', 'ERROR'];
+    const STORAGE_KEYS = {
+      activeTab: 'bbbqn.activeTab',
+      controlScope: 'bbbqn.controlScope',
+      activeMinerId: 'bbbqn.activeMinerId',
+      settingsMinerId: 'bbbqn.settingsMinerId',
+    };
+    let pullInFlight = null;
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    const num = (value, digits = 2) => Number(value || 0).toLocaleString('fr-FR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    const usd = (value) => `${Number(value || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $`;
+    const pct = (value) => `${Number(value || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} %`;
+    const clock = (sec) => {
+      const total = Math.max(0, Number(sec || 0));
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      return [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
+    };
+
+    function loadUiState() {
+      try {
+        STATE.activeTab = localStorage.getItem(STORAGE_KEYS.activeTab) || STATE.activeTab;
+        STATE.controlScope = localStorage.getItem(STORAGE_KEYS.controlScope) || STATE.controlScope;
+        STATE.activeMinerId = localStorage.getItem(STORAGE_KEYS.activeMinerId) || STATE.activeMinerId;
+        STATE.settingsMinerId = localStorage.getItem(STORAGE_KEYS.settingsMinerId) || STATE.settingsMinerId;
+      } catch (err) {
+        console.warn('UI state restore skipped', err);
+      }
+    }
+
+    function persistUiState() {
+      try {
+        if (STATE.activeTab) localStorage.setItem(STORAGE_KEYS.activeTab, STATE.activeTab);
+        if (STATE.controlScope) localStorage.setItem(STORAGE_KEYS.controlScope, STATE.controlScope);
+        if (STATE.activeMinerId) localStorage.setItem(STORAGE_KEYS.activeMinerId, STATE.activeMinerId);
+        if (STATE.settingsMinerId) localStorage.setItem(STORAGE_KEYS.settingsMinerId, STATE.settingsMinerId);
+      } catch (err) {
+        console.warn('UI state persist skipped', err);
+        }
+    }
+
+    function pickValidId(items, candidates = [], key = 'miner_id') {
+      const ids = new Set((items || []).map(item => item[key]));
+      return candidates.find(value => value && ids.has(value)) || null;
+    }
+
+    function settingsEditingLocked() {
+      const fieldId = document.activeElement?.id || '';
+      return ['worker-input', 'wallet-input', 'cpu-threads', 'cpu-cache-slots', 'cpu-lanes', 'cpu-chunk'].includes(fieldId);
+    }
+
+    function setDot(el, mode) {
+      if (!el) return;
+      el.classList.remove('live', 'warn', 'stop');
+      if (mode) el.classList.add(mode);
+    }
+
+    async function fetchJSON(url, options = {}) {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      return res.json();
+    }
+
+    function activeMiner() {
+      if (!STATE.fleet.length) return null;
+      return STATE.fleet.find(item => item.miner_id === STATE.activeMinerId) || STATE.fleet[0];
+    }
+
+    function syncTabs() {
+      document.querySelectorAll('[data-tab]').forEach((node) => {
+        const isActive = node.dataset.tab === STATE.activeTab;
+        node.classList.toggle('active', isActive);
+      });
+      document.querySelectorAll('.tab-panel').forEach((panel) => {
+        panel.classList.toggle('active', panel.id === `panel-${STATE.activeTab}`);
+      });
+    }
+
+    function renderBanner() {
+      const active = activeMiner();
+      const summary = STATE.summary || {};
+      const aggregate = STATE.aggregate || summary.aggregate || {};
+      $("banner-fleet-hashrate").textContent = `${num(aggregate.hashrate || 0, 2)} ${aggregate.hashrate_unit || ''}`.trim();
+      $("banner-fleet-sub").textContent = `${summary.active_miners || 0}/${summary.miner_count || 0} miners actifs · ${aggregate.job_count || 0} jobs`;
+      $("banner-active-miner").textContent = active ? active.miner_label : '--';
+      $("banner-active-sub").textContent = active ? `${active.coin} · ${active.pool_label} · ${active.worker}` : '--';
+      $("banner-daily-usd").textContent = usd(aggregate.estimated_daily_usd || 0);
+      $("banner-runtime-usd").textContent = `runtime ${usd(aggregate.runtime_earned_usd || 0)} · accum ${usd(aggregate.accumulated_usd || 0)} · total ${usd(aggregate.gains_total_usd || 0)}`;
+      
+      $("banner-scope").textContent = STATE.controlScope === 'all' ? 'Toute flotte' : 'Miner actif';
+      $("banner-scope-sub").textContent = active ? `cible détaillée · ${active.miner_id}` : '--';
+      $("fleet-pill").textContent = `${summary.miner_count || 0} miners · ${summary.active_miners || 0} actifs`;
+      $("status-pill").textContent = active && active.running ? 'service actif' : 'service en pause';
+      $("mining-pill").textContent = active ? `${active.coin} · ${active.hashrate} ${active.hashrate_unit}` : '--';
+      $("bridge-pill").textContent = active && active.bridge_state ? `${active.bridge_state.transport} · ${active.bridge_state.online ? 'online' : 'offline'}` : '--';
+      $("balances-pill").textContent = active ? `trésor ${usd(active.balances_state?.accumulated_total_usd || 0)}` : '--';
+      $("hardware-pill").textContent = active ? `${active.hardware_profile.label} · ${active.engine_profile.label}` : '--';
+      $("logs-pill").textContent = `${STATE.logs.length} lignes`; 
+    }
+
+    function renderSignals() {
+      const summary = STATE.summary || {};
+      const active = activeMiner();
+      $("sig-fleet-text").textContent = `${summary.active_miners || 0}/${summary.miner_count || 0} actifs`;
+      setDot($("sig-fleet"), (summary.active_miners || 0) > 0 ? 'live' : 'stop');
+
+      $("sig-active-text").textContent = active ? active.miner_label : '--';
+      setDot($("sig-active"), active && active.running ? 'live' : 'stop');
+
+      $("sig-api-text").textContent = summary.api_online ? 'online' : 'offline';
+      setDot($("sig-api"), summary.api_online ? 'live' : 'stop');
+
+      $("sig-stratum-text").textContent = active ? (active.stratum_online ? 'online' : 'offline') : '--';
+      setDot($("sig-stratum"), active ? (active.stratum_online ? 'live' : 'warn') : 'warn');
+
+      $("sig-scope-text").textContent = STATE.controlScope === 'all' ? 'broadcast' : 'ciblé';
+      setDot($("sig-scope"), STATE.controlScope === 'all' ? 'warn' : 'live');
+    }
+
+    function renderFleet() {
+      const html = (STATE.fleet || []).map((item) => {
+        const active = item.miner_id === STATE.activeMinerId;
+        const live = item.running ? 'live' : '';
+        return `
+          <article class="fleet-card ${active ? 'active' : ''} ${live}" data-miner-id="${esc(item.miner_id)}">
+            <div class="fleet-top">
+              <div>
+                <div class="chip-label">${esc(item.miner_id)}</div>
+                <h3 class="fleet-name">${esc(item.miner_label)}</h3>
+              </div>
+              <span class="tiny-pill">${item.running ? 'actif' : 'pause'}</span>
+            </div>
+            <div class="fleet-sub">${esc(item.coin)} · ${esc(item.pool_label)} · ${esc(item.engine_profile.label)}</div>
+            <div class="metric-value" style="font-size:24px; margin-top:16px;">${num(item.hashrate, 2)} ${esc(item.hashrate_unit)}</div>
+            <div class="fleet-bottom" style="margin-top:14px;">
+              <div>
+                <div class="label">Runtime</div>
+                <div>${usd(item.runtime_earned_usd)}</div>
+              </div>
+              <div>
+                <div class="label">24h</div>
+                <div>${usd(item.estimated_daily_usd)}</div>
+              </div>
+               <div>
+                <div class="label">Stratum</div>
+                <div class="${item.stratum_online ? 'ok' : 'warn'}">${item.stratum_online ? 'online' : 'offline'}</div>
+              </div>
+              <div>
+                <div class="label">Worker</div>
+                <div>${esc(item.worker)}</div>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+      $("fleet-cards").innerHTML = html || '<div class="empty">Aucun miner disponible.</div>';
+      document.querySelectorAll('.fleet-card').forEach((card) => {
+        card.onclick = () => selectMiner(card.dataset.minerId);
+      });
+    }
+
+    function renderControls() {
+      const active = activeMiner();
+      if (!active) return;
+      $("focus-selection").textContent = `${active.miner_label} · ${active.coin}`;
+      $("focus-selection-sub").textContent = `${active.hardware_profile.label} · ${active.engine_profile.label}`;
+      $("service-state").textContent = active.running ? 'Actif' : (active.force_stopped ? 'Force Stop' : 'En pause');
+      $("service-sub").textContent = `Stratum ${active.stratum_online ? 'online' : 'offline'} · Wallet ${active.wallet_family} · Worker ${active.worker}`;
+      $("launch-command").textContent = `scope=${STATE.controlScope} miner=${active.miner_id} algo=${active.algo} pool=${active.pool} chunk=${active.active_chunk_ko}ko threads=${active.thread_count}`;
+      document.querySelectorAll('.scope-btn').forEach((btn) => btn.classList.toggle('active', btn.dataset.scope === STATE.controlScope));
+    }
+
+    function inlineLink(href, label) {
+      if (!href) return '--';
+      return `<a class="inline-link" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`;
+    }
+
+    function renderLiveLinks() {
+      const active = activeMiner();
+      const aggregate = STATE.aggregate || {};
+      const links = active?.explorer_links || {};
+      $("btn-gains-total").textContent = `Gains totaux ${usd(aggregate.gains_total_usd || 0)}`;
+      $("btn-block-merkle").href = links.block_validated_url || links.merkle_lookup_url || 'https://duckduckgo.com/';
+      $("btn-block-merkle").textContent = active && active.blocks_validated ? `Bloc validé ${active.blocks_validated} / Merkle` : 'Merkle / bloc';
+      $("btn-hash-lookup").href = links.hash_lookup_url || 'https://duckduckgo.com/';
+      $("btn-hash-lookup").textContent = active ? `Hash ${active.coin}` : 'Hash sur Internet';
+      $("btn-explorer-home").href = links.explorer_home_url || 'https://duckduckgo.com/';
+      $("btn-explorer-home").textContent = active ? `Explorer ${active.coin}` : 'Explorer';
+      $("btn-etherscan").href = (aggregate.links && aggregate.links.etherscan_url) || links.etherscan_url || 'https://etherscan.io/';
+      $("btn-etherscan").textContent = active && active.wallet_family === 'evm' ? 'Adresse Etherscan' : 'Etherscan';
+    }
+
+    function renderSettings() {
+      const cfg = STATE.config || {};
+      const miners = cfg.miners || [];
+      const targetId = STATE.settingsMinerId || cfg.settings_miner_id || STATE.activeMinerId;
+      const target = miners.find(item => item.id === targetId) || miners.find(item => item.id === cfg.settings_miner_id) || miners.find(item => item.id === STATE.activeMinerId) || miners[0];
+      $("miner-select").innerHTML = miners.map(item => `<option value="${esc(item.id)}">${esc(item.label)} · ${esc(item.coin)}</option>`).join('');
+      if (target) {
+        STATE.settingsMinerId = target.id;
+        $("miner-select").value = target.id;
+        if (!settingsEditingLocked()) {
+          $("worker-input").value = target.worker || '';
+          $("wallet-input").value = target.wallet || '';
+          $("cpu-threads").value = target.thread_count || 0;
+          $("cpu-cache-slots").value = target.cache_slots || 0;
+          $("cpu-lanes").value = target.lane_count || 0;
+          $("cpu-chunk").innerHTML = (target.chunk_profiles_ko || []).map(v => `<option value="${v}">${v} ko</option>`).join('');
+          $("cpu-chunk").value = String(target.active_chunk_ko || '');
+        }
+      }
+      persistUiState();
+      $("wallet-detection").textContent = target ? `${target.id} · ${target.coin} · ${target.pool_label}` : '--';
+    }
+
+    function renderMining() {
+      const active = activeMiner();
+      const aggregate = STATE.aggregate || {};
+      if (!active) return;
+      const caps = active.algorithm_capabilities || {};
+      const supported = caps.supported_algorithms || [];
+      const links = active.explorer_links || {};
+      $("mining-metrics").innerHTML = [
+        { label: 'Hashrate actif', value: `${num(active.hashrate, 2)} ${active.hashrate_unit}`, sub: `${active.algo} · ${active.worker}` },
+        { label: 'Hashrate flotte', value: `${num(aggregate.hashrate || 0, 2)} ${aggregate.hashrate_unit || ''}`.trim(), sub: `${aggregate.job_count || 0} jobs cumulés` },
+        { label: 'Shares', value: `${active.accepted} / ${active.rejected}`, sub: `${active.blocks_validated} blocs validés` },
+        { label: 'Uptime', value: clock(active.uptime_sec), sub: `runtime ${usd(active.runtime_earned_usd)}` },
+        { label: 'Capacités algo', value: supported.join(' · ') || active.algo, sub: `SHA256 ${caps.supports_sha256 ? 'oui' : 'non'} · RandomX ${caps.supports_randomx ? 'oui' : 'non'}` },
+      ].map(card => `
+        <div class="metric-card">
+          <div class="label">${card.label}</div>
+          <div class="metric-value">${card.value}</div>
+          <div class="mini-sub">${card.sub}</div>
+        </div>`).join('');
+
+      $("mining-snapshot-table").innerHTML = [
+        ['Miner', active.miner_label],
+        ['Device', active.device_id],
+        ['Worker', active.worker],
+        ['Wallet family', active.wallet_family],
+        ['Pool', active.pool],
+        ['Chunk actif', `${active.active_chunk_ko} ko`],
+        ['Chunk recommandé', `${active.recommended_chunk_ko} ko`],
+            ['Benchmark', `${num(active.benchmark_score, 0)} H/s`],
+        ['Digest', `<span class="mono">${esc(active.best_digest_256_hex)}</span>`],
+        ['Algorithmes supportés', supported.length ? supported.map(item => `<span class="tiny-pill">${esc(item)}</span>`).join(' ') : esc(active.algo)],
+        ['Validation algo', `SHA256 ${caps.supports_sha256 ? 'oui' : 'non'} · RandomX ${caps.supports_randomx ? 'oui' : 'non'} · Scrypt ${caps.supports_scrypt ? 'oui' : 'non'}`],
+        ['Bloc validé', `${active.blocks_validated} · ${inlineLink(links.block_validated_url, 'ouvrir')} · ${inlineLink(links.merkle_lookup_url, 'merkle')}`],
+        ['Hash internet', `${inlineLink(links.hash_lookup_url, 'hash')} · ${inlineLink(links.explorer_home_url, 'explorer')}`],
+        ['Wallet / Etherscan', inlineLink(active.wallet_family === 'evm' ? links.etherscan_url : links.wallet_lookup_url, active.wallet_family === 'evm' ? 'adresse Etherscan' : 'adresse / explorer')],
+        ['Moteur', active.engine_profile.label],
+        ['Hardware', active.hardware_profile.label],
+      ].map(row => `<tr><th>${row[0]}</th><td>${row[1]}</td></tr>`).join('');
+
+      const job = STATE.currentJob || {};
+      const share = STATE.currentShare || {};
+      $("job-share-table").innerHTML = [
+        ['Job ID', `<span class="mono">${esc(job.job_id || '--')}</span>`],
+        ['Algo', esc(job.algo || '--')],
+        ['Target', `<span class="mono">${esc(job.target_256_hex || '--')}</span>`],
+        ['Profile', job.profile ? `${job.profile.chunk_ko} ko · cache ${job.profile.cache_slots} · lanes ${job.profile.lane_count}` : '--'],
+        ['Share ID', `<span class="mono">${esc(share.share_id || '--')}</span>`],
+        ['Quality', share.quality_score != null ? num(share.quality_score, 2) : '--'],
+        ['Difficulty', share.difficulty_local != null ? num(share.difficulty_local, 0) : '--'],
+        ['Digest share', `<span class="mono">${esc(share.digest_256_hex || '--')}</span>`],
+      ].map(row => `<tr><th>${row[0]}</th><td>${row[1]}</td></tr>`).join('');
+    }
+
+    function renderBridge() {
+      const active = activeMiner();
+      const bridge = active?.bridge_state || {};
+      $("bridge-cards").innerHTML = [
+        { label: 'Transport', value: bridge.transport || '--', sub: bridge.label || '--' },
+        { label: 'Peer', value: bridge.peer || '--', sub: `${bridge.pool_host || '--'}:${bridge.pool_port || '--'}` },
+        { label: 'Latence', value: bridge.latency_ms != null ? `${num(bridge.latency_ms, 2)} ms` : '--', sub: bridge.online ? 'lien direct actif' : (bridge.error || 'indisponible') },
+        { label: 'Mode', value: bridge.online ? 'online' : 'offline', sub: active ? active.miner_label : '--' },
+      ].map(card => `
+        <div class="bridge-card">
+          <div class="label">${card.label}</div>
+            <div class="bridge-value">${card.value}</div>
+          <div class="bridge-sub">${card.sub}</div>
+        </div>`).join('');
+
+      $("bridge-detail-table").innerHTML = [
+        ['Miner', active?.miner_label || '--'],
+        ['Label', bridge.label || '--'],
+        ['Pool host', bridge.pool_host || '--'],
+        ['Pool port', bridge.pool_port || '--'],
+        ['Transport', bridge.transport || '--'],
+        ['Peer', bridge.peer || '--'],
+        ['Latence', bridge.latency_ms != null ? `${num(bridge.latency_ms, 2)} ms` : '--'],
+        ['Erreur', bridge.error || '--'],
+      ].map(row => `<tr><th>${row[0]}</th><td>${row[1]}</td></tr>`).join('');
+
+      $("fleet-stratum-table").innerHTML = (STATE.fleet || []).map(item => `
+        <tr>
+          <td>${esc(item.miner_label)}</td>
+          <td>${esc(item.pool_label)} · ${esc(item.coin)}</td>
+          <td>${item.bridge_state.latency_ms != null ? `${num(item.bridge_state.latency_ms, 2)} ms` : '--'}</td>
+          <td class="${item.stratum_online ? 'ok' : 'warn'}">${item.stratum_online ? 'online' : 'offline'}</td>
+        </tr>`).join('');
+    }
+
+    function tvUrl(symbol) {
+      const base = 'https://s.tradingview.com/widgetembed/';
+      const params = new URLSearchParams({
+        symbol: symbol || 'BINANCE:ETCUSDT',
+        interval: '60',
+        theme: 'dark',
+        style: '1',
+        timezone: 'Etc/UTC',
+        withdateranges: '1',
+        hidesidetoolbar: '1',
+        hideideas: '1',
+        toolbarbg: '#071226',
+      });
+      return `${base}?${params.toString()}`;
+    }
+
+    function renderBalances() {
+      const active = activeMiner();
+      const aggregate = STATE.aggregate || {};
+      if (!active) return;
+      const activeTreasury = active.accumulated_rewards?.coin_rows || [];
+      const fleetTreasury = aggregate.accumulated_by_coin || [];
+      $("balances-cards").innerHTML = [
+        { label: 'Runtime actif', value: usd(active.runtime_earned_usd), sub: `${num(active.runtime_earned_coin, 8)} ${active.coin}` },
+        { label: 'Projection 24h recalibrée', value: usd(active.estimated_daily_usd), sub: `${num(active.estimated_daily_coin, 8)} ${active.coin}` },
+        { label: 'Gains accumulés actifs', value: usd(active.balances_state?.accumulated_active_usd || 0), sub: `${num(active.balances_state?.accumulated_active_coin || 0, 8)} ${active.coin}` },
+        { label: 'Trésorerie flotte exploitable', value: usd(aggregate.accumulated_usd || 0), sub: `${fleetTreasury.length || 0} cryptos disponibles pour réallocation` },
+        { label: 'Gains totaux temps réel', value: usd(aggregate.gains_total_usd || 0), sub: `runtime + accumulé, mis à jour au polling` },
+      ].map(card => `
+        <div class="balance-card">
+          <div class="label">${card.label}</div>
+          <div class="balance-value">${card.value}</div>
+          <div class="balance-sub">${card.sub}</div>
+        </div>`).join('');
+
+      $("active-treasury-table").innerHTML = activeTreasury.length ? activeTreasury.map(row => `
+        <tr>
+         <td>${esc(row.coin)}</td>
+          <td>${num(row.amount, 8)}</td>
+          <td>${usd(row.value_usd)}</td>
+          <td>${esc(row.pool_label)}</td>
+        </tr>`).join('') : '<tr><td colspan="4" class="empty">Aucun gain accumulé exploitable pour le miner actif.</td></tr>';
+
+      $("fleet-treasury-table").innerHTML = fleetTreasury.length ? fleetTreasury.map(row => `
+        <tr>
+          <td>${esc(row.coin)}</td>
+          <td>${num(row.amount, 8)}</td>
+          <td>${usd(row.value_usd)}</td>
+          <td>${usd(row.price_usd)}</td>
+        </tr>`).join('') : '<tr><td colspan="4" class="empty">La trésorerie flotte sera renseignée à mesure que les gains s’accumulent.</td></tr>';
+
+      $("fleet-balance-table").innerHTML = (STATE.fleet || []).map(item => `
+        <tr>
+          <td>${esc(item.miner_label)}</td>
+          <td>${esc(item.coin)}</td>
+          <td>${num(item.hashrate, 2)} ${esc(item.hashrate_unit)}</td>
+          <td>${usd(item.runtime_earned_usd)}</td>
+          <td>${usd(item.estimated_daily_usd)}</td>
+          <td>${usd(item.accumulated_rewards?.total_usd || 0)}</td>
+        </tr>`).join('');
+
+      $("market-board-table").innerHTML = (STATE.marketBoard || []).map(item => `
+        <tr>
+          <td>${esc(item.coin)}</td>
+          <td>${usd(item.price_usd)}</td>
+          <td class="${item.change_24h >= 0 ? 'ok' : 'danger'}">${pct(item.change_24h)}</td>
+          <td>${esc(item.pool_label)}</td>
+        </tr>`).join('');
+
+      $("tv-frame").src = tvUrl(active.tv_symbol);
+    }
+
+    function renderHardware() {
+      const active = activeMiner();
+      if (!active) return;
+      const cpu = active.cpu_elements || {};
+      $("hardware-matrix-table").innerHTML = [
+        ['Miner', active.miner_label],
+        ['Profil hardware actif', active.hardware_profile.label],
+        ['Moteur actif', active.engine_profile.label],
+        ['Cores / threads', `${cpu.cores || '--'} / ${cpu.threads || '--'}`],
+        ['Base / boost', `${cpu.base_clock_ghz || '--'} GHz / ${cpu.boost_clock_ghz || '--'} GHz`],
+        ['Cache L3', `${cpu.l3_mb || '--'} MB`],
+        ['RAM effective', `${cpu.ram_effective_gb || '--'} GB`],
+        ['Cache slots', cpu.cache_slots || '--'],
+        ['Lane count', cpu.lane_count || '--'],
+        ['Chunks disponibles', (cpu.profile_chunks_ko || []).join(', ') + ' ko'],
+        ['Chunk actif', `${cpu.active_chunk_ko || '--'} ko`],
+        ['Puissance', `${active.hardware_profile.power_w || '--'} W`],
+      ].map(row => `<tr><th>${row[0]}</th><td>${row[1]}</td></tr>`).join('');
+
+      $("fleet-hardware-table").innerHTML = (STATE.fleet || []).map(item => `
+        <tr>
+          <td>${esc(item.miner_label)}</td>
+          <td>${esc(item.hardware_profile.label)}</td>
+          <td>${esc(item.engine_profile.label)}</td>
+          <td>${esc(item.hardware_profile.power_w)} W</td>
+        </tr>`).join('');
+
+      const activeEngineId = (STATE.config || {}).engine_profile_id;
+      const activeHardwareId = (STATE.config || {}).hardware_profile_id;
+      $("engine-cards").innerHTML = (STATE.engines || []).map(item => `
+        <article class="engine-card ${item.id === activeEngineId ? 'active' : ''}">
+          <div class="label">${esc(item.class)}</div>
+          <h3>${esc(item.label)}</h3>
+          <p class="muted">${esc(item.description)}</p>
+          <div class="mini-sub">focus · ${esc(item.focus)}</div>
+        </article>`).join('');
+      $("hardware-cards").innerHTML = (STATE.hardwareCatalog || []).map(item => `
+        <article class="hardware-card ${item.id === activeHardwareId ? 'active' : ''}">
+          <div class="label">${esc(item.family)} · ${esc(item.vendor)}</div>
+          <h3>${esc(item.label)}</h3>
+     <p class="muted">${esc(item.algorithm)} · ${num(item.hashrate_value, 2)} ${esc(item.hashrate_unit)}</p>
+          <div class="mini-sub">${esc(item.memory_note)} · ${esc(item.power_w)} W</div>
+        </article>`).join('');
+    }
+
+    function renderLogFilters() {
+      $("zone-filters").innerHTML = ZONES.map(zone => `<button class="filter-btn ${STATE.zoneFilter === zone ? 'active' : ''}" data-zone="${zone}">${zone}</button>`).join('');
+      $("level-filters").innerHTML = LEVELS.map(level => `<button class="filter-btn ${STATE.levelFilter === level ? 'active' : ''}" data-level="${level}">${level}</button>`).join('');
+      document.querySelectorAll('[data-zone]').forEach(btn => btn.onclick = () => { STATE.zoneFilter = btn.dataset.zone; renderLogs(); renderLogFilters(); });
+      document.querySelectorAll('[data-level]').forEach(btn => btn.onclick = () => { STATE.levelFilter = btn.dataset.level; renderLogs(); renderLogFilters(); });
+    }
+
+    function renderLogs() {
+      const query = ($("quick-search").value || '').toLowerCase().trim();
+      const rows = (STATE.logs || []).filter((line) => {
+        if (STATE.zoneFilter !== 'ALL' && line.zone !== STATE.zoneFilter) return false;
+        if (STATE.levelFilter !== 'ALL' && line.level !== STATE.levelFilter) return false;
+        if (!query) return true;
+        const hay = `${line.zone} ${line.level} ${line.tag} ${line.msg} ${line.miner_id}`.toLowerCase();
+        return hay.includes(query);
+      });
+      $("log-stream").innerHTML = rows.length ? rows.map((line) => `
+        <div class="log-line">
+          <div>${new Date(line.ts).toLocaleTimeString('fr-FR')}</div>
+          <div class="log-level ${esc(line.level)}">${esc(line.level)}</div>
+          <div class="log-zone">${esc(line.zone)}</div>
+          <div class="log-miner">${esc(line.miner_id || 'fleet')}</div>
+          <div>${esc(line.tag)} · ${esc(line.msg)}</div>
+        </div>`).join('') : '<div class="empty">Aucune ligne ne correspond aux filtres actifs.</div>';
+    }
+
+    function render() {
+      syncTabs();
+      renderBanner();
+      renderSignals();
+      renderFleet();
+      renderControls();
+      renderLiveLinks();
+      renderSettings();
+      renderMining();
+      renderBridge();
+      renderBalances();
+      renderHardware();
+      renderLogFilters();
+      renderLogs();
+    }
+
+    async function selectMiner(minerId) {
+      STATE.activeMinerId = minerId;
+      STATE.settingsMinerId = minerId;
+      persistUiState();
+      render();
+      await control('select-miner', { miner_id: minerId, scope: 'active' });
+    }
+
+    async function control(action, extra = {}) {
+      const payload = { action, scope: extra.scope || STATE.controlScope };
+      if (extra.miner_id) payload.miner_id = extra.miner_id;
+      else if (STATE.activeMinerId && payload.scope !== 'all') payload.miner_id = STATE.activeMinerId;
+      if (action === 'next-miner') {
+        STATE.activeMinerId = null;
+        STATE.settingsMinerId = null;
+        persistUiState();
+      }
+      await fetchJSON(`${API}/control`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      await pullData(true);
+    }
+
+    async function saveCpu() {
+      const miner_id = $("miner-select").value;
+      await fetchJSON(`${API}/cpu/tune`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          miner_id,
+          thread_count: Number($("cpu-threads").value || 0),
+          cache_slots: Number($("cpu-cache-slots").value || 0),
+          lane_count: Number($("cpu-lanes").value || 0),
+          active_chunk_ko: Number($("cpu-chunk").value || 0),
+        }),
+      });
+      $("wallet-detection").textContent = `CPU appliqué sur ${miner_id}`;
+      await pullData();
+    }
+
+    async function recognizeWallet() {
+      const miner_id = $("miner-select").value;
+      const payload = await fetchJSON(`${API}/settings/recognize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          miner_id,
+          wallet: $("wallet-input").value,
+          worker: $("worker-input").value,
+        }),
+      });
+      const result = payload.result || {};
+      $("wallet-detection").textContent = `${result.miner_id || miner_id} · famille ${result.family || '--'} · coin ${result.coin || '--'} · pool ${result.pool || '--'}`;
+      await pullData();
+    }
+
+    async function syncConfigFields() {
+      const miner_id = $("miner-select").value;
+      STATE.settingsMinerId = miner_id;
+      persistUiState();
+      await fetchJSON(`${API}/config`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ settings_miner_id: miner_id }),
+      });
+      const cfg = STATE.config || {};
+      const miner = (cfg.miners || []).find(item => item.id === miner_id);
+      if (miner) {
+        $("worker-input").value = miner.worker || '';
+        $("wallet-input").value = miner.wallet || '';
+        $("cpu-threads").value = miner.thread_count || '';
+        $("cpu-cache-slots").value = miner.cache_slots || '';
+        $("cpu-lanes").value = miner.lane_count || '';
+        $("cpu-chunk").innerHTML = (miner.chunk_profiles_ko || []).map(v => `<option value="${v}">${v} ko</option>`).join('');
+        $("cpu-chunk").value = String(miner.active_chunk_ko || '');
+        $("wallet-detection").textContent = `${miner.id} · ${miner.coin} · ${miner.pool_label}`;
+      }
+    }
+
+    async function pullData(force = false) {
+      if (pullInFlight && !force) return pullInFlight;
+      pullInFlight = (async () => {
+        const [summary, config, fleet, market, engines, hardware] = await Promise.all([
+          fetchJSON(`${API}/summary`),
+          fetchJSON(`${API}/config`),
+          fetchJSON(`${API}/miners`),
+          fetchJSON(`${API}/market/board`),
+          fetchJSON(`${API}/engines`),
+          fetchJSON(`${API}/hardware`),
+           ]);
+        const fleetItems = fleet.items || [];
+        const configMiners = config.miners || [];
+        STATE.summary = summary;
+        STATE.config = config;
+        STATE.fleet = fleetItems;
+        STATE.aggregate = fleet.aggregate || summary.aggregate || {};
+        STATE.marketBoard = market.items || [];
+        STATE.engines = engines.items || [];
+        STATE.hardwareCatalog = hardware.items || [];
+        STATE.activeMinerId = pickValidId(fleetItems, [
+          STATE.activeMinerId,
+          config.active_miner_id,
+          summary.active_miner_id,
+          fleet.active_miner_id,
+          fleetItems[0]?.miner_id,
+        ], 'miner_id') || fleetItems[0]?.miner_id || null;
+        STATE.settingsMinerId = pickValidId(configMiners, [
+          STATE.settingsMinerId,
+          config.settings_miner_id,
+          config.active_miner_id,
+          STATE.activeMinerId,
+          configMiners[0]?.id,
+        ], 'id') || STATE.activeMinerId;
+        persistUiState();
+
+        const activeId = STATE.activeMinerId ? `?miner_id=${encodeURIComponent(STATE.activeMinerId)}` : '';
+        const [job, shares, stratum, logs] = await Promise.all([
+          fetchJSON(`${API}/job/current${activeId}`),
+          fetchJSON(`${API}/shares/recent${activeId}`),
+          fetchJSON(`${API}/stratum/state${activeId}`),
+          fetchJSON(`${API}/logs${activeId}`),
+        ]);
+        STATE.currentJob = job || null;
+        STATE.currentShare = (shares.items || [])[0] || null;
+        STATE.stratum = stratum || null;
+        STATE.logs = logs.items || [];
+        render();
+      })().finally(() => {
+        pullInFlight = null;
+      });
+      return pullInFlight;
+    }
+
+    function bindEvents() {
+      document.querySelectorAll('.nav-btn, .tab-chip, #btn-gains-total').forEach((btn) => {
+        btn.onclick = () => {
+          STATE.activeTab = btn.dataset.tab;
+          persistUiState();
+          syncTabs();
+          const panel = document.getElementById(`panel-${STATE.activeTab}`);
+          if (btn.id === 'btn-gains-total' && panel) {
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        };
+      });
+      document.querySelectorAll('.scope-btn').forEach((btn) => {
+        btn.onclick = () => {
+          STATE.controlScope = btn.dataset.scope;
+          persistUiState();
+          renderControls();
+          renderSignals();
+          renderBanner();
+        };
+      });
+      $("btn-start").onclick = () => control('start');
+      $("btn-stop").onclick = () => control('stop');
+      $("btn-auto").onclick = () => control('auto-toggle');
+      $("btn-force").onclick = () => control('force-stop');
+      $("btn-selector").onclick = () => control('cycle-selection');
+      $("btn-bench").onclick = () => control('benchmark');
+      $("btn-settings").onclick = () => control('toggle-settings', { scope: 'active' });
+      $("btn-engine").onclick = () => control('cycle-engine');
+      $("btn-hardware").onclick = () => control('cycle-hardware');
+      $("btn-next-miner").onclick = () => control('next-miner', { scope: 'active' });
+      $("btn-refresh").onclick = () => pullData();
+      $("btn-recognize").onclick = () => recognizeWallet();
+      $("btn-save-cpu").onclick = () => saveCpu();
+      $("miner-select").onchange = () => syncConfigFields();
+      $("quick-search").oninput = () => renderLogs();
+    }
+
+    async function boot() {
+      loadUiState();
+      bindEvents();
+      await pullData(true);
+      setInterval(async () => {
+        try { await pullData(); } catch (err) { console.error(err); }
+      }, 6000);
+    }
+
+    boot().catch((err) => {
+      console.error(err);
+      $("log-stream").innerHTML = `<div class="empty">Erreur de chargement : ${esc(err.message || err)}</div>`;
+    });
+  </script>
+</body>
+</html>
