@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>V18 · FUSION · Conversation + Swarm + Consensus · 9 IA</title>
+<title>V21 · MEGA FUSION · Chat + Network + Swarm + Consensus · 9 IA</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Rajdhani:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -24,151 +24,159 @@ body{color:var(--text);font-family:'IBM Plex Mono',monospace;
   overflow-x:hidden;min-height:100vh}
 canvas.bg{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
 #cvA{opacity:.09} #cvB{opacity:.06;z-index:1}
-.app{position:relative;z-index:2;max-width:1750px;margin:0 auto;padding:12px}
+.app{position:relative;z-index:2;max-width:1800px;margin:0 auto;padding:12px}
 .glass{background:linear-gradient(160deg,var(--glass),var(--glass2));border:1px solid var(--border);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04);backdrop-filter:blur(14px)}
 
 /* TOPBAR */
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;gap:14px;flex-wrap:wrap}
-.brand-name{font-family:'Rajdhani',sans-serif;font-weight:900;font-size:26px;
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;gap:12px;flex-wrap:wrap}
+.brand-name{font-family:'Rajdhani',sans-serif;font-weight:900;font-size:25px;
   background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3),var(--accent1));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:300%;animation:g 5s linear infinite}
 @keyframes g{0%{background-position:0%}100%{background-position:300%}}
-.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:4px}
-.pd{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent3);margin-right:8px;animation:pd 2s ease-in-out infinite}
+.brand-sub{font-size:9px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:4px}
+.pd{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent3);margin-right:7px;animation:pd 2s ease-in-out infinite}
 @keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
-.top-actions{display:flex;gap:8px;align-items:center}
-.nc{font-size:11px;color:var(--accent1);border:1px solid rgba(58,220,255,.2);border-radius:10px;padding:6px 12px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.08em}
+.top-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.nc{font-size:11px;color:var(--accent1);border:1px solid rgba(58,220,255,.2);border-radius:9px;padding:5px 11px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.08em}
+.clock{font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:.1em}
 
 /* BUTTONS */
-.btn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);border-radius:12px;padding:9px 16px;cursor:pointer;transition:all .18s;background:rgba(10,20,36,.8);color:var(--text)}
+.btn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);border-radius:11px;padding:8px 14px;cursor:pointer;transition:all .18s;background:rgba(10,20,36,.8);color:var(--text)}
 .btn:hover{border-color:rgba(80,160,255,.3);background:rgba(20,40,70,.9)}
 .btn.primary{background:linear-gradient(135deg,rgba(58,220,255,.9),rgba(181,127,255,.85));border-color:transparent;color:#06111f}
 .btn.primary:hover{opacity:.88;transform:translateY(-1px)}
+.btn.danger{background:rgba(255,79,106,.15);border-color:rgba(255,79,106,.3);color:var(--err)}
+.btn.danger:hover{background:rgba(255,79,106,.25)}
+.btn.go{background:linear-gradient(135deg,rgba(58,255,160,.85),rgba(58,220,255,.8));border-color:transparent;color:#04120a}
 .btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
 .btn.running{animation:bp 1s ease-in-out infinite}
-@keyframes bp{0%,100%{box-shadow:0 0 0 0 rgba(58,220,255,.5)}50%{box-shadow:0 0 0 10px rgba(58,220,255,0)}}
-.btn.sm{font-size:11px;padding:6px 12px;border-radius:8px}
+@keyframes bp{0%,100%{box-shadow:0 0 0 0 rgba(58,220,255,.5)}50%{box-shadow:0 0 0 9px rgba(58,220,255,0)}}
+.btn.sm{font-size:11px;padding:6px 11px;border-radius:8px}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
 
 /* TABS */
-.tabs{display:flex;gap:6px;padding:12px 14px;flex-wrap:wrap}
-.tab{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;border-radius:12px;cursor:pointer;border:1px solid var(--border);background:rgba(8,16,28,.8);color:var(--muted);transition:all .2s}
+.tabs{display:flex;gap:5px;padding:10px 12px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.tab{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:9px 16px;border-radius:11px;cursor:pointer;border:1px solid var(--border);background:rgba(8,16,28,.8);color:var(--muted);transition:all .2s}
 .tab:hover{color:var(--text);border-color:rgba(80,160,255,.25)}
-.tab.active{color:var(--text);border-color:var(--accent1);background:rgba(58,220,255,.08)}
-.tab.active.v15{border-color:var(--accent3);background:rgba(58,255,160,.07)}
-.tab.active.v16{border-color:var(--accent2);background:rgba(181,127,255,.07)}
-.tab.active.v17{border-color:var(--accent1);background:rgba(58,220,255,.07)}
-.tab.active.mem{border-color:var(--warn);background:rgba(255,176,58,.07)}
+.tab.active{color:var(--text)}
+.tab.active[data-v="chat"]{border-color:var(--ok);background:rgba(58,255,160,.07)}
+.tab.active[data-v="net"]{border-color:var(--accent1);background:rgba(58,220,255,.07)}
+.tab.active[data-v="conv"]{border-color:var(--accent2);background:rgba(181,127,255,.07)}
+.tab.active[data-v="swarm"]{border-color:var(--warn);background:rgba(255,176,58,.07)}
+.tab.active[data-v="cons"]{border-color:#ff9f58;background:rgba(255,159,88,.07)}
+.tab.active[data-v="mem"]{border-color:#c8a0ff;background:rgba(200,160,255,.07)}
 
 /* PROVIDERS */
-.prov-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:7px;padding:12px 14px}
-.chip{background:rgba(5,12,22,.85);border:1px solid var(--border);border-radius:13px;padding:9px 10px;transition:all .3s}
+.prov-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;padding:10px 12px}
+.chip{background:rgba(5,12,22,.85);border:1px solid var(--border);border-radius:12px;padding:8px 9px;transition:all .3s}
 .chip.active{border-color:rgba(58,255,160,.32);background:rgba(3,15,10,.7)}
-.chip-label{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2)}
-.chip-model{font-size:7px;color:var(--muted2);opacity:.6;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chip-val{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;margin-top:5px}
+.chip-label{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2)}
+.chip-model{font-size:7px;color:var(--muted2);opacity:.55;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip-val{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;margin-top:5px}
 .chip-val.ok{color:var(--ok)} .chip-val.off{color:var(--muted2)} .chip-val.free{color:var(--accent1)}
 
 /* LAYOUT */
-.layout{display:grid;grid-template-columns:310px 1fr;gap:10px;margin-top:10px}
-.sidebar{padding:14px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 280px);overflow-y:auto}
+.layout{display:grid;grid-template-columns:290px 1fr;gap:10px;margin-top:10px}
+.sidebar{padding:12px;display:flex;flex-direction:column;gap:7px;max-height:calc(100vh - 270px);overflow-y:auto}
 .sidebar::-webkit-scrollbar{width:3px}
 .sidebar::-webkit-scrollbar-thumb{background:rgba(80,160,255,.2);border-radius:2px}
-.slabel{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--border);margin-top:2px}
-.tblock{background:rgba(5,10,20,.7);border:1px solid var(--border);border-radius:11px;padding:9px 11px;display:flex;flex-direction:column;gap:6px;position:relative}
+.slabel{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding-bottom:5px;border-bottom:1px solid var(--border);margin-top:2px}
+.tblock{background:rgba(5,10,20,.7);border:1px solid var(--border);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;position:relative}
 .tblock.free{border-color:rgba(58,255,160,.2);background:rgba(3,15,10,.7)}
-.pbadge{position:absolute;top:7px;right:7px;font-size:7px;padding:2px 6px;border-radius:5px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.08em}
+.pbadge{position:absolute;top:6px;right:6px;font-size:7px;padding:2px 6px;border-radius:5px;font-family:'Rajdhani',sans-serif;font-weight:700}
 .bf{background:rgba(58,255,160,.15);color:var(--ok);border:1px solid rgba(58,255,160,.3)}
 .bk{background:rgba(181,127,255,.12);color:var(--accent2);border:1px solid rgba(181,127,255,.25)}
 .bl{background:rgba(58,220,255,.12);color:var(--accent1);border:1px solid rgba(58,220,255,.25)}
-.tlabel{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px}
-.tmodel{font-size:8px;color:var(--muted2);opacity:.8;font-style:italic}
+.tlabel{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px}
+.tmodel{font-size:8px;color:var(--muted2);opacity:.75;font-style:italic}
 .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted2);transition:background .3s;flex-shrink:0}
 .dot.active{background:var(--ok);box-shadow:0 0 6px rgba(58,255,160,.5)}
-input{width:100%;background:rgba(4,9,18,.9);color:var(--text);border:1px solid rgba(80,160,255,.14);border-radius:7px;padding:7px 9px;font-family:'IBM Plex Mono',monospace;font-size:11px;outline:none;transition:border-color .2s}
-input:focus{border-color:rgba(58,220,255,.4)}
-textarea{width:100%;background:rgba(4,9,18,.9);color:var(--text);border:1px solid rgba(80,160,255,.14);border-radius:7px;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;outline:none;resize:vertical;min-height:85px}
+input[type="text"],input[type="password"],input[type="number"],select{width:100%;background:rgba(4,9,18,.9);color:var(--text);border:1px solid rgba(80,160,255,.14);border-radius:7px;padding:6px 9px;font-family:'IBM Plex Mono',monospace;font-size:10px;outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:rgba(58,220,255,.4)}
+textarea{width:100%;background:rgba(4,9,18,.9);color:var(--text);border:1px solid rgba(80,160,255,.14);border-radius:7px;padding:7px 9px;font-family:'IBM Plex Mono',monospace;font-size:11px;outline:none;resize:vertical;min-height:70px}
 textarea:focus{border-color:rgba(58,220,255,.4)}
-select{width:100%;background:rgba(4,9,18,.9);color:var(--text);border:1px solid rgba(80,160,255,.14);border-radius:7px;padding:7px 9px;font-family:'IBM Plex Mono',monospace;font-size:11px;outline:none}
 .pw{background:rgba(3,7,14,.8);border-radius:4px;overflow:hidden;height:3px;display:none;margin-top:4px}
 .pb{height:3px;width:0%;background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));transition:width .4s;border-radius:4px}
-.slive{background:rgba(3,7,14,.8);border:1px solid rgba(58,220,255,.08);border-radius:9px;padding:8px 10px;display:none;flex-direction:column;gap:3px;font-size:10px}
-.slr{display:flex;gap:8px;align-items:center}
-.slr-r{color:var(--muted);width:76px;flex-shrink:0}
-.slr-p{color:var(--accent1);width:88px}
-.slr-s{color:var(--muted2)}
-.slr-s.done{color:var(--ok)}
-.slr-s.run{color:var(--warn);animation:blink .8s linear infinite}
+.slive{background:rgba(3,7,14,.8);border:1px solid rgba(58,220,255,.08);border-radius:8px;padding:7px 9px;display:none;flex-direction:column;gap:3px;font-size:10px}
+.slr{display:flex;gap:7px;align-items:center}
+.slr-r{color:var(--muted);width:72px;flex-shrink:0;font-size:9px}
+.slr-p{color:var(--accent1);width:84px;font-size:9px}
+.slr-s{color:var(--muted2);font-size:9px}
+.slr-s.done{color:var(--ok)}.slr-s.run{color:var(--warn);animation:blink .8s linear infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* MAIN */
-.panel-area{display:flex;flex-direction:column;gap:10px}
-.tab-panel{display:none}
-.tab-panel.active{display:flex;flex-direction:column;gap:10px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.panel{padding:13px}
-.panel-wide{grid-column:1/-1}
-.ptitle{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;display:flex;align-items:center;gap:7px}
+.panel-area{display:flex;flex-direction:column;gap:9px}
+.tp{display:none}.tp.active{display:flex;flex-direction:column;gap:9px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.panel{padding:12px}
+.pw2{grid-column:1/-1}
+.ptitle{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .ptitle::before{content:'';display:block;width:3px;height:11px;border-radius:2px;background:linear-gradient(180deg,var(--accent1),var(--accent2))}
-.mbox,.lbox{min-height:180px;max-height:350px;overflow-y:auto;background:rgba(3,7,14,.85);border:1px solid rgba(80,160,255,.08);border-radius:11px;padding:11px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.6;white-space:pre-wrap;word-break:break-word;color:var(--text)}
-.lbox{min-height:100px;max-height:180px;color:var(--muted)}
+.mbox,.lbox{min-height:160px;max-height:320px;overflow-y:auto;background:rgba(3,7,14,.85);border:1px solid rgba(80,160,255,.08);border-radius:10px;padding:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.6;white-space:pre-wrap;word-break:break-word;color:var(--text)}
+.lbox{min-height:80px;max-height:160px;color:var(--muted);font-size:10px}
 .mbox::-webkit-scrollbar,.lbox::-webkit-scrollbar{width:3px}
 .mbox::-webkit-scrollbar-thumb,.lbox::-webkit-scrollbar-thumb{background:rgba(80,160,255,.18);border-radius:2px}
 .lok{color:var(--ok)} .lerr{color:var(--err)} .lwarn{color:var(--warn)} .linfo{color:var(--accent1)}
 
-/* CONVERSATION */
-.conv-thread{display:flex;flex-direction:column;gap:8px;min-height:200px;max-height:480px;overflow-y:auto;background:rgba(3,7,14,.85);border:1px solid rgba(80,160,255,.08);border-radius:11px;padding:11px}
-.conv-thread::-webkit-scrollbar{width:3px}
-.conv-thread::-webkit-scrollbar-thumb{background:rgba(80,160,255,.18);border-radius:2px}
-.msg-bubble{padding:9px 12px;border-radius:10px;border-left:3px solid var(--border2)}
-.msg-bubble.analyst{border-left-color:var(--accent1)}
-.msg-bubble.critic{border-left-color:var(--err)}
-.msg-bubble.synth{border-left-color:var(--accent2)}
-.msg-bubble.judge{border-left-color:var(--warn)}
-.msg-bubble.user{border-left-color:var(--muted2)}
-.msg-head{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:flex;gap:8px;align-items:center}
-.msg-prov{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;padding:1px 6px;border-radius:5px;background:rgba(58,220,255,.1);border:1px solid rgba(58,220,255,.2);color:var(--accent1)}
-.msg-body{font-size:11px;line-height:1.55;color:var(--text);opacity:.92}
-.turn-sep{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2);text-align:center;padding:6px 0;border-top:1px solid var(--border);margin:4px 0}
+/* ═══ CHAT ═══ */
+.chat-thread{display:flex;flex-direction:column;gap:7px;min-height:220px;max-height:520px;overflow-y:auto;background:rgba(3,7,14,.85);border:1px solid rgba(80,160,255,.08);border-radius:10px;padding:10px}
+.chat-thread::-webkit-scrollbar{width:3px}
+.chat-thread::-webkit-scrollbar-thumb{background:rgba(80,160,255,.18);border-radius:2px}
+.bubble{padding:8px 11px;border-radius:9px;border-left:3px solid var(--border2)}
+.bubble.human{border-left-color:var(--muted);background:rgba(80,160,255,.04)}
+.bubble.openai{border-left-color:#74c4ff}
+.bubble.claude{border-left-color:var(--accent2)}
+.bubble.groq{border-left-color:#ff9f58}
+.bubble.gemini{border-left-color:#4af0a0}
+.bubble.mistral{border-left-color:#ff6faa}
+.bubble.pollinations{border-left-color:var(--accent1)}
+.bubble.openrouter{border-left-color:#ffd060}
+.bubble.hf{border-left-color:#a0c4ff}
+.bubble.ollama{border-left-color:var(--muted2)}
+.bubble.error{opacity:.5;border-left-color:var(--err)}
+.bhead{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.bprov{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;padding:1px 6px;border-radius:4px;background:rgba(58,220,255,.1);border:1px solid rgba(58,220,255,.2);color:var(--accent1)}
+.brole{font-size:9px;color:var(--muted2)}
+.bscore{font-size:9px;color:var(--ok)}
+.bbody{font-size:11px;line-height:1.5;color:var(--text);opacity:.92}
 
-/* SWARM */
-.ri{padding:7px 9px;border-left:2px solid var(--border2);margin-bottom:6px;border-radius:0 5px 5px 0}
-.rh{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent1);margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.rprovtag{font-size:9px;padding:1px 6px;border-radius:5px;border:1px solid;font-family:'Rajdhani',sans-serif;font-weight:700}
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:9px}
+.metric{background:rgba(5,12,22,.7);border:1px solid var(--border2);border-radius:12px;padding:10px 12px}
+.mlabel{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.mval{font-family:'Rajdhani',sans-serif;font-weight:900;font-size:22px;margin-top:4px;color:var(--accent1)}
+
+/* CONVERGENCE */
+.conv-bar{height:6px;border-radius:3px;background:rgba(3,7,14,.8);overflow:hidden;margin-top:6px}
+.conv-fill{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--iterate),var(--ok));transition:width .6s}
+
+/* ROLE ITEMS */
+.ri{padding:7px 9px;border-left:2px solid var(--border2);margin-bottom:5px;border-radius:0 5px 5px 0}
+.rh{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent1);margin-bottom:3px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.rprovtag{font-size:8px;padding:1px 5px;border-radius:4px;border:1px solid;font-family:'Rajdhani',sans-serif;font-weight:700}
 .rc{font-size:11px;line-height:1.5;color:var(--text);opacity:.9}
 
 /* VOTES */
-.vrow{display:grid;grid-template-columns:82px 82px 1fr 55px 65px;gap:5px;align-items:center;padding:4px 0;border-bottom:1px solid rgba(80,160,255,.05);font-size:10px}
+.vrow{display:grid;grid-template-columns:80px 80px 1fr 55px 62px;gap:5px;align-items:center;padding:4px 0;border-bottom:1px solid rgba(80,160,255,.05);font-size:10px}
 .vrh{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2)}
-.rbar{display:inline-block;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--accent1),var(--accent3));vertical-align:middle;margin-left:5px;transition:width .5s}
+.rbar{display:inline-block;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--accent1),var(--accent3));vertical-align:middle;margin-left:4px;transition:width .5s}
 
-/* MEMORY */
-.mem-card{background:rgba(5,10,20,.7);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:8px}
-.mem-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.mem-score{font-family:'Rajdhani',sans-serif;font-weight:900;font-size:22px;color:var(--ok)}
-.mem-verdict{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;padding:2px 9px;border-radius:7px}
-.mv-ok{background:rgba(58,255,160,.1);border:1px solid rgba(58,255,160,.3);color:var(--ok)}
-.mem-task{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:6px}
-.mem-synth{font-size:10px;color:var(--text);opacity:.8;line-height:1.45}
-.mem-providers{font-size:9px;color:var(--muted2);margin-top:6px}
-
-/* VERDICT BADGE */
-.vbadge{display:inline-block;padding:2px 9px;border-radius:7px;font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.08em}
+/* MEMORY CARDS */
+.mem-card{background:rgba(5,10,20,.7);border:1px solid var(--border);border-radius:11px;padding:10px 12px;margin-bottom:7px}
+.mem-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.mem-score{font-family:'Rajdhani',sans-serif;font-weight:900;font-size:20px;color:var(--ok)}
+.vbadge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.08em}
 .vok{background:rgba(58,255,160,.1);border:1px solid rgba(58,255,160,.3);color:var(--ok)}
 .vit{background:rgba(255,176,58,.1);border:1px solid rgba(255,176,58,.3);color:var(--iterate)}
 
-/* RELIABILITY TABLE */
+/* RTABLE */
 .rtable{width:100%;border-collapse:collapse;font-size:10px}
-.rtable th{color:var(--muted);text-transform:uppercase;font-size:9px;letter-spacing:.12em;padding:3px 5px;text-align:left}
+.rtable th{color:var(--muted);text-transform:uppercase;font-size:8px;letter-spacing:.12em;padding:3px 5px;text-align:left}
 .rtable td{padding:4px 5px;border-top:1px solid rgba(80,160,255,.06)}
 
-/* METRICS */
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
-.metric{background:rgba(5,12,22,.7);border:1px solid var(--border2);border-radius:13px;padding:11px 13px}
-.mlabel{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-.mval{font-family:'Rajdhani',sans-serif;font-weight:900;font-size:24px;margin-top:4px;color:var(--accent1)}
-
-@media(max-width:1300px){.prov-grid{grid-template-columns:repeat(5,1fr)}.layout,.grid2{grid-template-columns:1fr}.panel-wide{grid-column:1}.metrics{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:700px){.prov-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1300px){.prov-grid{grid-template-columns:repeat(5,1fr)}.layout,.g2{grid-template-columns:1fr}.pw2{grid-column:1}.metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.prov-grid{grid-template-columns:repeat(3,1fr)}.tabs{gap:3px}.tab{font-size:10px;padding:7px 10px}}
 </style>
 </head>
 <body>
@@ -177,481 +185,331 @@ select{width:100%;background:rgba(4,9,18,.9);color:var(--text);border:1px solid 
 
 <div class="app">
 
-<!-- TOPBAR -->
+<!-- ══ TOPBAR ══ -->
 <header class="topbar glass">
   <div>
-    <div class="brand-name">V18 · FUSION · CONVERSATION + SWARM + CONSENSUS</div>
-    <div class="brand-sub"><span class="pd"></span>V15 · V16 · V17 fusionnés · 9 réseaux IA · standalone · no backend</div>
+    <div class="brand-name">V21 · MEGA FUSION · CHAT + NETWORK + SWARM + CONSENSUS</div>
+    <div class="brand-sub"><span class="pd"></span>V18·V19·V20·V15·V16·V17 fusionnés · 9 réseaux IA · standalone · no backend</div>
   </div>
-  <div class="top-actions">
-    <div class="nc" id="nc">0 / 9 actifs</div>
+  <div class="top-right">
+    <div class="clock" id="clock">--:--:--</div>
+    <div class="nc" id="nc">0/9 actifs</div>
     <button class="btn" onclick="refreshAll()">⟳ SYNC</button>
   </div>
 </header>
 
-<!-- TABS -->
+<!-- ══ TABS + PROVIDERS ══ -->
 <div class="glass" style="margin-top:10px">
   <div class="tabs">
-    <div class="tab active v15" id="tab-v15" onclick="switchTab('v15')">💬 V15 · CONVERSATION MULTI-IA</div>
-    <div class="tab v16" id="tab-v16" onclick="switchTab('v16')">⚡ V16 · SWARM + MÉMOIRE</div>
-    <div class="tab v17" id="tab-v17" onclick="switchTab('v17')">⚖️ V17 · CONSENSUS PONDÉRÉ</div>
-    <div class="tab mem" id="tab-mem" onclick="switchTab('mem')">🧠 MÉMOIRE</div>
+    <div class="tab active" data-v="chat" onclick="switchTab('chat')">💬 CHAT · V18/V19</div>
+    <div class="tab" data-v="net" onclick="switchTab('net')">🌐 NETWORK · V20</div>
+    <div class="tab" data-v="conv" onclick="switchTab('conv')">🔄 CONVERSATION · V15</div>
+    <div class="tab" data-v="swarm" onclick="switchTab('swarm')">⚡ SWARM · V16</div>
+    <div class="tab" data-v="cons" onclick="switchTab('cons')">⚖️ CONSENSUS · V17</div>
+    <div class="tab" data-v="mem" onclick="switchTab('mem')">🧠 MÉMOIRE</div>
   </div>
-  <!-- PROVIDERS -->
   <div class="prov-grid">
-    <div class="chip" id="chip-hf"><div class="chip-label">HuggingFace</div><div class="chip-model">Mistral-7B-v0.3</div><div class="chip-val off" id="val-hf">OFF</div></div>
+    <div class="chip" id="chip-hf"><div class="chip-label">HuggingFace</div><div class="chip-model">Mistral-7B</div><div class="chip-val off" id="val-hf">OFF</div></div>
     <div class="chip" id="chip-openai"><div class="chip-label">OpenAI</div><div class="chip-model">gpt-4.1</div><div class="chip-val off" id="val-openai">OFF</div></div>
-    <div class="chip" id="chip-claude"><div class="chip-label">Anthropic</div><div class="chip-model">claude-sonnet-4</div><div class="chip-val off" id="val-claude">OFF</div></div>
+    <div class="chip" id="chip-claude"><div class="chip-label">Anthropic</div><div class="chip-model">sonnet-4</div><div class="chip-val off" id="val-claude">OFF</div></div>
     <div class="chip" id="chip-groq"><div class="chip-label">Groq</div><div class="chip-model">llama-3.3-70b</div><div class="chip-val off" id="val-groq">OFF</div></div>
-    <div class="chip" id="chip-gemini"><div class="chip-label">Gemini</div><div class="chip-model">gemini-2.0-flash</div><div class="chip-val off" id="val-gemini">OFF</div></div>
-    <div class="chip" id="chip-mistral"><div class="chip-label">Mistral AI</div><div class="chip-model">mistral-small</div><div class="chip-val off" id="val-mistral">OFF</div></div>
+    <div class="chip" id="chip-gemini"><div class="chip-label">Gemini</div><div class="chip-model">2.0-flash</div><div class="chip-val off" id="val-gemini">OFF</div></div>
+    <div class="chip" id="chip-mistral"><div class="chip-label">Mistral AI</div><div class="chip-model">small-latest</div><div class="chip-val off" id="val-mistral">OFF</div></div>
     <div class="chip active" id="chip-pollinations"><div class="chip-label">Pollinations</div><div class="chip-model">openai-large·free</div><div class="chip-val free" id="val-pollinations">FREE</div></div>
     <div class="chip" id="chip-openrouter"><div class="chip-label">OpenRouter</div><div class="chip-model">llama-3.1:free</div><div class="chip-val off" id="val-openrouter">OFF</div></div>
     <div class="chip" id="chip-ollama"><div class="chip-label">Ollama</div><div class="chip-model">llama3·local</div><div class="chip-val off" id="val-ollama">—</div></div>
   </div>
 </div>
 
-<!-- LAYOUT -->
+<!-- ══ LAYOUT ══ -->
 <section class="layout">
 
-<!-- SIDEBAR -->
-<aside class="glass sidebar">
-  <div class="slabel">TOKENS · CLÉS API</div>
-
-  <div class="tblock free">
-    <span class="pbadge bf">FREE·AUTO</span>
-    <div class="tlabel"><span class="dot active" id="dot-pollinations"></span>POLLINATIONS</div>
-    <div class="tmodel">openai-large — aucune clé</div>
-    <div style="font-size:10px;color:var(--ok)">✓ Actif automatiquement</div>
-  </div>
-
-  <div class="tblock">
-    <span class="pbadge bf">FREE TIER</span>
-    <div class="tlabel"><span class="dot" id="dot-groq"></span>GROQ · console.groq.com</div>
-    <div class="tmodel">llama-3.3-70b-versatile</div>
-    <input id="inp-groq" type="password" placeholder="gsk_…">
-    <button class="btn primary sm" onclick="setToken('groq','inp-groq')">ACTIVER GROQ</button>
-  </div>
-
-  <div class="tblock">
-    <span class="pbadge bf">FREE TIER</span>
-    <div class="tlabel"><span class="dot" id="dot-gemini"></span>GEMINI · aistudio.google.com</div>
-    <div class="tmodel">gemini-2.0-flash-exp</div>
-    <input id="inp-gemini" type="password" placeholder="AIza…">
-    <button class="btn primary sm" onclick="setToken('gemini','inp-gemini')">ACTIVER GEMINI</button>
-  </div>
-
-  <div class="tblock">
-    <span class="pbadge bf">FREE MODELS</span>
-    <div class="tlabel"><span class="dot" id="dot-openrouter"></span>OPENROUTER · openrouter.ai</div>
-    <div class="tmodel">llama-3.1-8b-instruct:free</div>
-    <input id="inp-openrouter" type="password" placeholder="sk-or-…">
-    <button class="btn primary sm" onclick="setToken('openrouter','inp-openrouter')">ACTIVER OR</button>
-  </div>
-
-  <div class="tblock">
-    <span class="pbadge bk">API KEY</span>
-    <div class="tlabel"><span class="dot" id="dot-hf"></span>HUGGING FACE</div>
-    <div class="tmodel">Mistral-7B-Instruct-v0.3</div>
-    <input id="inp-hf" type="password" placeholder="hf_xxx…">
-    <button class="btn primary sm" onclick="setToken('hf','inp-hf')">ACTIVER HF</button>
-  </div>
-
-  <div class="tblock">
-    <span class="pbadge bk">API KEY</span>
-    <div class="tlabel"><span class="dot" id="dot-mistral"></span>MISTRAL AI</div>
-    <div class="tmodel">mistral-small-latest</div>
-    <input id="inp-mistral" type="password" placeholder="…">
-    <button class="btn primary sm" onclick="setToken('mistral','inp-mistral')">ACTIVER MISTRAL</button>
-  </div>
-
-  <div class="tblock">
-    <span class="pbadge bk">API KEY</span>
-    <div class="tlabel"><span class="dot" id="dot-openai"></span>OPENAI</div>
-    <div class="tmodel">gpt-4.1</div>
-    <input id="inp-openai" type="password" placeholder="sk-…">
-    <button class="btn primary sm" onclick="setToken('openai','inp-openai')">ACTIVER OPENAI</button>
-  </div>
-
-  <div class="tblock">
-    <span class="pbadge bk">API KEY</span>
-    <div class="tlabel"><span class="dot" id="dot-claude"></span>ANTHROPIC</div>
-    <div class="tmodel">claude-sonnet-4-20250514</div>
-    <input id="inp-claude" type="password" placeholder="sk-ant-…">
-    <button class="btn primary sm" onclick="setToken('claude','inp-claude')">ACTIVER CLAUDE</button>
-  </div>
-
-  <div class="tblock">
-    <span class="pbadge bl">LOCAL</span>
-    <div class="tlabel"><span class="dot" id="dot-ollama"></span>OLLAMA · localhost:11434</div>
-    <div class="tmodel">llama3 · détection automatique</div>
-  </div>
-
-  <div class="slabel">TASK · PROMPT</div>
-  <textarea id="taskInput" rows="7">Produire un consensus multi-IA robuste sur la meilleure stratégie distribuée locale+cloud avec coût maîtrisé et synthèse exploitable.</textarea>
-
-
-  <!-- V15 OPTIONS -->
-  <div id="opt-v15">
-    <div class="slabel">OPTIONS CONVERSATION V15</div>
-    <div style="display:flex;gap:6px;align-items:center;font-size:10px">
-      <span style="color:var(--muted)">Max turns</span>
-      <input id="maxTurns" type="number" value="4" min="1" max="12" style="width:60px">
-    </div>
-    <button class="btn primary" style="width:100%;margin-top:6px" id="btnV15" onclick="runConversation()">💬 RUN CONVERSATION ❶</button>
-  </div>
-
-  <!-- V16 OPTIONS -->
-  <div id="opt-v16" style="display:none">
-    <div class="slabel">OPTIONS SWARM V16</div>
-    <div style="display:flex;gap:6px;align-items:center;font-size:10px;flex-wrap:wrap">
-      <span style="color:var(--muted)">Analysts</span>
-      <input id="swarmAnalysts" type="number" value="3" min="1" max="6" style="width:50px">
-      <span style="color:var(--muted)">Critics</span>
-      <input id="swarmCritics" type="number" value="2" min="1" max="4" style="width:50px">
-    </div>
-    <button class="btn primary" style="width:100%;margin-top:6px" id="btnV16" onclick="runSwarm()">⚡ RUN SWARM ❶</button>
-  </div>
-
-  <!-- V17 OPTIONS -->
-  <div id="opt-v17" style="display:none">
-    <button class="btn primary" style="width:100%;margin-top:6px" id="btnV17" onclick="runConsensus()">⚖️ RUN CONSENSUS ❶</button>
-  </div>
-
-  <div class="slive" id="swarmLive"><div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">PROGRESSION</div><div id="liveRows"></div></div>
-  <div class="pw" id="pw"><div class="pb" id="pb"></div></div>
-</aside>
-
-<!-- MAIN PANELS -->
-<main class="panel-area">
-
-  <!-- LOG (shared) -->
-  <div class="glass panel"><div class="ptitle">LOGS TEMPS-RÉEL</div><div class="lbox" id="logs">[BOOT] V18 Fusion — V15+V16+V17 — 9 réseaux IA — standalone ready</div></div>
-
-  <!-- V15 CONVERSATION -->
-  <div class="tab-panel active" id="panel-v15">
-    <div class="glass" style="padding:13px">
-      <div class="ptitle">💬 CONVERSATION RÉELLE MULTI-IA · V15</div>
-      <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
-        <div class="metric"><div class="mlabel">Turns exécutés</div><div class="mval" id="v15-turns">—</div></div>
-        <div class="metric"><div class="mlabel">Stop reason</div><div class="mval" id="v15-stop" style="font-size:14px;margin-top:8px">—</div></div>
-        <div class="metric"><div class="mlabel">Verdict final</div><div class="mval" id="v15-verdict" style="font-size:16px;margin-top:7px">—</div></div>
-      </div>
-      <div class="ptitle">THREAD CONVERSATION</div>
-      <div class="conv-thread" id="convThread">Aucune conversation. Entrez une task et cliquez RUN CONVERSATION.</div>
-    </div>
-    <div class="grid2">
-      <div class="glass panel"><div class="ptitle">JUGE FINAL</div><div class="mbox" id="v15-judge">—</div></div>
-      <div class="glass panel"><div class="ptitle">THREAD BRUT (JSON)</div><div class="mbox" id="v15-raw">—</div></div>
-    </div>
-  </div>
-
-  <!-- V16 SWARM -->
-  <div class="tab-panel" id="panel-v16">
-    <div class="glass" style="padding:13px">
-      <div class="ptitle">⚡ SWARM + MÉMOIRE STRATÉGIQUE · V16</div>
-      <div class="metrics">
-        <div class="metric"><div class="mlabel">Score</div><div class="mval" id="v16-score">—</div></div>
-        <div class="metric"><div class="mlabel">Verdict</div><div class="mval" id="v16-verdict" style="font-size:15px;margin-top:8px">—</div></div>
-        <div class="metric"><div class="mlabel">Analysts</div><div class="mval" id="v16-ana">—</div></div>
-        <div class="metric"><div class="mlabel">Mémoire</div><div class="mval" id="v16-mem">0</div></div>
-      </div>
-    </div>
-    <div class="grid2">
-      <div class="glass panel"><div class="ptitle">ANALYSTS</div><div class="mbox" id="v16-analysts">—</div></div>
-      <div class="glass panel"><div class="ptitle">CRITICS</div><div class="mbox" id="v16-critics">—</div></div>
-      <div class="glass panel"><div class="ptitle">SYNTHÈSE</div><div class="mbox" id="v16-synth">—</div></div>
-      <div class="glass panel"><div class="ptitle">JUGE</div><div class="mbox" id="v16-judge">—</div></div>
-    </div>
-  </div>
-
-  <!-- V17 CONSENSUS -->
-  <div class="tab-panel" id="panel-v17">
-    <div class="glass" style="padding:13px">
-      <div class="ptitle">⚖️ CONSENSUS PONDÉRÉ · V17 · 7 AGENTS</div>
-      <div class="metrics">
-        <div class="metric"><div class="mlabel">Consensus Score</div><div class="mval" id="v17-score">—</div></div>
-        <div class="metric"><div class="mlabel">Verdict</div><div class="mval" id="v17-verdict" style="font-size:15px;margin-top:8px">—</div></div>
-        <div class="metric"><div class="mlabel">Agents</div><div class="mval" id="v17-agents">7+judge</div></div>
-        <div class="metric"><div class="mlabel">Top Provider</div><div class="mval" id="v17-best" style="font-size:14px;margin-top:8px">—</div></div>
-      </div>
-    </div>
-    <div class="grid2">
-      <div class="glass panel"><div class="ptitle">SWARM OUTPUT</div><div class="mbox" id="v17-swarm">—</div></div>
-      <div class="glass panel"><div class="ptitle">VOTES PONDÉRÉS</div><div class="mbox" id="v17-votes">—</div></div>
-      <div class="glass panel"><div class="ptitle">FIABILITÉ PROVIDERS</div><div class="mbox" id="v17-rel">Chargement…</div></div>
-      <div class="glass panel"><div class="ptitle">JUGE FINAL</div><div class="mbox" id="v17-judge">—</div></div>
-    </div>
-  </div>
-
-  <!-- MÉMOIRE -->
-  <div class="tab-panel" id="panel-mem">
-    <div class="glass" style="padding:13px">
-      <div class="ptitle">🧠 MÉMOIRE APPRISE · V16 · TOP SESSIONS OK</div>
-      <div style="display:flex;gap:8px;margin-bottom:12px">
-        <div class="metric" style="flex:1"><div class="mlabel">Entrées totales</div><div class="mval" id="mem-total">0</div></div>
-        <div class="metric" style="flex:1"><div class="mlabel">Score moyen</div><div class="mval" id="mem-avg">—</div></div>
-        <button class="btn sm" style="align-self:center" onclick="clearMemory()">🗑 CLEAR</button>
-      </div>
-      <div id="memCards"><div style="font-size:11px;color:var(--muted)">Aucune session en mémoire. Lancez un SWARM V16 pour remplir.</div></div>
-    </div>
-  </div>
-
-</main>
-</section>
-</div>
-
-<script>
-// ══════════════════════════════════════════════════════
-//  PROVIDER CONFIG
-// ══════════════════════════════════════════════════════
-const PC={
-  hf:         {model:"Mistral-7B-Instruct-v0.3"},
-  openai:     {model:"gpt-4.1"},
-  claude:     {model:"claude-sonnet-4-20250514"},
-  groq:       {model:"llama-3.3-70b-versatile"},
-  gemini:     {model:"gemini-2.0-flash-exp"},
-  mistral:    {model:"mistral-small-latest"},
-  pollinations:{model:"openai-large"},
-  openrouter: {model:"llama-3.1-8b-instruct:free"},
-  ollama:     {model:"llama3"},
-  sim:        {model:"rule-based"}
-};
-
-// ══════════════════════════════════════════════════════
-//  V16 — LEARNED MEMORY (in-memory)
-// ══════════════════════════════════════════════════════
-class LearnedMemory {
-  constructor(){this.items=[]}
-  add(item){this.items.push(item)}
-  all(){return [...this.items]}
-  top(n=5){return [...this.items].sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,n)}
-  clear(){this.items=[]}
+  const agents=GOD_AGENTS.filter(a=>av.includes(a));
+  if(!agents.length)agents.push("pollinations");
+  logLine(`[GOD] ${agents.length} agents: ${agents.join(",")}`, "info");
+  for(const a of agents) await agentTurn(a);
+  setBusy("btnGod",false,"⚡ GOD ROUND");
+  renderMemory();
 }
 
-// ══════════════════════════════════════════════════════
-//  V17 — RELIABILITY STORE
-// ══════════════════════════════════════════════════════
-const DEFS={hf:.60,openai:.72,claude:.70,groq:.68,gemini:.67,mistral:.65,pollinations:.52,openrouter:.57,ollama:.55,sim:.42};
-class ReliabilityStore{
-  constructor(){this.p={};for(const[k,v]of Object.entries(DEFS))this.p[k]={runs:0,reliability:v}}
-  state(){return{providers:JSON.parse(JSON.stringify(this.p))}}
-  weight(k){return this.p[k]?.reliability??0.5}
-  update(k,obs){if(!this.p[k])this.p[k]={runs:0,reliability:DEFS[k]??0.5};const i=this.p[k];i.runs++;i.reliability=+((i.reliability*(i.runs-1)+obs)/i.runs).toFixed(4)}
-}
-class WeightedConsensusEngine{
-  constructor(r){this.r=r}
-  scoreText(t){let b=Math.min(1,Math.max(.2,t.split(/\s+/).length/120));if(["plan","stratégie","risque","coût","latence","étape","strategy","risk","cost","architecture","hybrid"].some(k=>t.toLowerCase().includes(k)))b=Math.min(1,b+.12);return +b.toFixed(3)}
-  vote(items){const votes=[];let tot=0;for(const i of items){const ts=this.scoreText(i.content),w=this.r.weight(i.provider),ws=+(ts*w).toFixed(4);tot+=ws;votes.push({role:i.role,provider:i.provider,text_score:ts,weight:+w.toFixed(4),weighted_score:ws})}const avg=+(tot/Math.max(1,items.length)).toFixed(4);return{votes,consensus_score:avg,verdict:avg>=.45?"OK":"ITERATE"}}
-  reinforce(v){v.forEach(x=>this.r.update(x.provider,x.text_score))}
-}
-
-// ══════════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════════
-const TOKENS={hf:null,openai:null,claude:null,groq:null,gemini:null,mistral:null,openrouter:null};
-let ollamaOnline=false;
-const memory=new LearnedMemory();
-const rel=new ReliabilityStore();
-const eng=new WeightedConsensusEngine(rel);
-
-// ══════════════════════════════════════════════════════
-//  ROLE ROUTING — unified for all versions
-// ══════════════════════════════════════════════════════
-const ROLE_PREF_V15={
-  analyst:  ["openai","groq","claude","gemini","mistral","hf","pollinations","openrouter","ollama","sim"],
-  critic:   ["claude","openai","groq","gemini","mistral","hf","pollinations","openrouter","ollama","sim"],
-  synth:    ["groq","pollinations","openrouter","ollama","gemini","hf","mistral","openai","claude","sim"],
-  judge:    ["openai","claude","groq","gemini","mistral","hf","pollinations","openrouter","ollama","sim"]
-};
-const ROLE_PREF_V17={
-  analyst_1:["openai","groq","claude","gemini","mistral","hf","pollinations","openrouter","ollama","sim"],
-  analyst_2:["groq","gemini","hf","openai","mistral","claude","pollinations","openrouter","ollama","sim"],
-  analyst_3:["claude","mistral","openai","groq","gemini","hf","pollinations","openrouter","ollama","sim"],
-  analyst_4:["gemini","openrouter","pollinations","mistral","groq","hf","claude","openai","ollama","sim"],
-  critic_1: ["claude","openai","groq","gemini","mistral","hf","pollinations","openrouter","ollama","sim"],
-  critic_2: ["groq","openai","gemini","claude","mistral","openrouter","hf","pollinations","ollama","sim"],
-  critic_3: ["mistral","gemini","openrouter","claude","groq","openai","hf","pollinations","ollama","sim"],
-  judge:    ["openai","claude","groq","gemini","mistral","hf","pollinations","openrouter","ollama","sim"]
-};
-
-function getAv(){
-  const o=[];
-  if(TOKENS.hf)         o.push("hf");
-  if(TOKENS.openai)     o.push("openai");
-  if(TOKENS.claude)     o.push("claude");
-  if(TOKENS.groq)       o.push("groq");
-  if(TOKENS.gemini)     o.push("gemini");
-  if(TOKENS.mistral)    o.push("mistral");
-  if(TOKENS.openrouter) o.push("openrouter");
-  o.push("pollinations");
-  if(ollamaOnline)      o.push("ollama");
-  o.push("sim");
-  return o;
-}
-function pick(role,prefTable){const av=getAv();for(const p of(prefTable[role]??["sim"]))if(av.includes(p))return p;return"sim"}
-
-// ══════════════════════════════════════════════════════
-//  API ADAPTERS — 9 réseaux
-// ══════════════════════════════════════════════════════
-async function callHF(p){
-  const r=await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3",{method:"POST",headers:{Authorization:`Bearer ${TOKENS.hf}`,"Content-Type":"application/json"},body:JSON.stringify({inputs:p,parameters:{max_new_tokens:700,temperature:.72,return_full_text:false}})});
-  if(!r.ok)throw new Error(`HF ${r.status}`);const d=await r.json();if(d.error)throw new Error(d.error);
-  return Array.isArray(d)&&d[0]?.generated_text?d[0].generated_text.trim():JSON.stringify(d);
-}
-async function callOpenAI(p){
-  const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{Authorization:`Bearer ${TOKENS.openai}`,"Content-Type":"application/json"},body:JSON.stringify({model:"gpt-4.1",messages:[{role:"user",content:p}],max_tokens:700})});
-  if(!r.ok)throw new Error(`OpenAI ${r.status}`);return(await r.json()).choices[0].message.content;
-}
-async function callClaude(p){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"x-api-key":TOKENS.claude,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true","Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:700,messages:[{role:"user",content:p}]})});
-  if(!r.ok)throw new Error(`Claude ${r.status}`);return(await r.json()).content.map(b=>b.text??"").join("\n").trim();
-}
-async function callGroq(p){
-  const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{Authorization:`Bearer ${TOKENS.groq}`,"Content-Type":"application/json"},body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:[{role:"user",content:p}],max_tokens:700,temperature:.72})});
-  if(!r.ok)throw new Error(`Groq ${r.status}`);return(await r.json()).choices[0].message.content;
-}
-async function callGemini(p){
-  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${TOKENS.gemini}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:{maxOutputTokens:700,temperature:.72}})});
-  if(!r.ok)throw new Error(`Gemini ${r.status}`);const d=await r.json();if(d.error)throw new Error(d.error.message);return d.candidates[0].content.parts[0].text;
-}
-async function callMistral(p){
-  const r=await fetch("https://api.mistral.ai/v1/chat/completions",{method:"POST",headers:{Authorization:`Bearer ${TOKENS.mistral}`,"Content-Type":"application/json"},body:JSON.stringify({model:"mistral-small-latest",messages:[{role:"user",content:p}],max_tokens:700,temperature:.72})});
-  if(!r.ok)throw new Error(`Mistral ${r.status}`);return(await r.json()).choices[0].message.content;
-}
-async function callPollinations(p){
-  const r=await fetch("https://text.pollinations.ai/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:[{role:"user",content:p}],model:"openai-large",seed:Math.floor(Math.random()*9999)})});
-  if(!r.ok)throw new Error(`Pollinations ${r.status}`);return(await r.text()).trim();
-}
-async function callOpenRouter(p){
-  const r=await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{Authorization:`Bearer ${TOKENS.openrouter}`,"Content-Type":"application/json","HTTP-Referer":"https://v18-fusion.local","X-Title":"V18 Fusion"},body:JSON.stringify({model:"meta-llama/llama-3.1-8b-instruct:free",messages:[{role:"user",content:p}],max_tokens:700})});
-  if(!r.ok)throw new Error(`OpenRouter ${r.status}`);const d=await r.json();if(d.error)throw new Error(d.error.message);return d.choices[0].message.content;
-}
-async function callOllama(p){
-  const r=await fetch("http://127.0.0.1:11434/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"llama3",prompt:p,stream:false}),signal:AbortSignal.timeout(30000)});
-  if(!r.ok)throw new Error(`Ollama ${r.status}`);return(await r.json()).response;
-}
-function callSim(p,role){
-  const task=(p.split("TASK:")[1]??p.split("CONVERSATION:")[0]??p).trim().slice(0,100);
-  if(role==="judge"){const s=+(0.5+Math.random()*.4).toFixed(2);return s>=.65?`OK — Stratégie cohérente. Score:${s}. Couverture risques OK, découplage composants OK. Validation recommandée.`:`ITERATE — SLA et rollback insuffisants. Score:${s}. Actions: chiffrer TCO, définir failure modes.`}
-  if(role==="synth")return`[SIM/SYNTH]\n\nSynthèse consolidée : l'ensemble des analyses converge vers une architecture hybride locale+cloud avec orchestration adaptative. Points de consensus : scheduler temps-réel, circuit breakers, monitoring distribué. Points de friction : coûts egress, gouvernance données, lock-in vendor. Stratégie recommandée : déploiement progressif par domaine fonctionnel.`;
-  const isA=role.includes("analyst");
-  return isA
-    ?`[SIM/${role.toUpperCase()}]\n\nAnalyse structurée — ${task}\n\nPhase 1: périmètre latence<50ms, disponibilité 99.5%.\nPhase 2: hybride local+cloud, event-driven, circuit breakers.\nPhase 3: audit → provisioning → intégration. Coût -35% vs full-cloud.`
-    :`[SIM/${role.toUpperCase()}]\n\nCritique — angles morts:\n1. CAP theorem non adressé (split-brain)\n2. Egress cloud 20-40% TCO sous-estimé\n3. SLA opérationnel & on-call absent\n4. Lock-in vendor non mitigé\n5. Observabilité insuffisante pour débogage prod`;
-}
-
-async function callProvider(prov,prompt,role){
-  try{
-    if(prov==="hf")          return await callHF(prompt);
-    if(prov==="openai")      return await callOpenAI(prompt);
-    if(prov==="claude")      return await callClaude(prompt);
-    if(prov==="groq")        return await callGroq(prompt);
-    if(prov==="gemini")      return await callGemini(prompt);
-    if(prov==="mistral")     return await callMistral(prompt);
-    if(prov==="pollinations")return await callPollinations(prompt);
-    if(prov==="openrouter")  return await callOpenRouter(prompt);
-    if(prov==="ollama")      return await callOllama(prompt);
-    return callSim(prompt,role);
-  }catch(e){
-    if(prov!=="sim"){logLine(`[WARN] ${prov}→${e.message}→SIM`,"warn");return callSim(prompt,role);}
-    throw e;
+async function autoLoop(){
+  const n=parseInt(document.getElementById("loopTurns").value||"3",10);
+  setBusy("btnLoop",true,`AUTO ${n}x…`);
+  logLine(`[AUTO] ${n} god rounds`,"info");
+  for(let i=0;i<n;i++){
+    logLine(`[AUTO] round ${i+1}/${n}`,"info");
+    await godRound();
   }
+  setBusy("btnLoop",false,"AUTO");
+}
+
+function resetChat(){chatStore.reset();document.getElementById("chatThread").innerHTML="Thread réinitialisé.";updateChatMetrics();logLine("[CHAT] reset","warn")}
+
+function renderChatThread(){
+  const msgs=chatStore.all();
+  const box=document.getElementById("chatThread");
+  box.innerHTML="";
+  for(const m of msgs){
+    const b=document.createElement("div");
+    b.className=`bubble ${m.speaker||"human"}${(m.content||"").startsWith("[ERROR]")?" error":""}`;
+    b.innerHTML=`<div class="bhead"><span>${esc((m.speaker||"?").toUpperCase())}</span><span class="bprov">${esc((m.provider||"?").toUpperCase())}</span><span class="brole">${esc(m.role||"")}</span>${m.score!=null?`<span class="bscore">★${m.score}</span>`:""}</div><div class="bbody">${esc(m.content)}</div>`;
+    box.appendChild(b);
+  }
+  box.scrollTop=box.scrollHeight;
+  document.getElementById("chat-count").textContent=msgs.length;
+}
+
+function updateChatMetrics(){
+  const msgs=chatStore.all().filter(m=>m.speaker!=="human");
+  if(!msgs.length)return;
+  const best=msgs.reduce((a,b)=>((b.score||0)>(a.score||0)?b:a),msgs[0]);
+  document.getElementById("chat-best").textContent=best.score??"-";
+  document.getElementById("chat-last").textContent=(best.speaker||"?").toUpperCase();
+}
+
+// ════════════════════════════════════════════════════
+//  V20 — NETWORK ENGINE
+// ════════════════════════════════════════════════════
+async function netStep(){
+  const av=getAv().filter(p=>p!=="sim");
+  const agents=[
+    {name:pick("analyst_1",ROLE_V17),role:"ANALYST"},
+    {name:pick("critic_1",ROLE_V17),role:"CRITIC"},
+    {name:pick("synth",ROLE_V15),role:"SYNTH"},
+    {name:pick("judge",ROLE_V17),role:"JUDGE"},
+  ];
+  const step=[];
+  for(const a of agents){
+    const prov=a.name;
+    const agMemItems=(agentMem.all()[prov]?.memory)||[];
+    const memCtx=agMemItems.slice(-4).map(m=>`- ${m.summary}`).join("\n");
+    const threadCtx=netStore.all().slice(-14).map(m=>`${(m.speaker||"?").toUpperCase()} (${m.role}): ${m.content}`).join("\n");
+    const prompt=`ROLE=${a.role}\n${AGENT_PROFILES[prov]||"Tu es une IA."}\n\nMÉMOIRE AGENT:\n${memCtx||"(vide)"}\n\nTHREAD:\n${threadCtx}`;
+    logLine(`[NET] ${a.role}→${prov}`,"info");
+    let content;
+    try{content=await callProvider(prov,prompt,a.role)}
+    catch(e){content=`[ERROR] ${prov}: ${e.message}`}
+    const sc=scoreText(content);
+    const msg={speaker:prov,provider:prov,role:a.role,content,score:sc,ok:!content.startsWith("[ERROR]")};
+    netStore.add(msg);
+    agentMem.append(prov,{summary:content.slice(0,280),score:sc});
+    step.push(msg);
+  }
+  netState.steps++;
+  // Convergence (Jaccard similarity)
+  if(step.length>=2){
+    const sims=[];for(let i=1;i<step.length;i++)sims.push(similarity(step[i-1].content,step[i].content));
+    const avg=sims.reduce((a,b)=>a+b,0)/sims.length;
+    const pct=Math.min(100,Math.round(avg*100/0.72*100));
+    document.getElementById("convFill").style.width=pct+"%";
+    document.getElementById("net-conv").textContent=avg.toFixed(3);
+    if(avg>=0.72){netState.running=false;netState.last_stop_reason=`converged:${avg.toFixed(3)}`;logLine(`[NET] convergence atteinte (sim=${avg.toFixed(3)})`,"ok");return true}
+  }
+  renderNetThread();
+  updateNetMetrics();
+  return false;
 }
 
 
-// ══════════════════════════════════════════════════════
-//  V17 — CONSENSUS ENGINE
-// ══════════════════════════════════════════════════════
-const V17_ROLES=["analyst_1","analyst_2","analyst_3","analyst_4","critic_1","critic_2","critic_3"];
+async function netStart(){
+  const maxS=parseInt(document.getElementById("maxSteps").value||"6",10);
+  const content=document.getElementById("netInput").value.trim();
+  if(content){netStore.reset();agentMem.reset();netStore.add({speaker:"human",provider:"human",role:"USER",content,score:0})}
+  setBusy("btnNetStart",true,"⏳ RUNNING…");
+  setBusy("btnNetStep",true,"…");
+  netState={running:true,steps:0,last_stop_reason:"running"};
+  logLine(`[NET] démarrage — max ${maxS} steps`,"info");
+  for(let i=0;i<maxS;i++){
+    if(!netState.running)break;
+    logLine(`[NET] step ${i+1}/${maxS}`,"info");
+    const converged=await netStep();
+    if(converged)break;
+  }
+  if(netState.running){netState.running=false;netState.last_stop_reason="max_steps_reached"}
+  updateNetMetrics();
+  setBusy("btnNetStart",false,"▶ START");
+  setBusy("btnNetStep",false,"STEP");
+  logLine(`[NET] terminé — ${netState.last_stop_reason}`,"ok");
+}
 
-async function runConsensus(){
-  const task=document.getElementById("taskInput").value.trim();
-  if(!task){logLine("[ERR] task vide","err");return}
-  setBusy("btnV17",true,"⚖️ EN COURS…");
+async function netStepBtn(){await netStep();logLine("[NET] step exécuté","ok")}
+function netStop(){netState.running=false;netState.last_stop_reason="manual_stop";updateNetMetrics();logLine("[NET] stop manuel","warn")}
+function netReset(){netStore.reset();agentMem.reset();netState={running:false,steps:0,last_stop_reason:"reset"};document.getElementById("netThread").innerHTML="Thread réseau réinitialisé.";updateNetMetrics();logLine("[NET] reset","warn")}
+
+function renderNetThread(){
+  const msgs=netStore.all();
+  const box=document.getElementById("netThread");
+  box.innerHTML="";
+  for(const m of msgs){
+    const b=document.createElement("div");
+    b.className=`bubble ${m.speaker||"human"}${(m.content||"").startsWith("[ERROR]")?" error":""}`;
+    b.innerHTML=`<div class="bhead"><span>${esc((m.speaker||"?").toUpperCase())}</span><span class="bprov">${esc((m.provider||"?").toUpperCase())}</span><span class="brole">${m.role||""}</span>${m.score!=null?`<span class="bscore">★${m.score}</span>`:""}</div><div class="bbody">${esc(m.content)}</div>`;
+    box.appendChild(b);
+  }
+  box.scrollTop=box.scrollHeight;
+}
+
+function updateNetMetrics(){
+  document.getElementById("net-steps").textContent=netState.steps;
+  document.getElementById("net-running").textContent=String(netState.running);
+  document.getElementById("net-stop").textContent=netState.last_stop_reason||"—";
+  const am=agentMem.all();
+  document.getElementById("net-mem").textContent=JSON.stringify(am,null,2);
+}
+
+// ════════════════════════════════════════════════════
+//  V15 — CONVERSATION
+// ════════════════════════════════════════════════════
+async function runConversation(){
+  const task=document.getElementById("convInput").value.trim();
+  if(!task){logLine("[V15] task vide","warn");return}
+  const maxT=parseInt(document.getElementById("maxTurns").value||"4",10);
+  setBusy("btnConv",true,"💬 EN COURS…");
+  const thread=[{role:"user",provider:"human",speaker:"human",content:task,turn:0}];
+  const box=document.getElementById("convThread");box.innerHTML="";
+  addChatBubble(box,"human","human","USER",`TASK: ${task}`,null,0);
+  let stoppedReason="max_turns_reached",finalJudge=null;
+  for(let turn=1;turn<=maxT;turn++){
+    for(const role of["analyst","critic","synth","judge"]){
+      const prov=pick(role,ROLE_V15);
+      const history=thread.slice(-12).map(m=>`${(m.role||m.speaker||"?").toUpperCase()} (${m.provider}): ${m.content}`).join("\n");
+      const instrs={analyst:"Tu es ANALYST. Analyse structurée en tenant compte de la conversation.",critic:"Tu es CRITIC. Attaque faiblesses, oublis et risques.",synth:"Tu es SYNTH. Synthèse exploitable et compacte.",judge:"Tu es JUDGE. Verdict final: OK ou ITERATE avec justification courte."};
+      const prompt=`${instrs[role]}\n\nTASK:\n${task}\n\nCONVERSATION:\n${history}`;
+      logLine(`[V15] turn${turn} ${role}→${prov}`,"info");
+      let content;try{content=await callProvider(prov,prompt,role)}catch(e){content=`[ERROR] ${prov}: ${e.message}`}
+      const msg={role,provider:prov,speaker:prov,content,turn};
+      thread.push(msg);
+      addChatBubble(box,prov,prov,role.toUpperCase(),content,null,turn);
+      if(role==="judge"){finalJudge=msg;const jl=content.toLowerCase();if(jl.includes("ok")||jl.includes("valid")||jl.includes("accept")||jl.includes("approuvé")){stoppedReason="judge_ok"}}
+    }
+    if(stoppedReason==="judge_ok")break;
+  }
+  document.getElementById("conv-turns").textContent=thread.filter(m=>m.role==="judge").length;
+  document.getElementById("conv-stop").textContent=stoppedReason;
+  document.getElementById("conv-verdict").textContent=finalJudge?.content.toLowerCase().includes("ok")?"✓ OK":"↺ ITERATE";
+  document.getElementById("conv-judge").textContent=`[${finalJudge?.provider.toUpperCase()}]\n\n${finalJudge?.content}`;
+  document.getElementById("conv-raw").textContent=JSON.stringify(thread,null,2);
+  setBusy("btnConv",false,"💬 RUN CONVERSATION");
+  logLine(`[V15] terminé — ${stoppedReason}`,"ok");
+}
+
+// ════════════════════════════════════════════════════
+//  V16 — SWARM
+// ════════════════════════════════════════════════════
+async function runSwarm(){
+  const task=document.getElementById("swarmInput").value.trim();
+  if(!task){logLine("[V16] task vide","warn");return}
+  const nA=parseInt(document.getElementById("swarmA").value||"3",10);
+  const nC=parseInt(document.getElementById("swarmC").value||"2",10);
+  setBusy("btnSwarm",true,"⚡ EN COURS…");
+  document.getElementById("sw-agents").textContent=`${nA}A+${nC}C`;
   setLive(true);
-  initLiveRows(["analyst_1","analyst_2","analyst_3","analyst_4"],["critic_1","critic_2","critic_3"],["synthesis","judge"]);
-  const total=V17_ROLES.length+2;let done=0;setProgress(0);
-  const items=[];
+  const allRoles=[...Array(nA).keys()].map(i=>`analyst_${i+1}`),[...Array(nC).keys()].map(i=>`critic_${i+1}`);
+  initLive([...Array(nA).keys()].map(i=>`analyst_${i+1}`),[...Array(nC).keys()].map(i=>`critic_${i+1}`),["synth","judge"]);
+  setProgress(0);const total=nA+nC+2;let done=0;
+  const analysts=[],critics=[];
 
-  for(const role of V17_ROLES){
-    const prov=pick(role,ROLE_PREF_V17);
+  for(let i=0;i<nA;i++){
+    const role=`analyst_${i+1}`;
+    const prov=pick("analyst_1",ROLE_V17);
     setLiveRow(role,prov,"⏳ running…","run");
-    const isA=role.startsWith("analyst");
-    const prompt=isA?`Tu es ${role.toUpperCase()}. Analyse ce problème de manière structurée et indépendante.\n\nTASK:\n${task}`:`Tu es ${role.toUpperCase()}. Critique le problème, cherche failles, coûts, risques et angles morts.\n\nTASK:\n${task}`;
-    logLine(`[V17] ${role}→${prov}`,"info");
-    let content;try{content=await callProvider(prov,prompt,role)}catch(e){content=`[ERROR] ${prov}: ${e.message}`}
-    items.push({role,provider:prov,content});done++;setProgress(done/total*100);
-    setLiveRow(role,prov,"✓ done","done");
+    logLine(`[V16] ${role}→${prov}`,"info");
+    let content;try{content=await callProvider(prov,`Tu es ANALYST #${i+1}. Analyse ce problème.\n\nTASK:\n${task}`,"analyst")}catch(e){content=`[ERROR] ${e.message}`}
+    analysts.push({role,provider:prov,content});done++;setProgress(done/total*100);setLiveRow(role,prov,"✓","done");
   }
+  const ab=analysts.map(a=>`${a.role} (${a.provider}): ${a.content}`).join("\n\n");
+  for(let i=0;i<nC;i++){
+    const role=`critic_${i+1}`;
+    const prov=pick("critic_1",ROLE_V17);
+    setLiveRow(role,prov,"⏳ running…","run");
+    logLine(`[V16] ${role}→${prov}`,"info");
+    let content;try{content=await callProvider(prov,`Tu es CRITIC #${i+1}. Critique ces analyses.\n\nANALYSES:\n${ab}`,"critic")}catch(e){content=`[ERROR] ${e.message}`}
+    critics.push({role,provider:prov,content});done++;setProgress(done/total*100);setLiveRow(role,prov,"✓","done");
+  }
+  const cb=critics.map(c=>`${c.role} (${c.provider}): ${c.content}`).join("\n\n");
+  const sp=pick("synth",ROLE_V15);setLiveRow("synth",sp,"⏳ running…","run");
+  let synth;try{synth=await callProvider(sp,`Synthèse finale à partir des analyses et critiques.\n\nANALYSES:\n${ab}\n\nCRITIQUES:\n${cb}`,"synth")}catch(e){synth=`[ERROR] ${e.message}`}
+  done++;setProgress(done/total*100);setLiveRow("synth",sp,"✓","done");
+  const jp=pick("judge",ROLE_V17);setLiveRow("judge",jp,"⏳ running…","run");
+  let judge;try{judge=await callProvider(jp,`Verdict final: OK ou ITERATE.\n\nSYNTHÈSE:\n${synth}`,"judge")}catch(e){judge=`[ERROR] ${e.message}`}
+  done++;setProgress(done/total*100);setLiveRow("judge",jp,"✓","done");
 
-  // SYNTHESIS
-  const sp=pick("analyst_1",ROLE_PREF_V17);
-  setLiveRow("synthesis",sp,"⏳ running…","run");
-  const synthP="Synthétise en stratégie compacte et exploitable:\n\n"+items.map(i=>`${i.role.toUpperCase()} [${i.provider.toUpperCase()}]:\n${i.content}`).join("\n\n---\n\n");
-  let synth;try{synth=await callProvider(sp,synthP,"synth")}catch(e){synth=`[ERROR] ${sp}: ${e.message}`}
-  done++;setProgress(done/total*100);setLiveRow("synthesis",sp,"✓ done","done");
+  const text=(synth+judge).toLowerCase();
+  let score=Math.min(1,Math.max(.2,synth.split(/\s+/).length/120));
+  if(["ok","valid","accept","approuvé"].some(k=>text.includes(k)))score=Math.min(1,score+.15);
+  score=+score.toFixed(3);
+  const verdict=["ok","valid","accept"].some(k=>judge.toLowerCase().includes(k))?"OK":"ITERATE";
+  document.getElementById("sw-score").textContent=score;
+  document.getElementById("sw-verdict").textContent=verdict==="OK"?"✓ OK":"↺ ITERATE";
+  document.getElementById("sw-analysts").innerHTML=analysts.map(a=>`<div class="ri"><div class="rh">${a.role.toUpperCase()} <span class="rprovtag" style="color:var(--accent1);border-color:rgba(58,220,255,.3)">${a.provider.toUpperCase()}</span></div><div class="rc">${esc(a.content)}</div></div>`).join("");
+  document.getElementById("sw-critics").innerHTML=critics.map(c=>`<div class="ri" style="border-left-color:var(--err)"><div class="rh" style="color:var(--err)">${c.role.toUpperCase()} <span class="rprovtag" style="color:var(--err);border-color:rgba(255,79,106,.3)">${c.provider.toUpperCase()}</span></div><div class="rc">${esc(c.content)}</div></div>`).join("");
+  document.getElementById("sw-synth").textContent=synth;
+  document.getElementById("sw-judge").textContent=`[${jp.toUpperCase()}]\n\n${judge}`;
+  if(verdict==="OK"){swarmMemory.add({task,score,verdict,synthesis:synth,judge,providers:{analysts:analysts.map(a=>a.provider),critics:critics.map(c=>c.provider),synth:sp,judge:jp}});logLine(`[MÉMOIRE] session mémorisée`,"ok")}
+  document.getElementById("sw-mem").textContent=swarmMemory.all().length;
+  renderMemory();
+  setLive(false);setBusy("btnSwarm",false,"⚡ RUN SWARM");
+  logLine(`[V16] terminé — score=${score} verdict=${verdict}`,"ok");
+}
 
-  // JUDGE
-  const jp=pick("judge",ROLE_PREF_V17);
-  setLiveRow("judge",jp,"⏳ running…","run");
-  let judge;try{judge=await callProvider(jp,`Juge la stratégie suivante. Réponds OK ou ITERATE avec justification.\n\n${synth}`,"judge")}catch(e){judge=`[ERROR] ${jp}: ${e.message}`}
-  done++;setProgress(done/total*100);setLiveRow("judge",jp,"✓ done","done");
+// ════════════════════════════════════════════════════
+//  V17 — CONSENSUS
+// ════════════════════════════════════════════════════
+const CS_ROLES=["analyst_1","analyst_2","analyst_3","analyst_4","critic_1","critic_2","critic_3"];
+async function runConsensus(){
+  const task=document.getElementById("consInput").value.trim();
+  if(!task){logLine("[V17] task vide","warn");return}
+  setBusy("btnCons",true,"⚖️ EN COURS…");
+  setLive(true);
+  initLive(CS_ROLES.filter(r=>r.startsWith("analyst")),CS_ROLES.filter(r=>r.startsWith("critic")),["synthesis","judge"]);
+  const total=CS_ROLES.length+2;let done=0;setProgress(0);
+  const items=[];
+  for(const role of CS_ROLES){
+    const prov=pick(role,ROLE_V17);
+    setLiveRow(role,prov,"⏳","run");
+    const isA=role.startsWith("analyst");
+    const prompt=isA?`Tu es ${role.toUpperCase()}. Analyse structurée et indépendante.\n\nTASK:\n${task}`:`Tu es ${role.toUpperCase()}. Critique le problème, cherche failles, risques, coûts.\n\nTASK:\n${task}`;
+    logLine(`[V17] ${role}→${prov}`,"info");
+    let content;try{content=await callProvider(prov,prompt,role)}catch(e){content=`[ERROR] ${e.message}`}
+    items.push({role,provider:prov,content});done++;setProgress(done/total*100);setLiveRow(role,prov,"✓","done");
+  }
+  const sp=pick("analyst_1",ROLE_V17);setLiveRow("synthesis",sp,"⏳","run");
+  let synth;try{synth=await callProvider(sp,"Synthèse compacte:\n\n"+items.map(i=>`${i.role.toUpperCase()} [${i.provider.toUpperCase()}]:\n${i.content}`).join("\n\n---\n\n"),"synth")}catch(e){synth=`[ERROR] ${e.message}`}
+  done++;setProgress(done/total*100);setLiveRow("synthesis",sp,"✓","done");
+  const jp=pick("judge",ROLE_V17);setLiveRow("judge",jp,"⏳","run");
+  let judge;try{judge=await callProvider(jp,`Juge. OK ou ITERATE avec justification.\n\n${synth}`,"judge")}catch(e){judge=`[ERROR] ${e.message}`}
+  done++;setProgress(done/total*100);setLiveRow("judge",jp,"✓","done");
 
-  // VOTE
   const voteItems=[...items,{role:"synthesis",provider:sp,content:synth},{role:"judge",provider:jp,content:judge}];
-  const voted=eng.vote(voteItems);eng.reinforce(voted.votes);
-
-  document.getElementById("v17-score").textContent=voted.consensus_score;
-  document.getElementById("v17-verdict").textContent=voted.verdict==="OK"?"✓ OK":"↺ ITERATE";
-
-  // Render
-  document.getElementById("v17-swarm").innerHTML=items.map(i=>{const c=i.role.startsWith("critic")?"var(--warn)":"var(--accent1)";return`<div class="ri"><div class="rh">${i.role.toUpperCase()} <span class="rprovtag" style="color:${c};border-color:${c}44;background:${c}11">${i.provider.toUpperCase()}</span></div><div class="rc">${esc(i.content)}</div></div>`}).join("")+`<div class="ri" style="border-left-color:var(--accent2)"><div class="rh" style="color:var(--accent2)">SYNTHESIS <span class="rprovtag" style="color:var(--accent2);border-color:rgba(181,127,255,.4);background:rgba(181,127,255,.09)">${sp.toUpperCase()}</span></div><div class="rc">${esc(synth)}</div></div>`;
-
-  let vhtml=`<div class="vrow vrh"><span>ROLE</span><span>PROVIDER</span><span>SCORE</span><span>W</span><span>WS</span></div>`;
+  const voted=consEng.vote(voteItems);consEng.reinforce(voted.votes);
+  const sc=voted.consensus_score;
+  document.getElementById("cs-score").textContent=sc;
+  document.getElementById("cs-verdict").textContent=voted.verdict==="OK"?"✓ OK":"↺ ITERATE";
+  document.getElementById("cs-swarm").innerHTML=items.map(i=>{const c=i.role.startsWith("critic")?"var(--warn)":"var(--accent1)";return`<div class="ri"><div class="rh">${i.role.toUpperCase()} <span class="rprovtag" style="color:${c};border-color:${c}44">${i.provider.toUpperCase()}</span></div><div class="rc">${esc(i.content)}</div></div>`}).join("")+`<div class="ri" style="border-left-color:var(--accent2)"><div class="rh" style="color:var(--accent2)">SYNTHESIS <span class="rprovtag" style="color:var(--accent2);border-color:rgba(181,127,255,.4)">${sp.toUpperCase()}</span></div><div class="rc">${esc(synth)}</div></div>`;
+  let vhtml=`<div class="vrow vrh"><span>ROLE</span><span>PROV</span><span>SCORE</span><span>W</span><span>WS</span></div>`;
   for(const v of voted.votes)vhtml+=`<div class="vrow"><span style="color:var(--muted);font-size:9px">${v.role}</span><span style="color:var(--accent1)">${v.provider.toUpperCase()}</span><span>${v.text_score}<span class="rbar" style="width:${Math.round(v.weighted_score*180)}px"></span></span><span style="color:var(--muted)">${v.weight}</span><span style="color:var(--ok);font-weight:600">${v.weighted_score}</span></div>`;
   const badge=voted.verdict==="OK"?`<span class="vbadge vok">✓ OK</span>`:`<span class="vbadge vit">↺ ITERATE</span>`;
-  vhtml+=`<div style="margin-top:9px;padding-top:7px;border-top:1px solid var(--border);font-size:11px;display:flex;align-items:center;gap:10px">Score:<strong style="color:var(--ok);font-size:14px">${voted.consensus_score}</strong>${badge}</div>`;
-  document.getElementById("v17-votes").innerHTML=vhtml;
-  document.getElementById("v17-judge").textContent=`[${jp.toUpperCase()} · ${PC[jp]?.model}]\n${"─".repeat(36)}\n\n${judge}`;
-
-  // Best provider
-  const av=getAv().filter(p=>p!=="sim");
-  let best=av[0]??"—";for(const p of av)if(rel.weight(p)>rel.weight(best))best=p;
-  document.getElementById("v17-best").textContent=best.toUpperCase();
+  vhtml+=`<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border);font-size:11px;display:flex;gap:10px;align-items:center">Score:<strong style="color:var(--ok);font-size:14px">${sc}</strong>${badge}</div>`;
+  document.getElementById("cs-votes").innerHTML=vhtml;
+  document.getElementById("cs-judge").textContent=`[${jp.toUpperCase()} · ${PC[jp]?.model}]\n${"─".repeat(34)}\n\n${judge}`;
   renderReliability();
-
-  logLine(`[V17] terminé — score=${voted.consensus_score} verdict=${voted.verdict}`,"ok");
-  setLive(false);setBusy("btnV17",false,"⚖️ RUN CONSENSUS ❶");
+  const av=getAv().filter(p=>p!=="sim");let best=av[0]??"—";for(const p of av)if(rel.weight(p)>rel.weight(best))best=p;
+  document.getElementById("cs-best").textContent=best.toUpperCase();
+  setLive(false);setBusy("btnCons",false,"⚖️ RUN CONSENSUS");
+  logLine(`[V17] terminé — score=${sc} verdict=${voted.verdict}`,"ok");
 }
 
-// ══════════════════════════════════════════════════════
-//  MEMORY RENDER
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+//  MEMORY + RELIABILITY
+// ════════════════════════════════════════════════════
 function renderMemory(){
-  const all=memory.all();
-  document.getElementById("mem-total").textContent=all.length;
-  if(!all.length){document.getElementById("mem-avg").textContent="—";document.getElementById("memCards").innerHTML=`<div style="font-size:11px;color:var(--muted)">Aucune session. Lancez un SWARM V16 pour remplir.</div>`;return}
-  const avg=(all.reduce((s,i)=>s+(i.score||0),0)/all.length).toFixed(3);
-  document.getElementById("mem-avg").textContent=avg;
-  const top=memory.top(10);
-  document.getElementById("memCards").innerHTML=top.map((m,i)=>`
-    <div class="mem-card">
-      <div class="mem-head">
-        <div><span class="mem-score">#${i+1} · ${m.score}</span></div>
-        <span class="mem-verdict mv-ok">✓ ${m.verdict}</span>
-      </div>
-      <div class="mem-task">${esc(m.task?.slice(0,120))}…</div>
-      <div class="mem-synth">${esc(m.synthesis?.slice(0,200))}…</div>
-      <div class="mem-providers">providers · analysts:[${(m.providers?.analysts||[]).join(",")}] critics:[${(m.providers?.critics||[]).join(",")}] synth:${m.providers?.synth} judge:${m.providers?.judge}</div>
-    </div>`).join("");
+  const sw=swarmMemory.all(),ch=chatMemory.best(10);
+  document.getElementById("mem-sw").textContent=sw.length;
+  document.getElementById("mem-ch").textContent=ch.length;
+  const all=[...sw.map(m=>({...m,src:"SWARM"})),...ch.map(m=>({...m,src:"CHAT"}))].sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,15);
+  document.getElementById("memCards").innerHTML=all.length?all.map((m,i)=>`<div class="mem-card"><div class="mem-head"><div><span class="mem-score">#${i+1}·${m.score??"-"}</span> <span style="font-size:9px;color:var(--muted)">[${m.src}]</span></div><span class="vbadge vok">✓ ${m.verdict||m.role||"?"}</span></div><div style="font-size:10px;color:var(--muted);margin-bottom:4px">${esc((m.task||m.content||"").slice(0,120))}…</div><div style="font-size:10px;color:var(--text);opacity:.8">${esc((m.synthesis||m.content||"").slice(0,180))}…</div></div>`).join(""):`<div style="font-size:11px;color:var(--muted)">Aucune entrée. Lancez un run V16 ou V18.</div>`;
 }
 
-function clearMemory(){memory.clear();document.getElementById("v16-mem").textContent=0;renderMemory();logLine("[MÉMOIRE] effacée","warn")}
-
-// ══════════════════════════════════════════════════════
-//  RELIABILITY RENDER (V17)
-// ══════════════════════════════════════════════════════
 function renderReliability(){
   const s=rel.state();
   const sorted=Object.entries(s.providers).filter(([p])=>p!=="sim").sort(([,a],[,b])=>b.reliability-a.reliability);
@@ -659,15 +517,16 @@ function renderReliability(){
   for(const[p,d]of sorted){
     const act=TOKENS[p]||p==="pollinations"||(p==="ollama"&&ollamaOnline);
     const c=act?"var(--ok)":"var(--muted2)";
-    html+=`<tr><td style="color:${c}">${p.toUpperCase()}</td><td style="color:var(--muted2);font-size:8px">${(PC[p]?.model||"").slice(0,18)}</td><td style="color:var(--muted)">${d.runs}</td><td><span style="width:36px;display:inline-block">${d.reliability.toFixed(4)}</span><span class="rbar" style="width:${Math.round(d.reliability*80)}px"></span></td></tr>`;
+    html+=`<tr><td style="color:${c}">${p.toUpperCase()}</td><td style="color:var(--muted2);font-size:8px">${(PC[p]?.model||"").slice(0,16)}</td><td style="color:var(--muted)">${d.runs}</td><td><span style="width:34px;display:inline-block">${d.reliability.toFixed(4)}</span><span class="rbar" style="width:${Math.round(d.reliability*80)}px"></span></td></tr>`;
   }
-  html+=`</table>`;
-  document.getElementById("v17-rel").innerHTML=html;
+  html+=`</table>`;document.getElementById("cs-rel").innerHTML=html;
 }
 
-// ══════════════════════════════════════════════════════
+function clearAllMemory(){swarmMemory.clear();chatMemory.clear();renderMemory();logLine("[MEM] tout effacé","warn")}
+
+// ════════════════════════════════════════════════════
 //  UI HELPERS
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 function setToken(prov,id){
   const v=document.getElementById(id).value.trim();
   if(!v){logLine(`[TOKEN] vide pour ${prov}`,"warn");return}
@@ -693,28 +552,33 @@ async function checkOllama(){
   try{
     await fetch("http://127.0.0.1:11434/api/tags",{signal:AbortSignal.timeout(2000)});
     ollamaOnline=true;document.getElementById("val-ollama").textContent="LOCAL OK";document.getElementById("val-ollama").className="chip-val ok";document.getElementById("chip-ollama").classList.add("active");document.getElementById("dot-ollama").classList.add("active");logLine("[OLLAMA] local OK","ok");
-  }catch{ollamaOnline=false;document.getElementById("val-ollama").textContent="OFF";document.getElementById("val-ollama").className="chip-val off";logLine("[OLLAMA] non joignable","warn")}
+  }catch{ollamaOnline=false;document.getElementById("val-ollama").textContent="OFF";document.getElementById("val-ollama").className="chip-val off"}
   updateChips();
 }
 
-async function refreshAll(){logLine("[SYNC]…","info");await checkOllama();updateChips();logLine("[SYNC] OK","ok")}
+async function refreshAll(){await checkOllama();updateChips();renderMemory();logLine("[SYNC] OK","ok")}
 
-function switchTab(t){
-  ["v15","v16","v17","mem"].forEach(id=>{
-    document.getElementById(`tab-${id}`).classList.toggle("active",id===t);
-    document.getElementById(`tab-${id}`).classList.toggle(id,id===t);
-    document.getElementById(`panel-${id}`).classList.toggle("active",id===t);
-    document.getElementById(`opt-${id}`)&&(document.getElementById(`opt-${id}`).style.display=id===t?"block":"none");
-  });
+function switchTab(v){
+  document.querySelectorAll(".tab").forEach(t=>{const active=t.dataset.v===v;t.classList.toggle("active",active)});
+  document.querySelectorAll(".tp").forEach(p=>{p.classList.toggle("active",p.id===`tp-${v}`)});
+  ["chat","net","conv","swarm","cons","mem"].forEach(id=>{const el=document.getElementById(`opts-${id}`);if(el)el.style.display=id===v?"block":"none"});
+}
+
+function addChatBubble(box,speaker,prov,role,content,score,turn){
+  if(turn>0){const s=document.createElement("div");s.style.cssText="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);text-align:center;padding:5px 0;border-top:1px solid var(--border);margin:3px 0";s.textContent=`— TURN ${turn} · ${role} —`;box.appendChild(s)}
+  const b=document.createElement("div");
+  b.className=`bubble ${speaker}${(content||"").startsWith("[ERROR]")?" error":""}`;
+  b.innerHTML=`<div class="bhead"><span>${esc(speaker.toUpperCase())}</span><span class="bprov">${esc(prov.toUpperCase())}</span><span class="brole">${role}</span>${score!=null?`<span class="bscore">★${score}</span>`:""}</div><div class="bbody">${esc(content)}</div>`;
+  box.appendChild(b);box.scrollTop=box.scrollHeight;
 }
 
 function setBusy(id,busy,label){const b=document.getElementById(id);if(!b)return;b.disabled=busy;b.classList.toggle("running",busy);b.textContent=label}
 
-function setLive(on){const d=document.getElementById("swarmLive");d.style.display=on?"flex":"none";document.getElementById("pw").style.display=on?"block":"none"}
+function setLive(on){const d=document.getElementById("slive");d.style.display=on?"flex":"none";document.getElementById("pw").style.display=on?"block":"none"}
 
-function initLiveRows(...groups){
+function initLive(...groups){
   const c=document.getElementById("liveRows");c.innerHTML="";
-  for(const g of groups)for(const r of g){const d=document.createElement("div");d.className="slr";d.innerHTML=`<span class="slr-r">${r}</span><span class="slr-p" id="lp-${r}">…</span><span class="slr-s" id="ls-${r}">en attente</span>`;c.appendChild(d)}
+  for(const g of groups)for(const r of g){const d=document.createElement("div");d.className="slr";d.innerHTML=`<span class="slr-r">${r}</span><span class="slr-p" id="lp-${r}">…</span><span class="slr-s" id="ls-${r}">—</span>`;c.appendChild(d)}
 }
 function setLiveRow(r,p,st,cls){
   const lp=document.getElementById(`lp-${r}`);const ls=document.getElementById(`ls-${r}`);
@@ -727,11 +591,12 @@ function logLine(msg,type=""){
   const cls={ok:"lok",err:"lerr",warn:"lwarn",info:"linfo"}[type]??"";
   const s=document.createElement("span");s.className=cls;s.textContent=`\n[${ts}] ${msg}`;el.appendChild(s);el.scrollTop=el.scrollHeight;
 }
+
 function esc(s){return(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 //  MATRIX RAIN
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 function matrixRain(id,chars,color,speed){
   const c=document.getElementById(id),ctx=c.getContext("2d"),dpr=window.devicePixelRatio||1;
   function resize(){c.width=innerWidth*dpr;c.height=innerHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
@@ -740,17 +605,19 @@ function matrixRain(id,chars,color,speed){
   function draw(){ctx.fillStyle="rgba(5,10,18,0.07)";ctx.fillRect(0,0,innerWidth,innerHeight);ctx.fillStyle=color;ctx.font=`${FS}px monospace`;for(let i=0;i<drops.length;i++){ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*FS,drops[i]*FS);if(drops[i]*FS>innerHeight&&Math.random()>.975)drops[i]=0;drops[i]+=speed}requestAnimationFrame(draw)}
   draw();
 }
-matrixRain("cvA","01ABCDEFGHIJKLMNOPQRSTUVWXYZ{}[]CONVERSATIONSWARMCONSENSUS","#2af09a",.70);
-matrixRain("cvB","Ξ₿Σ∇∂∞≡#@$[]{}<>GROQGEMINIMISTRALHFCLAUDEOLLAMA","#4ab8ff",.36);
+matrixRain("cvA","01ABCDEFGHIJKLMNOPQRSTUVWXYZ{}[]CHATNETWORKCONVSWARMCONSENSUS","#2af09a",.68);
+matrixRain("cvB","Ξ₿Σ∇∂∞≡#@$[]{}<>GROQGEMINIMISTRALHFCLAUDEOLLAMAOPENAICONV","#4ab8ff",.34);
 
-// ══════════════════════════════════════════════════════
-//  BOOT
-// ══════════════════════════════════════════════════════
-switchTab("v15");
-renderReliability();renderMemory();updateChips();checkOllama();
-logLine("[V15] Conversation réelle multi-IA — analyst→critic→synth→judge, multi-turns, contexte cumulé","info");
-logLine("[V16] Swarm+Mémoire stratégique — analysts parallèles → critics → synth → judge + mémorisation OK","info");
-logLine("[V17] Consensus pondéré — 7 agents, votes pondérés par fiabilité adaptative","info");
+// ════════════════════════════════════════════════════
+//  CLOCK + BOOT
+// ════════════════════════════════════════════════════
+setInterval(()=>{document.getElementById("clock").textContent=new Date().toLocaleTimeString("fr-FR")},1000);
+switchTab("chat");renderMemory();renderReliability();updateChips();checkOllama();
+logLine("[V18] Chat multi-IA — human + 9 agents, god round, auto-loop, scoring","info");
+logLine("[V20] Network — step/start/stop, convergence Jaccard, mémoire par agent","info");
+logLine("[V15] Conversation — multi-turns analyst→critic→synth→judge avec contexte cumulé","info");
+logLine("[V16] Swarm — analysts parallèles, critics, synth, judge + LearnedMemory","info");
+logLine("[V17] Consensus — 7 agents, votes pondérés, fiabilité adaptive","info");
 logLine("[FREE] Pollinations AUTO + Groq/Gemini/OpenRouter gratuits","ok");
 </script>
 </body>
