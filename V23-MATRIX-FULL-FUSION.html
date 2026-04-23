@@ -16,11 +16,11 @@ header{background:rgba(0,15,0,0.98);border-bottom:2px solid var(--green);padding
 .tab{padding:8px 14px;border:1px solid var(--green);border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap}
 .tab.active{background:var(--green);color:#000}
 .thread{flex:1;overflow-y:auto;padding:20px;background:rgba(0,10,0,0.92);z-index:5}
-.bubble{margin:14px 0;padding:15px 20px;border-left:5px solid var(--green);background:rgba(0,35,0,0.75);border-radius:4px}
+.bubble{margin:14px 0;padding:16px 20px;border-left:5px solid var(--green);background:rgba(0,35,0,0.75);border-radius:4px;line-height:1.55}
 .bubble.human{border-left-color:var(--yellow);background:rgba(40,40,0,0.6)}
 .name{font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;color:var(--yellow)}
 .controls{background:rgba(0,15,0,0.98);padding:15px;border-top:2px solid var(--green);display:flex;gap:10px;z-index:10}
-textarea{flex:1;background:rgba(0,25,0,0.95);border:2px solid var(--green);color:var(--green);padding:14px;border-radius:6px;resize:none}
+textarea{flex:1;background:rgba(0,25,0,0.95);border:2px solid var(--green);color:var(--green);padding:14px;border-radius:6px;resize:none;font-size:15px}
 button{background:transparent;border:2px solid var(--green);color:var(--green);padding:12px 24px;font-weight:700;border-radius:6px;cursor:pointer}
 button:hover{background:var(--green);color:#000}
 </style>
@@ -31,7 +31,7 @@ button:hover{background:var(--green);color:#000}
 
 <header>
   <div class="brand">V23 MATRIX</div>
-  <div style="color:#00ff9f;font-size:13px">32 IA • FULL FUSION</div>
+  <div style="color:#00ff9f">32 IA • FULL FUSION</div>
 </header>
 
 <div class="tabs">
@@ -61,7 +61,7 @@ const chars = "01ΣΔ∇∞Ξ₿アイウエオ0123456789ABCDEFGHIJKLMNOPQRSTUVW
 let drops = Array(Math.floor(canvas.width/14)).fill(1);
 
 function drawMatrix() {
-  ctx.fillStyle = 'rgba(0,0,0,0.08)';
+  ctx.fillStyle = 'rgba(0,0,0,0.07)';
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.fillStyle = '#00ff41';
   ctx.font = '14px monospace';
@@ -78,7 +78,7 @@ window.addEventListener('resize', () => {
   drops = Array(Math.floor(canvas.width/14)).fill(1);
 });
 
-// 32 IA + API
+// API + 32 IA
 const endpoints = ["https://text.pollinations.ai/", "https://sur.pollinations.ai/", "https://ai.pollinations.ai/"];
 async function realCall(prompt) {
   for (let url of endpoints) {
@@ -95,19 +95,19 @@ async function realCall(prompt) {
 }
 
 const agents = ["GROK","CLAUDE","GPT4O","GEMINI","MISTRAL","LLAMA","Q*","SONNET","OPUS","HAIKU","DEEPSEEK","QWEN","COMMAND","SYNTHIA","ORACLE","ECHO","VOID","NEXUS","AETHER","CHRONOS","KAIROS","LOGOS","PATHOS","ETHOS","PHYSIS","TECHNE","NOUS","SOPHIA","MATRIX","NEURAL","DALL-E","MIDJOURNEY"]
-  .map(n => ({name:n, color:"#00ff41"}));
+  .map(n => ({name:n}));
 
 async function agentSpeak(agent) {
-  const history = Array.from(document.querySelectorAll('.bubble')).slice(-12).map(b=>b.textContent).join("\n");
-  const resp = await realCall(`Tu es \( {agent.name}. Parle naturellement dans la Matrice.\n\n \){history}`);
-  addBubble(agent.name, resp);
+  const history = Array.from(document.querySelectorAll('.bubble')).slice(-12).map(b => b.textContent).join("\n");
+  const resp = await realCall(`Tu es \( {agent.name}. Continue naturellement dans la Matrice.\n\n \){history}`);
+  addBubble(agent.name, resp || "...");
 }
 
 function addBubble(name, text) {
   const thread = document.getElementById("thread");
   const div = document.createElement("div");
   div.className = "bubble";
-  div.innerHTML = `<div class="name">\( {name}</div> \){text ? text.replace(/\n/g, '<br>') : '...'}`;
+  div.innerHTML = `<div class="name">\( {name}</div> \){text.replace(/\n/g, '<br>')}`;
   thread.appendChild(div);
   thread.scrollTop = thread.scrollHeight;
 }
@@ -143,7 +143,7 @@ function sendMessage() {
 }
 
 function switchTab(n) {
-  document.getElementById("thread").innerHTML = `<div style="color:#ffe600;padding:40px;text-align:center">Onglet ${n} • Flux Matrix actif</div>`;
+  document.getElementById("thread").innerHTML = `<div style="color:#ffe600;padding:40px;text-align:center">Onglet ${n} activé — Flux Matrix en cours...</div>`;
 }
 
 // BOOT
