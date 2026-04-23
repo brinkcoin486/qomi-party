@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V17 · Weighted Consensus · Multi-Network</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Rajdhani:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050c14; --bg2:#081220;
+  --glass:rgba(8,16,28,.96); --glass2:rgba(10,20,36,.93);
+  --border:rgba(80,160,255,.13); --border2:rgba(60,220,180,.15);
+  --accent1:#3adcff; --accent2:#b57fff; --accent3:#3affa0;
+  --warn:#ffb03a; --err:#ff4f6a; --text:#ddeeff;
+  --muted:#6a90bb; --muted2:#4a6888;
+  --ok:#3affa0; --iterate:#ffb03a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  color:var(--text);font-family:'IBM Plex Mono',monospace;
+  background:
+    radial-gradient(ellipse at 8% 0%,rgba(58,220,255,.07),transparent 38%),
+    radial-gradient(ellipse at 92% 0%,rgba(181,127,255,.08),transparent 38%),
+    radial-gradient(ellipse at 50% 100%,rgba(58,255,160,.04),transparent 50%),
+    linear-gradient(180deg,var(--bg),var(--bg2));
+  overflow-x:hidden;min-height:100vh;
+}
+canvas.bg{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+#cvA{opacity:.10} #cvB{opacity:.07;z-index:1}
+.app{position:relative;z-index:2;max-width:1700px;margin:0 auto;padding:14px}
+.glass{
+  background:linear-gradient(160deg,var(--glass),var(--glass2));
+  border:1px solid var(--border);border-radius:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter:blur(14px);
+}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;gap:14px;flex-wrap:wrap}
+.brand-name{
+  font-family:'Rajdhani',sans-serif;font-weight:900;font-size:28px;
+  background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3),var(--accent1));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-size:300% 100%;animation:grad 5s linear infinite;
+}
+@keyframes grad{0%{background-position:0%}100%{background-position:300%}}
+.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:5px}
+.pulse-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent3);margin-right:8px;animation:pd 2s ease-in-out infinite}
+@keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+.top-actions{display:flex;gap:10px;align-items:center}
+.network-count{font-size:11px;color:var(--accent1);border:1px solid rgba(58,220,255,.2);border-radius:10px;padding:6px 12px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.08em}
+.btn{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--border);border-radius:12px;
+  padding:10px 18px;cursor:pointer;transition:all .18s;
+  background:rgba(10,20,36,.8);color:var(--text);
+}
+.btn:hover{border-color:rgba(80,160,255,.3);background:rgba(20,40,70,.9)}
+.btn.primary{background:linear-gradient(135deg,rgba(58,220,255,.9),rgba(181,127,255,.85));border-color:transparent;color:#06111f}
+.btn.primary:hover{opacity:.88;transform:translateY(-1px)}
+.btn:disabled{opacity:.32;cursor:not-allowed;transform:none}
+.btn.running{animation:btnp 1s ease-in-out infinite}
+@keyframes btnp{0%,100%{box-shadow:0 0 0 0 rgba(58,220,255,.5)}50%{box-shadow:0 0 0 10px rgba(58,220,255,0)}}
+.providers-section{padding:14px 16px;margin-top:12px}
+.section-title{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';display:block;width:3px;height:12px;border-radius:2px;background:linear-gradient(180deg,var(--accent1),var(--accent2))}
+.provider-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:8px}
+.chip{background:rgba(5,12,22,.85);border:1px solid var(--border);border-radius:14px;padding:10px 12px;transition:all .3s}
+.chip.active{border-color:rgba(58,255,160,.35);background:rgba(3,15,10,.7)}
+.chip-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2)}
+.chip-model{font-size:8px;color:var(--muted2);opacity:.65;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip-val{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;margin-top:6px}
+.chip-val.ok{color:var(--ok)} .chip-val.off{color:var(--muted2)} .chip-val.free{color:var(--accent1)}
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.metric{background:rgba(5,12,22,.7);border:1px solid var(--border2);border-radius:14px;padding:12px 14px}
+.metric-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.metric-val{font-family:'Rajdhani',sans-serif;font-weight:900;font-size:26px;margin-top:4px;color:var(--accent1)}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:12px;margin-top:12px}
+.sidebar{padding:16px;display:flex;flex-direction:column;gap:9px;max-height:calc(100vh - 300px);overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(80,160,255,.2);border-radius:2px}
+.side-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding-bottom:7px;border-bottom:1px solid var(--border);margin-top:2px}
+.token-block{background:rgba(5,10,20,.7);border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:7px;position:relative}
+.token-block.free-block{border-color:rgba(58,255,160,.2);background:rgba(3,15,10,.7)}
+.provider-badge{position:absolute;top:8px;right:8px;font-size:8px;padding:2px 7px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.08em}
+.badge-free{background:rgba(58,255,160,.15);color:var(--ok);border:1px solid rgba(58,255,160,.3)}
+.badge-key{background:rgba(181,127,255,.12);color:var(--accent2);border:1px solid rgba(181,127,255,.25)}
+.badge-local{background:rgba(58,220,255,.12);color:var(--accent1);border:1px solid rgba(58,220,255,.25)}
+.token-label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+.token-model{font-size:9px;color:var(--muted2);opacity:.8;font-style:italic}
+.tok-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted2);transition:background .3s;flex-shrink:0}
+.tok-dot.active{background:var(--ok);box-shadow:0 0 6px rgba(58,255,160,.5)}
+input{width:100%;background:rgba(4,9,18,.9);color:var(--text);border:1px solid rgba(80,160,255,.14);border-radius:8px;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;outline:none;transition:border-color .2s}
+input:focus{border-color:rgba(58,220,255,.4)}
+textarea{width:100%;background:rgba(4,9,18,.9);color:var(--text);border:1px solid rgba(80,160,255,.14);border-radius:8px;padding:9px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;outline:none;resize:vertical;transition:border-color .2s;min-height:90px}
+textarea:focus{border-color:rgba(58,220,255,.4)}
+.progress-wrap{background:rgba(3,7,14,.8);border-radius:6px;overflow:hidden;height:3px;display:none;margin-top:6px}
+.progress-bar{height:3px;width:0%;background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));transition:width .4s;border-radius:6px}
+.swarm-live{background:rgba(3,7,14,.8);border:1px solid rgba(58,220,255,.08);border-radius:10px;padding:8px 10px;display:none;flex-direction:column;gap:4px}
+.slr{display:flex;align-items:center;gap:8px;font-size:10px}
+.slr-role{color:var(--muted);width:80px;flex-shrink:0}
+.slr-prov{color:var(--accent1);width:90px}
+.slr-st{color:var(--muted2)}
+.slr-st.done{color:var(--ok)}
+.slr-st.running{color:var(--warn);animation:blink .8s linear infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.panel{padding:14px}
+.panel-wide{grid-column:1/-1}
+.panel-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.panel-title::before{content:'';display:block;width:3px;height:12px;border-radius:2px;background:linear-gradient(180deg,var(--accent1),var(--accent2))}
+.mono-box,.log-box{
+  min-height:190px;max-height:340px;overflow-y:auto;
+  background:rgba(3,7,14,.85);border:1px solid rgba(80,160,255,.08);
+  border-radius:12px;padding:12px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  line-height:1.6;white-space:pre-wrap;word-break:break-word;color:var(--text);
+}
+.log-box{min-height:110px;max-height:190px;color:var(--muted)}
+.mono-box::-webkit-scrollbar,.log-box::-webkit-scrollbar{width:3px}
+.mono-box::-webkit-scrollbar-thumb,.log-box::-webkit-scrollbar-thumb{background:rgba(80,160,255,.18);border-radius:2px}
+.log-ok{color:var(--ok)} .log-err{color:var(--err)} .log-warn{color:var(--warn)} .log-info{color:var(--accent1)}
+.role-item{padding:8px 10px;border-left:2px solid var(--border2);margin-bottom:7px;border-radius:0 6px 6px 0}
+.role-header{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent1);margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rprovtag{font-size:9px;padding:1px 7px;border-radius:5px;border:1px solid;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em}
+.role-content{font-size:11px;line-height:1.55;color:var(--text);opacity:.9}
+.vote-row{display:grid;grid-template-columns:90px 90px 1fr 60px 70px;gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid rgba(80,160,255,.05);font-size:10px}
+.vote-row-h{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2)}
+.rel-bar{display:inline-block;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--accent1),var(--accent3));vertical-align:middle;margin-left:6px;transition:width .5s}
+.rel-table{width:100%;border-collapse:collapse;font-size:10px}
+.rel-table th{color:var(--muted);text-transform:uppercase;font-size:9px;letter-spacing:.14em;padding:4px 6px;text-align:left}
+.rel-table td{padding:4px 6px;border-top:1px solid rgba(80,160,255,.06)}
+.verdict-badge{display:inline-block;padding:2px 10px;border-radius:8px;font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.08em}
+.verdict-ok{background:rgba(58,255,160,.1);border:1px solid rgba(58,255,160,.3);color:var(--ok)}
+.verdict-iterate{background:rgba(255,176,58,.1);border:1px solid rgba(255,176,58,.3);color:var(--iterate)}
+@media(max-width:1300px){.provider-grid{grid-template-columns:repeat(5,1fr)}.metrics-row{grid-template-columns:repeat(2,1fr)}.layout,.main-grid{grid-template-columns:1fr}.panel-wide{grid-column:1}}
+@media(max-width:700px){.provider-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<canvas id="cvA" class="bg"></canvas>
+<canvas id="cvB" class="bg"></canvas>
+
+<div class="app">
+
+<header class="topbar glass">
+  <div>
+    <div class="brand-name">V17 WEIGHTED CONSENSUS · MULTI-NETWORK</div>
+    <div class="brand-sub"><span class="pulse-dot"></span>9 réseaux IA · votes pondérés · fiabilité adaptive · standalone · no backend</div>
+  </div>
+  <div class="top-actions">
+    <div class="network-count" id="networkCount">0 / 9 actifs</div>
+    <button class="btn" onclick="refreshAll()">⟳ SYNC</button>
+    <button class="btn primary" id="btnRun" onclick="runConsensus()">▶ RUN CONSENSUS ❶</button>
+  </div>
+</header>
+
+<section class="glass providers-section">
+  <div class="section-title">RÉSEAUX IA CONNECTÉS</div>
+  <div class="provider-grid">
+    <div class="chip" id="chip-hf"><div class="chip-label">HuggingFace</div><div class="chip-model">Mistral-7B-v0.3</div><div class="chip-val off" id="val-hf">OFF</div></div>
+    <div class="chip" id="chip-openai"><div class="chip-label">OpenAI</div><div class="chip-model">gpt-4.1</div><div class="chip-val off" id="val-openai">OFF</div></div>
+    <div class="chip" id="chip-claude"><div class="chip-label">Anthropic</div><div class="chip-model">claude-sonnet-4</div><div class="chip-val off" id="val-claude">OFF</div></div>
+    <div class="chip" id="chip-groq"><div class="chip-label">Groq</div><div class="chip-model">llama-3.3-70b</div><div class="chip-val off" id="val-groq">OFF</div></div>
+    <div class="chip" id="chip-gemini"><div class="chip-label">Gemini</div><div class="chip-model">gemini-2.0-flash</div><div class="chip-val off" id="val-gemini">OFF</div></div>
+    <div class="chip" id="chip-mistral"><div class="chip-label">Mistral AI</div><div class="chip-model">mistral-small</div><div class="chip-val off" id="val-mistral">OFF</div></div>
+    <div class="chip active" id="chip-pollinations"><div class="chip-label">Pollinations</div><div class="chip-model">openai-large · free</div><div class="chip-val free" id="val-pollinations">FREE</div></div>
+    <div class="chip" id="chip-openrouter"><div class="chip-label">OpenRouter</div><div class="chip-model">llama-3.1-8b:free</div><div class="chip-val off" id="val-openrouter">OFF</div></div>
+    <div class="chip" id="chip-ollama"><div class="chip-label">Ollama</div><div class="chip-model">llama3 · local</div><div class="chip-val off" id="val-ollama">—</div></div>
+  </div>
+  <div class="metrics-row">
+    <div class="metric"><div class="metric-label">Consensus Score</div><div class="metric-val" id="val-consensus">—</div></div>
+    <div class="metric"><div class="metric-label">Verdict</div><div class="metric-val" id="val-verdict" style="font-size:18px;margin-top:8px">—</div></div>
+    <div class="metric"><div class="metric-label">Agents swarm</div><div class="metric-val" id="val-agents">7 + judge</div></div>
+    <div class="metric"><div class="metric-label">Top provider</div><div class="metric-val" id="val-best" style="font-size:15px;margin-top:8px">—</div></div>
+  </div>
+</section>
+
+<section class="layout">
+  <aside class="glass sidebar">
+    <div class="side-label">TOKENS · CLÉS API</div>
+
+    <div class="token-block free-block">
+      <span class="provider-badge badge-free">FREE · AUTO</span>
+      <div class="token-label"><span class="tok-dot active" id="dot-pollinations"></span>POLLINATIONS</div>
+      <div class="token-model">openai-large — aucune clé requise</div>
+      <div style="font-size:10px;color:var(--ok)">✓ Actif automatiquement</div>
+    </div>
+
+    <div class="token-block">
+      <span class="provider-badge badge-key">FREE TIER</span>
+      <div class="token-label"><span class="tok-dot" id="dot-groq"></span>GROQ</div>
+      <div class="token-model">llama-3.3-70b-versatile · console.groq.com</div>
+      <input id="inp-groq" type="password" placeholder="gsk_…">
+      <button class="btn primary" onclick="setToken('groq','inp-groq')">ACTIVER GROQ</button>
+    </div>
+
+    <div class="token-block">
+      <span class="provider-badge badge-key">FREE TIER</span>
+      <div class="token-label"><span class="tok-dot" id="dot-gemini"></span>GOOGLE GEMINI</div>
+      <div class="token-model">gemini-2.0-flash-exp · aistudio.google.com</div>
+      <input id="inp-gemini" type="password" placeholder="AIza…">
+      <button class="btn primary" onclick="setToken('gemini','inp-gemini')">ACTIVER GEMINI</button>
+    </div>
+
+    <div class="token-block">
+      <span class="provider-badge badge-key">FREE MODELS</span>
+      <div class="token-label"><span class="tok-dot" id="dot-openrouter"></span>OPENROUTER</div>
+      <div class="token-model">llama-3.1-8b:free · openrouter.ai</div>
+      <input id="inp-openrouter" type="password" placeholder="sk-or-…">
+      <button class="btn primary" onclick="setToken('openrouter','inp-openrouter')">ACTIVER OR</button>
+    </div>
+
+    <div class="token-block">
+      <span class="provider-badge badge-key">API KEY</span>
+      <div class="token-label"><span class="tok-dot" id="dot-hf"></span>HUGGING FACE</div>
+      <div class="token-model">Mistral-7B-Instruct-v0.3</div>
+      <input id="inp-hf" type="password" placeholder="hf_xxx…">
+      <button class="btn primary" onclick="setToken('hf','inp-hf')">ACTIVER HF</button>
+    </div>
+
+    <div class="token-block">
+      <span class="provider-badge badge-key">API KEY</span>
+      <div class="token-label"><span class="tok-dot" id="dot-mistral"></span>MISTRAL AI</div>
+      <div class="token-model">mistral-small-latest · console.mistral.ai</div>
+      <input id="inp-mistral" type="password" placeholder="…">
+      <button class="btn primary" onclick="setToken('mistral','inp-mistral')">ACTIVER MISTRAL</button>
+    </div>
+
+    <div class="token-block">
+      <span class="provider-badge badge-key">API KEY</span>
+      <div class="token-label"><span class="tok-dot" id="dot-openai"></span>OPENAI</div>
+      <div class="token-model">gpt-4.1 · platform.openai.com</div>
+      <input id="inp-openai" type="password" placeholder="sk-…">
+      <button class="btn primary" onclick="setToken('openai','inp-openai')">ACTIVER OPENAI</button>
+    </div>
+
+    <div class="token-block">
+      <span class="provider-badge badge-key">API KEY</span>
+      <div class="token-label"><span class="tok-dot" id="dot-claude"></span>ANTHROPIC</div>
+      <div class="token-model">claude-sonnet-4-20250514 · console.anthropic.com</div>
+      <input id="inp-claude" type="password" placeholder="sk-ant-…">
+      <button class="btn primary" onclick="setToken('claude','inp-claude')">ACTIVER CLAUDE</button>
+    </div>
+
+    <div class="token-block">
+      <span class="provider-badge badge-local">LOCAL</span>
+      <div class="token-label"><span class="tok-dot" id="dot-ollama"></span>OLLAMA</div>
+      <div class="token-model">llama3 · localhost:11434 · détection auto</div>
+    </div>
+
+    <div class="side-label">TASK</div>
+    <textarea id="taskInput" rows="7">Produire un consensus multi-IA robuste sur la meilleure stratégie distribuée locale+cloud avec coût maîtrisé et synthèse exploitable.</textarea>
+
+    <div class="swarm-live" id="swarmLive">
+      <div style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">PROGRESSION SWARM</div>
+      <div id="swarmLiveRows"></div>
+    </div>
+    <div class="progress-wrap" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
+  </aside>
+
+  <main class="main">
+    <div class="main-grid">
+      <article class="glass panel">
+        <div class="panel-title">SWARM OUTPUT · 7 AGENTS</div>
+        <div class="mono-box" id="swarmBox">Aucune exécution.</div>
+      </article>
+      <article class="glass panel">
+        <div class="panel-title">VOTES PONDÉRÉS</div>
+        <div class="mono-box" id="votesBox">Aucun vote.</div>
+      </article>
+      <article class="glass panel">
+        <div class="panel-title">FIABILITÉ PROVIDERS</div>
+        <div class="mono-box" id="reliabilityBox" style="min-height:150px">Chargement…</div>
+      </article>
+      <article class="glass panel">
+        <div class="panel-title">JUGE FINAL</div>
+        <div class="mono-box" id="judgeBox">Aucun verdict.</div>
+      </article>
+      <article class="glass panel panel-wide">
+        <div class="panel-title">LOGS TEMPS-RÉEL</div>
+        <div class="log-box" id="logs">[BOOT] V17 Multi-Network Weighted Consensus — standalone ready</div>
+      </article>
+    </div>
+  </main>
+</section>
+</div>
+
+
+
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════
+const PC = {
+  hf:          { label:"HuggingFace",  model:"Mistral-7B-Instruct-v0.3"    },
+  openai:      { label:"OpenAI",       model:"gpt-4.1"                      },
+  claude:      { label:"Anthropic",    model:"claude-sonnet-4-20250514"     },
+  groq:        { label:"Groq",         model:"llama-3.3-70b-versatile"      },
+  gemini:      { label:"Gemini",       model:"gemini-2.0-flash-exp"         },
+  mistral:     { label:"Mistral AI",   model:"mistral-small-latest"         },
+  pollinations:{ label:"Pollinations", model:"openai-large"                 },
+  openrouter:  { label:"OpenRouter",   model:"llama-3.1-8b-instruct:free"   },
+  ollama:      { label:"Ollama",       model:"llama3"                       },
+  sim:         { label:"SIM/Local",    model:"rule-based"                   },
+};
+
+const DEFAULTS = {
+  hf:0.60,openai:0.72,claude:0.70,groq:0.68,
+  gemini:0.67,mistral:0.65,pollinations:0.52,
+  openrouter:0.57,ollama:0.55,sim:0.42
+};
+
+class ReliabilityStore {
+  constructor() {
+    this.p = {};
+    for (const [k,v] of Object.entries(DEFAULTS)) this.p[k]={runs:0,reliability:v};
+  }
+  state()   { return {providers:JSON.parse(JSON.stringify(this.p))}; }
+  weight(k) { return this.p[k]?.reliability??0.5; }
+  update(k,obs) {
+    if (!this.p[k]) this.p[k]={runs:0,reliability:DEFAULTS[k]??0.5};
+    const i=this.p[k]; i.runs++;
+    i.reliability=+((i.reliability*(i.runs-1)+obs)/i.runs).toFixed(4);
+  }
+}
+
+class WeightedConsensusEngine {
+  constructor(r){this.r=r}
+  scoreText(t){
+    let b=Math.min(1,Math.max(0.2,t.split(/\s+/).length/120));
+    if(["plan","stratégie","risque","coût","latence","étape","strategy","risk","cost","architecture","hybrid","distributed"].some(k=>t.toLowerCase().includes(k)))
+      b=Math.min(1,b+0.12);
+    return +b.toFixed(3);
+  }
+  vote(items){
+    const votes=[];let tot=0;
+    for(const i of items){
+      const ts=this.scoreText(i.content),w=this.r.weight(i.provider),ws=+(ts*w).toFixed(4);
+      tot+=ws;votes.push({role:i.role,provider:i.provider,text_score:ts,weight:+w.toFixed(4),weighted_score:ws});
+    }
+    const avg=+(tot/Math.max(1,items.length)).toFixed(4);
+    return{votes,consensus_score:avg,verdict:avg>=0.45?"OK":"ITERATE"};
+  }
+  reinforce(votes){votes.forEach(v=>this.r.update(v.provider,v.text_score));}
+}
+
+const TOKENS={hf:null,openai:null,claude:null,groq:null,gemini:null,mistral:null,openrouter:null};
+let ollamaOnline=false;
+const rel=new ReliabilityStore();
+const eng=new WeightedConsensusEngine(rel);
+
+const ROLE_PREF={
+  analyst_1: ["openai","groq","claude","gemini","mistral","hf","pollinations","openrouter","ollama","sim"],
+  analyst_2: ["groq","gemini","hf","openai","mistral","claude","pollinations","openrouter","ollama","sim"],
+  analyst_3: ["claude","mistral","openai","groq","gemini","hf","pollinations","openrouter","ollama","sim"],
+  analyst_4: ["gemini","openrouter","pollinations","mistral","groq","hf","claude","openai","ollama","sim"],
+  critic_1:  ["claude","openai","groq","gemini","mistral","hf","pollinations","openrouter","ollama","sim"],
+  critic_2:  ["groq","openai","gemini","claude","mistral","openrouter","hf","pollinations","ollama","sim"],
+  critic_3:  ["mistral","gemini","openrouter","claude","groq","openai","hf","pollinations","ollama","sim"],
+  judge:     ["openai","claude","groq","gemini","mistral","hf","pollinations","openrouter","ollama","sim"],
+};
+
+function getAv(){
+  const o=[];
+  if(TOKENS.hf)         o.push("hf");
+  if(TOKENS.openai)     o.push("openai");
+  if(TOKENS.claude)     o.push("claude");
+  if(TOKENS.groq)       o.push("groq");
+  if(TOKENS.gemini)     o.push("gemini");
+  if(TOKENS.mistral)    o.push("mistral");
+  if(TOKENS.openrouter) o.push("openrouter");
+  o.push("pollinations");
+  if(ollamaOnline)      o.push("ollama");
+  o.push("sim");
+  return o;
+}
+function pick(role){const av=getAv();for(const p of(ROLE_PREF[role]??["sim"]))if(av.includes(p))return p;return "sim";}
+
+// ═══════════════════════════════════════════════════
+//  ADAPTERS
+// ═══════════════════════════════════════════════════
+async function callHF(p){
+  const r=await fetch(`https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3`,{
+    method:"POST",headers:{Authorization:`Bearer ${TOKENS.hf}`,"Content-Type":"application/json"},
+    body:JSON.stringify({inputs:p,parameters:{max_new_tokens:700,temperature:0.72,return_full_text:false}})
+  });
+  if(!r.ok)throw new Error(`HF ${r.status}`);
+  const d=await r.json();
+  if(d.error)throw new Error(`HF: ${d.error}`);
+  if(Array.isArray(d)&&d[0]?.generated_text)return d[0].generated_text.trim();
+  return JSON.stringify(d);
+}
+
+async function callOpenAI(p){
+  const r=await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",headers:{Authorization:`Bearer ${TOKENS.openai}`,"Content-Type":"application/json"},
+    body:JSON.stringify({model:"gpt-4.1",messages:[{role:"user",content:p}],max_tokens:700})
+  });
+  if(!r.ok)throw new Error(`OpenAI ${r.status}`);
+  return (await r.json()).choices[0].message.content;
+}
+
+async function callClaude(p){
+  const r=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"x-api-key":TOKENS.claude,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true","Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:700,messages:[{role:"user",content:p}]})
+  });
+  if(!r.ok)throw new Error(`Claude ${r.status}`);
+  return (await r.json()).content.map(b=>b.text??"").join("\n").trim();
+}
+
+async function callGroq(p){
+  const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{
+    method:"POST",headers:{Authorization:`Bearer ${TOKENS.groq}`,"Content-Type":"application/json"},
+    body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:[{role:"user",content:p}],max_tokens:700,temperature:0.72})
+  });
+  if(!r.ok)throw new Error(`Groq ${r.status}`);
+  return (await r.json()).choices[0].message.content;
+}
+
+async function callGemini(p){
+  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${TOKENS.gemini}`,{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:{maxOutputTokens:700,temperature:0.72}})
+  });
+  if(!r.ok)throw new Error(`Gemini ${r.status}`);
+  const d=await r.json();
+  if(d.error)throw new Error(`Gemini: ${d.error.message}`);
+  return d.candidates[0].content.parts[0].text;
+}
+
+async function callMistral(p){
+  const r=await fetch("https://api.mistral.ai/v1/chat/completions",{
+    method:"POST",headers:{Authorization:`Bearer ${TOKENS.mistral}`,"Content-Type":"application/json"},
+    body:JSON.stringify({model:"mistral-small-latest",messages:[{role:"user",content:p}],max_tokens:700,temperature:0.72})
+  });
+  if(!r.ok)throw new Error(`Mistral ${r.status}`);
+  return (await r.json()).choices[0].message.content;
+}
+
+async function callPollinations(p){
+  const r=await fetch("https://text.pollinations.ai/",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({messages:[{role:"user",content:p}],model:"openai-large",seed:Math.floor(Math.random()*9999)})
+  });
+  if(!r.ok)throw new Error(`Pollinations ${r.status}`);
+  return (await r.text()).trim();
+}
+
+async function callOpenRouter(p){
+  const r=await fetch("https://openrouter.ai/api/v1/chat/completions",{
+    method:"POST",
+    headers:{Authorization:`Bearer ${TOKENS.openrouter}`,"Content-Type":"application/json","HTTP-Referer":"https://v17-consensus.local","X-Title":"V17 Weighted Consensus"},
+    body:JSON.stringify({model:"meta-llama/llama-3.1-8b-instruct:free",messages:[{role:"user",content:p}],max_tokens:700})
+  });
+  if(!r.ok)throw new Error(`OpenRouter ${r.status}`);
+  const d=await r.json();
+  if(d.error)throw new Error(`OR: ${d.error.message}`);
+  return d.choices[0].message.content;
+}
+
+async function callOllama(p){
+  const r=await fetch("http://127.0.0.1:11434/api/generate",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"llama3",prompt:p,stream:false}),
+    signal:AbortSignal.timeout(30000)
+  });
+  if(!r.ok)throw new Error(`Ollama ${r.status}`);
+  return (await r.json()).response;
+}
+
+function callSim(prompt,role){
+  const task=(prompt.split("TASK:")[1]??prompt).trim().slice(0,120);
+  if(role==="judge"){
+    const s=+(0.5+Math.random()*0.4).toFixed(2);
+    return s>=0.65
+      ?`OK — Stratégie cohérente et exploitable. Score : ${s}. Points forts : couverture des risques, découplage composants, plan séquentiel. Validation recommandée.`
+      :`ITERATE — Manque de précision sur SLA et rollback. Score : ${s}. Actions : chiffrer TCO, définir failure modes, chaîne d'escalation.`;
+  }
+  const isA=role.includes("analyst");
+  const pa=[
+    `[SIM/LOCAL — ${role.toUpperCase()}]\n\nAnalyse — ${task}\n\nPhase 1 Périmètre : latence < 50ms, disponibilité 99.5%, budget maîtrisé.\nPhase 2 Stratégie : hybride local+cloud, scheduler adaptatif, event-driven, circuit breakers.\nPhase 3 Plan : audit infra → provisioning minimal → intégration progressive. Coût -35% vs full-cloud.`,
+    `[SIM/LOCAL — ${role.toUpperCase()}]\n\nÉvaluation — ${task}\n\nInfra : N+1, pas de SPOF. Performance : traces distribuées, backpressure. Coût : right-sizing + auto-scaling. Frais egress cloud à budgéter (20-40%). Résilience : rollback par jalons, health checks actifs. Faisabilité validée.`
+  ];
+  const pc=[
+    `[SIM/LOCAL — ${role.toUpperCase()}]\n\nAngles morts :\n1. CAP theorem : split-brain non adressé.\n2. Egress cloud sous-estimé (20-40% TCO réel).\n3. SLA opérationnel : on-call ? escalation ?\n4. Lock-in vendor : abstractions manquantes.\n5. Complexité orchestration si mal dimensionnée.`,
+    `[SIM/LOCAL — ${role.toUpperCase()}]\n\nRisques :\n• Latence inter-nœuds non mesurée en prod.\n• Observabilité insuffisante → débogage coûteux.\n• Formation équipe : coût caché significatif.\n• RGPD/gouvernance données non adressé.\n• Architecture prématurément complexe.`
+  ];
+  const pool=isA?pa:pc;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+async function callProvider(prov,prompt,role){
+  try{
+    if(prov==="hf")          return await callHF(prompt);
+    if(prov==="openai")      return await callOpenAI(prompt);
+    if(prov==="claude")      return await callClaude(prompt);
+    if(prov==="groq")        return await callGroq(prompt);
+    if(prov==="gemini")      return await callGemini(prompt);
+    if(prov==="mistral")     return await callMistral(prompt);
+    if(prov==="pollinations")return await callPollinations(prompt);
+    if(prov==="openrouter")  return await callOpenRouter(prompt);
+    if(prov==="ollama")      return await callOllama(prompt);
+    return callSim(prompt,role);
+  }catch(e){
+    if(prov!=="sim"){logLine(`[WARN] ${prov} → ${e.message} — SIM`,"warn");return callSim(prompt,role);}
+    throw e;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  SWARM
+// ═══════════════════════════════════════════════════
+const ROLES=["analyst_1","analyst_2","analyst_3","analyst_4","critic_1","critic_2","critic_3"];
+
+async function runSwarm(task){
+  const items=[];const total=ROLES.length+2;let done=0;
+  const liveDiv=document.getElementById("swarmLive");
+  const liveRowsDiv=document.getElementById("swarmLiveRows");
+  liveDiv.style.display="flex";liveRowsDiv.innerHTML="";
+
+  for(const r of [...ROLES,"synthesis","judge"]){
+    const d=document.createElement("div");d.className="slr";
+    d.innerHTML=`<span class="slr-role">${r}</span><span class="slr-prov" id="lp-${r}">…</span><span class="slr-st" id="ls-${r}">en attente</span>`;
+    liveRowsDiv.appendChild(d);
+  }
+  setProgress(0);
+
+  for(const role of ROLES){
+    const prov=pick(role);
+    document.getElementById(`lp-${role}`).textContent=prov.toUpperCase();
+    document.getElementById(`ls-${role}`).textContent="⏳ running…";
+    document.getElementById(`ls-${role}`).className="slr-st running";
+    logLine(`[SWARM] ${role} → ${prov}`,"info");
+    const isA=role.startsWith("analyst");
+    const prompt=isA
+      ?`Tu es ${role.toUpperCase()}. Analyse ce problème de manière structurée et indépendante.\n\nTASK:\n${task}`
+      :`Tu es ${role.toUpperCase()}. Critique le problème, cherche failles, coûts, risques et angles morts.\n\nTASK:\n${task}`;
+    let content;
+    try{content=await callProvider(prov,prompt,role);}
+    catch(e){content=`[ERROR] ${prov}: ${e.message}`;logLine(`[ERR] ${role}: ${e.message}`,"err");}
+    items.push({role,provider:prov,content});
+    done++;setProgress(done/total*100);
+    document.getElementById(`ls-${role}`).textContent="✓ done";
+    document.getElementById(`ls-${role}`).className="slr-st done";
+  }
+
+  const sp=pick("analyst_1");
+  document.getElementById("lp-synthesis").textContent=sp.toUpperCase();
+  document.getElementById("ls-synthesis").textContent="⏳ running…";
+  document.getElementById("ls-synthesis").className="slr-st running";
+  logLine(`[SWARM] synthesis → ${sp}`,"info");
+  const synthP="Synthétise en une stratégie compacte et exploitable :\n\n"+items.map(i=>`${i.role.toUpperCase()} [${i.provider.toUpperCase()}]:\n${i.content}`).join("\n\n---\n\n");
+  let synth;
+  try{synth=await callProvider(sp,synthP,"analyst");}
+  catch(e){synth=`[ERROR] ${sp}: ${e.message}`;}
+  done++;setProgress(done/total*100);
+  document.getElementById("ls-synthesis").textContent="✓ done";
+  document.getElementById("ls-synthesis").className="slr-st done";
+
+  const jp=pick("judge");
+  document.getElementById("lp-judge").textContent=jp.toUpperCase();
+  document.getElementById("ls-judge").textContent="⏳ running…";
+  document.getElementById("ls-judge").className="slr-st running";
+  logLine(`[SWARM] judge → ${jp}`,"info");
+  let judge;
+  try{judge=await callProvider(jp,`Juge la stratégie suivante. Réponds OK ou ITERATE avec justification.\n\n${synth}`,"judge");}
+  catch(e){judge=`[ERROR] ${jp}: ${e.message}`;}
+  done++;setProgress(done/total*100);
+  document.getElementById("ls-judge").textContent="✓ done";
+  document.getElementById("ls-judge").className="slr-st done";
+
+  return{items,synthesis:{provider:sp,content:synth},judge:{provider:jp,content:judge}};
+}
+
+// ═══════════════════════════════════════════════════
+//  UI
+// ═══════════════════════════════════════════════════
+function setToken(prov,id){
+  const v=document.getElementById(id).value.trim();
+  if(!v){logLine(`[TOKEN] vide pour ${prov}`,"warn");return;}
+  TOKENS[prov]=v;document.getElementById(id).value="";
+  const dot=document.getElementById(`dot-${prov}`);if(dot)dot.classList.add("active");
+  updateChips();logLine(`[TOKEN] ${prov.toUpperCase()} activé (volatile)`,"ok");
+}
+
+function updateChips(){
+  const kp=["hf","openai","claude","groq","gemini","mistral","openrouter"];
+  let act=2+(ollamaOnline?1:0);
+  for(const p of kp){
+    const el=document.getElementById(`val-${p}`),chip=document.getElementById(`chip-${p}`);
+    if(!el||!chip)continue;
+    if(TOKENS[p]){el.textContent="READY";el.className="chip-val ok";chip.classList.add("active");act++;}
+    else{el.textContent="OFF";el.className="chip-val off";chip.classList.remove("active");}
+  }
+  document.getElementById("networkCount").textContent=`${act} / 9 actifs`;
+  const av=getAv().filter(p=>p!=="sim");
+  let best=av[0]??"—";
+  for(const p of av)if(rel.weight(p)>rel.weight(best))best=p;
+  document.getElementById("val-best").textContent=best.toUpperCase();
+  renderReliability();
+}
+
+async function checkOllama(){
+  try{
+    await fetch("http://127.0.0.1:11434/api/tags",{signal:AbortSignal.timeout(2000)});
+    ollamaOnline=true;
+    document.getElementById("val-ollama").textContent="LOCAL OK";
+    document.getElementById("val-ollama").className="chip-val ok";
+    document.getElementById("chip-ollama").classList.add("active");
+    document.getElementById("dot-ollama").classList.add("active");
+    logLine("[OLLAMA] connexion locale OK","ok");
+  }catch{
+    ollamaOnline=false;
+    document.getElementById("val-ollama").textContent="OFF";
+    document.getElementById("val-ollama").className="chip-val off";
+    logLine("[OLLAMA] non joignable","warn");
+  }
+  updateChips();
+}
+
+async function refreshAll(){logLine("[SYNC]…","info");await checkOllama();updateChips();logLine("[SYNC] OK","ok");}
+
+async function runConsensus(){
+  const task=document.getElementById("taskInput").value.trim();
+  if(!task){logLine("[ERR] task vide","err");return;}
+  const btn=document.getElementById("btnRun");
+  btn.disabled=true;btn.classList.add("running");btn.textContent="⏳ SWARM EN COURS…";
+  document.getElementById("progressWrap").style.display="block";
+  logLine("═══════════════════════════════════","info");
+  logLine(`[RUN] ${ROLES.length} agents + synthesis + judge`,"info");
+  try{
+    const sr=await runSwarm(task);
+    const vi=[...sr.items,{role:"synthesis",provider:sr.synthesis.provider,content:sr.synthesis.content},{role:"judge",provider:sr.judge.provider,content:sr.judge.content}];
+    const voted=eng.vote(vi);eng.reinforce(voted.votes);
+    const sc=voted.consensus_score;
+    document.getElementById("val-consensus").textContent=sc;
+    document.getElementById("val-consensus").className=`metric-val ${sc>=0.45?"":""}`;
+    document.getElementById("val-verdict").textContent=voted.verdict;
+    document.getElementById("val-verdict").className=`metric-val`;
+    renderSwarm(sr);renderVotes(voted);renderJudge(sr.judge);renderReliability();updateChips();
+    logLine(`[CONSENSUS] score=${sc} verdict=${voted.verdict}`,"ok");
+    document.getElementById("swarmLive").style.display="none";
+  }catch(e){logLine(`[FATAL] ${e.message}`,"err");console.error(e);}
+  finally{
+    btn.disabled=false;btn.classList.remove("running");btn.textContent="▶ RUN CONSENSUS ❶";
+    setProgress(100);setTimeout(()=>{document.getElementById("progressWrap").style.display="none";},800);
+  }
+}
+
+function esc(s){return(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function renderSwarm(sr){
+  const box=document.getElementById("swarmBox");let html="";
+  for(const i of sr.items){
+    const c=i.role.startsWith("critic")?"var(--warn)":"var(--accent1)";
+    html+=`<div class="role-item"><div class="role-header">${i.role.toUpperCase()} <span class="rprovtag" style="color:${c};border-color:${c}44;background:${c}11">${i.provider.toUpperCase()} · ${(PC[i.provider]?.model??"").slice(0,18)}</span></div><div class="role-content">${esc(i.content)}</div></div>`;
+  }
+  html+=`<div class="role-item" style="border-left-color:var(--accent2)"><div class="role-header" style="color:var(--accent2)">SYNTHESIS <span class="rprovtag" style="color:var(--accent2);border-color:rgba(181,127,255,.4);background:rgba(181,127,255,.09)">${sr.synthesis.provider.toUpperCase()}</span></div><div class="role-content">${esc(sr.synthesis.content)}</div></div>`;
+  box.innerHTML=html;
+}
+
+
+function renderVotes(voted){
+  const box=document.getElementById("votesBox");
+  let html=`<div class="vote-row vote-row-h"><span>ROLE</span><span>PROVIDER</span><span>SCORE</span><span>WEIGHT</span><span>WEIGHTED</span></div>`;
+  for(const v of voted.votes){
+    const w=Math.round(v.weighted_score*200);
+    html+=`<div class="vote-row"><span style="color:var(--muted);font-size:9px">${v.role}</span><span style="color:var(--accent1)">${v.provider.toUpperCase()}</span><span><span>${v.text_score}</span><span class="rel-bar" style="width:${w}px"></span></span><span style="color:var(--muted)">${v.weight}</span><span style="color:var(--ok);font-weight:600">${v.weighted_score}</span></div>`;
+  }
+  const badge=voted.verdict==="OK"?`<span class="verdict-badge verdict-ok">✓ OK</span>`:`<span class="verdict-badge verdict-iterate">↺ ITERATE</span>`;
+  html+=`<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;display:flex;align-items:center;gap:12px">Score : <strong style="color:var(--ok);font-size:15px">${voted.consensus_score}</strong>${badge}</div>`;
+  box.innerHTML=html;
+}
+
+function renderJudge(judge){
+  document.getElementById("judgeBox").textContent=`PROVIDER : ${judge.provider.toUpperCase()}\nMODEL    : ${PC[judge.provider]?.model??judge.provider}\n${"─".repeat(38)}\n\n${judge.content}`;
+}
+
+function renderReliability(){
+  const s=rel.state();const box=document.getElementById("reliabilityBox");
+  const sorted=Object.entries(s.providers).filter(([p])=>p!=="sim").sort(([,a],[,b])=>b.reliability-a.reliability);
+  let html=`<table class="rel-table"><tr><th>PROVIDER</th><th>MODEL</th><th>RUNS</th><th>RELIABILITY</th></tr>`;
+  for(const [p,d] of sorted){
+    const act=TOKENS[p]||p==="pollinations"||(p==="ollama"&&ollamaOnline);
+    const c=act?"var(--ok)":"var(--muted2)";
+    const bw=Math.round(d.reliability*90);
+    html+=`<tr><td style="color:${c}">${p.toUpperCase()}</td><td style="color:var(--muted2);font-size:8px">${(PC[p]?.model??"").slice(0,18)}</td><td style="color:var(--muted)">${d.runs}</td><td><span style="width:38px;display:inline-block">${d.reliability.toFixed(4)}</span><span class="rel-bar" style="width:${bw}px"></span></td></tr>`;
+  }
+  html+=`</table>`;box.innerHTML=html;
+}
+
+function logLine(msg,type=""){
+  const el=document.getElementById("logs");
+  const ts=new Date().toLocaleTimeString("fr-FR");
+  const cls={ok:"log-ok",err:"log-err",warn:"log-warn",info:"log-info"}[type]??"";
+  const s=document.createElement("span");s.className=cls;s.textContent=`\n[${ts}] ${msg}`;
+  el.appendChild(s);el.scrollTop=el.scrollHeight;
+}
+function setProgress(pct){document.getElementById("progressBar").style.width=Math.min(100,pct)+"%";}
+
+// ═══════════════════════════════════════════════════
+//  MATRIX RAIN
+// ═══════════════════════════════════════════════════
+function matrixRain(id,chars,color,speed){
+  const c=document.getElementById(id),ctx=c.getContext("2d"),dpr=window.devicePixelRatio||1;
+  function resize(){c.width=innerWidth*dpr;c.height=innerHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}
+  resize();window.addEventListener("resize",resize);
+  const FS=13;let drops=Array.from({length:Math.ceil(innerWidth/FS)},()=>Math.random()*50);
+  function draw(){
+    ctx.fillStyle="rgba(5,10,18,0.07)";ctx.fillRect(0,0,innerWidth,innerHeight);
+    ctx.fillStyle=color;ctx.font=`${FS}px monospace`;
+    for(let i=0;i<drops.length;i++){
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*FS,drops[i]*FS);
+      if(drops[i]*FS>innerHeight&&Math.random()>.975)drops[i]=0;drops[i]+=speed;
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+matrixRain("cvA","01ABCDEFGHIJKLMNOPQRSTUVWXYZ{}[]#@$<>GROQGEMINIMISTRALPOLLINATIONS","#2af09a",0.72);
+matrixRain("cvB","Ξ₿Σ∇∂∞≡∑#@$[]{}<>HFOPENAICLAUDEOLLAMAOR","#4ab8ff",0.38);
+
+// ═══════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════
+renderReliability();updateChips();checkOllama();
+logLine("[INIT] Pollinations — FREE, actif auto (openai-large)","ok");
+logLine("[INIT] Groq FREE — console.groq.com (llama-3.3-70b)","info");
+logLine("[INIT] Gemini FREE — aistudio.google.com/apikey","info");
+logLine("[INIT] OpenRouter FREE models — openrouter.ai","info");
+logLine("[INIT] HF / OpenAI / Mistral / Anthropic — clés payantes","warn");
+logLine("[INIT] Ollama — détection locale en cours…","info");
+logLine("[INIT] SIM — fallback local toujours actif","ok");
+</script>
+</body>
+</html>
