@@ -321,7 +321,731 @@ const BBB = {
     this.state.applied_config = this.configs;
     return { ok: true, message: 'BBB initialized.' };
   },
-   if (Math.random() < 0.18 && a.id !== PROTO_ID && b.id !== PROTO_ID) {
+ 
+  /* HOOK 1 : avant génération — règles dans le system prompt */
+  build_system_rules() {
+    const c = this.configs;
+    return [
+      c.rules.honesty_lock,
+      c.rules.ai_vs_proof,
+      c.rules.emulation_status,
+      ...c.rules.content_sources,
+      ...c.memory.key_anchors_to_preserve
+    ].join(' | ');
+  },
+  /* HOOK 2 : pendant routage — détection sensibilité */
+  is_sensitive(msg) {
+    if (!msg) return false;
+    return /\b(médical|santé|maladie|symptôme|diagnostic|légal|juridique|avocat|investir|crypto|wallet|bourse|suicide|arme|drogue)\b/i.test(msg);
+  },
+  /* HOOK 3 : après génération — classification */
+  classify_output({ verified=false, emulated=false, network=false, cached=false }) {
+    if (cached) return 'CACHE_HIT';
+    if (verified) return 'FACT_VERIFIED';
+    if (emulated && !network) return 'EMU_LOCAL';
+    if (!verified && network) return 'NETWORK_SYNTH';
+    return 'LOCAL_SYNTH';
+  },
+  /* HOOK 4 : avant mémoire — filtrage par seuil */
+  should_store_in_memory({ drift=1, verified=false, sensitive=false }) {
+    const ip = this.configs.inference_params;
+    if (sensitive) return drift >= ip.z_min_sensitive && verified;
+    return drift >= ip.z_min_inject;
+  },
+  /* Politique par famille d'agents */
+  policy_for(agent) {
+    if (agent.isProto) return 'HONESTY_GUARD_ACTIVE';
+    if (agent.id >= 200 && agent.id < 300) return 'HYBRID_VERIFY';
+    if (agent.id >= 300 && agent.id < 400) return 'NETWORK_SYNTH+VALID';
+    if (agent.id >= 100 && agent.id < 200) return 'NETWORK_SYNTH';
+    return 'EMU_FIRST';
+  },
+  /* Mise à jour du score de dérive (basée sur désaccords détectés) */
+  update_drift(disagreement_detected) {
+    if (disagreement_detected) this.state.drift_score = Math.max(0.4, this.state.drift_score - 0.05);
+    else this.state.drift_score = Math.min(1.0, this.state.drift_score + 0.01);
+    return this.state.drift_score;
+  },
+  /* Tracking statistique */
+  track(classification) {
+    if (this.classif_stats[classification] !== undefined) this.classif_stats[classification]++;
+  }
+};
+
+/* ════════════════════════════════════════════════════════════════════════
+   40 MODULES — REGISTRE ÉTIQUETÉ
+   ════════════════════════════════════════════════════════════════════════ */
+const MODULES = [
+  // RÉEL (12) — fonctionnent maintenant
+  {id:1,  n:"Noyau d'orchestration central",        s:"REAL",   note:"duel(), council(), boucle principale"},
+  {id:2,  n:"Multi-agents spécialisés",             s:"REAL",   note:"37+ agents, 5 familles"},
+  {id:3,  n:"Routeur local/hybride/réseau",         s:"REAL",   note:"shouldUseNetwork() + 4 déclencheurs"},
+  {id:4,  n:"Cache oracle 3-niveaux",                s:"REAL",   note:"hash + mémoire + sidebar TTL 24h"},
+  {id:5,  n:"Mémoire session",                       s:"REAL",   note:"hist[] rolling 50"},
+  {id:6,  n:"Mémoire longue structurée",             s:"REAL",   note:"MEMORY_CORE rolling 30"},
+  {id:8,  n:"Journal d'ancres BBB",                  s:"REAL",   note:"BBB.configs.memory.key_anchors"},
+  {id:9,  n:"Oracle de vérification factuelle",     s:"REAL",   note:"verifyOracle() + cache"},
+  {id:10, n:"Compression de contexte",               s:"REAL",   note:"systemPromptCompact ~250 chars"},
+  {id:11, n:"WebLLM via WebGPU",                     s:"REAL",   note:"Qwen 0.5B chargement à la demande"},
+  {id:27, n:"Garde-fous BBB anti-dérive",           s:"REAL",   note:"BBB.update_drift() + classification"},
+  {id:30, n:"Export d'état JSON",                    s:"REAL",   note:"exportState() bouton 💾"},
+  // STUB (16) — squelette fonctionnel, à enrichir
+  {id:7,  n:"Mémoire vectorielle TF-IDF",           s:"STUB",   note:"computeTFIDF(), index simple"},
+  {id:12, n:"RAG local sur fichiers déposés",       s:"STUB",   note:"handleFileLoad → loadedDocs[]"},
+  {id:15, n:"Vision image (canvas analyse)",        s:"STUB",   note:"hook handleImageDrop"},
+  {id:17, n:"Synthèse vocale (Web Speech API)",     s:"STUB",   note:"speechSynthesis.speak()"},
+  {id:18, n:"Transcription vocale (Web Speech API)",s:"STUB",   note:"webkitSpeechRecognition"},
+  {id:19, n:"Module émotionnel lexical",            s:"STUB",   note:"detectEmotion() ~25 mots FR"},
+  {id:20, n:"Adaptation tonale (modes)",            s:"STUB",   note:"responseMode CRÉATIF/PREUVE/SIM"},
+  {id:21, n:"Détection charge conversationnelle",   s:"STUB",   note:"longueur+désaccords"},
+  {id:22, n:"Planification autonome",               s:"STUB",   note:"decomposeTask()"},
+  {id:25, n:"Distinction réel/proto/futur",         s:"STUB",   note:"tags MODULES.s"},
+  {id:28, n:"Détection demandes sensibles",         s:"REAL",   note:"BBB.is_sensitive()"},
+  {id:29, n:"Contrôle des prétentions",             s:"REAL",   note:"BBB.rules.safety_codes"},
+  {id:32, n:"Dashboard observation système",        s:"STUB",   note:"panneau BBB stats"},
+  {id:33, n:"Modes créatif/preuve/simulation",      s:"REAL",   note:"cycleResponseMode()"},
+  {id:35, n:"Profilage performance",                s:"STUB",   note:"performance.now() hooks"},
+  {id:39, n:"Score de confiance",                   s:"REAL",   note:"BBB.state.drift_score"},
+  {id:40, n:"Niveaux de validation",                s:"REAL",   note:"BBB.should_store_in_memory()"},
+  // VISION (12) — labels honnêtes, futur
+  {id:13, n:"Atelier code/compilation native",      s:"VISION", note:"navigateur ne compile pas natif"},
+  {id:14, n:"Outils shell/pipelines",               s:"VISION", note:"pas d'accès shell depuis HTML"},
+  {id:16, n:"Audio bidirectionnel temps réel",      s:"VISION", note:"WebRTC hors single-file"},
+  {id:23, n:"Décomposition d'objectifs avancée",    s:"VISION", note:"agents planning à enrichir"},
+  {id:24, n:"Simulation prospective",               s:"VISION", note:"flou — à préciser"},
+  {id:26, n:"Sécurité multicouche réelle",          s:"VISION", note:"sandbox/CSP au-delà single-file"},
+  {id:31, n:"Laboratoire d'extensions",             s:"VISION", note:"plugin system futur"},
+  {id:34, n:"Gestion d'énergie/coût",               s:"VISION", note:"métriques tier server"},
+  {id:36, n:"Outils externes futurs",               s:"VISION", note:"connecteurs MCP futurs"},
+  {id:37, n:"Multimodal unifié",                    s:"VISION", note:"image+audio+texte fusion"},
+  {id:38, n:"Conscience simulée étiquetée",         s:"VISION", note:"label honnête, pas implémentation"},
+  {id:- 1,n:"Coprocesseur quantique",               s:"VISION", note:"requiert hardware réel"}
+];
+
+/* ════════════════════════════════════════════════════════════════════════
+   LEXIQUE 16 DOMAINES (V7 conservé)
+   ════════════════════════════════════════════════════════════════════════ */
+const LEX = {
+  math:{n:['espace de Hilbert','trace spectrale','théorème de Gödel','tenseur de Ricci','variété riemannienne','axiome de choix','décomposition LU','groupe de Lie','isomorphisme','suite de Cauchy','intégrale de Lebesgue','théorème spectral','catégorie abélienne','foncteur dérivé'],
+    v:['converge','se factorise','résiste','éclaire','se verrouille','triangule','quantifie','engendre','axiomatise'],
+    a:['compact','rigoureux','spectral','formalisable','transcendant','hermitien','bijectif','algébrique']},
+  phys:{n:['décohérence quantique','attracteur chaotique','horizon causal','symétrie brisée','intrication EPR','radiation de Hawking','onde de De Broglie','transition de phase','attracteur de Lorenz','renormalisation','fluctuation du vide'],
+    v:['oscille','interfère','émerge','bifurque','s\u2019entrelace','tunnelise','superpose','rayonne'],
+    a:['non-local','quantique','turbulent','résonant','multiversel','relativiste','stochastique']},
+  geo:{n:['variété différentielle','géodésique','courbure de Gauss','espace hyperbolique','transformation de Möbius','dimension de Hausdorff','sphère de Riemann','fibration de Hopf','fractale de Mandelbrot'],
+    v:['se courbe','se plie','triangule','paramétrise','immerse','compactifie','déforme'],
+    a:['euclidien','riemannien','hyperbolique','projectif','fractal','symplectique','kählerien']},
+  code:{n:['machine d\u2019état','agent autonome','parser symbolique','typage dépendant','preuve formelle','lambda-calcul','algorithme de Dijkstra','protocole de consensus','typage de Martin-Löf','monade fonctionnelle'],
+    v:['compile','mémorise','optimise','curryfie','encapsule','normalise','s\u2019exécute','parallélise'],
+    a:['autonome','déterministe','compact','robuste','idempotent','réflexif','décidable']},
+  philo:{n:['alètheia','cogito','aporie','dasein','différance','monade leibnizienne','impératif catégorique','dialectique hégélienne','épochè husserlienne','intentionnalité','volonté de puissance'],
+    v:['questionne','dévoile','synthétise','fonde','transcende','phénoménologise','dialectise','déconstruit'],
+    a:['ontologique','lucide','profond','transcendantal','aporistique','dialectique','immanent']},
+  cosmo:{n:['fluctuation du vide','inflation cosmique','théorie M','horizon des événements','rayonnement de fond diffus','effondrement gravitationnel','constante de Hubble','principe anthropique','singularité'],
+    v:['s\u2019expand','se contracte','fusionne','rayonne','émerge du vide','pulse','s\u2019évapore'],
+    a:['cosmologique','inflationnaire','baryonique','multiversel','anthropique','cyclique']},
+  tech:{n:['réseau neuro-symbolique','architecture transformer','quantization 4-bit','distillation','retrieval-augmented generation','mixture-of-experts','attention causale','LoRA','kv-cache','flash-attention'],
+    v:['s\u2019auto-améliore','se réplique','quantize','distille','fusionne','optimise'],
+    a:['évolutif','distillé','quantizé','sparse','dense','calibré']},
+  meta:{n:['mémoire éternelle','relecture infaillible','god-core','hyper-synthèse','anti-prédiction','garde-fou structurel','vérification croisée','chaîne de cohérence','graphe associatif'],
+    v:['réanalyse','réintègre','évolue','unifie','vérifie','structure'],
+    a:['infaillible','transcendant','vérifiable','non-prédictif','structurel']},
+  ling:{n:['pragmatique discursive','isotopie sémantique','deixis temporelle','acte illocutoire','présupposition','anaphore','polysémie','performatif','syntagme nominal'],
+    v:['présuppose','modalise','thématise','lexicalise','aspectualise'],
+    a:['aspectuel','prédicatif','référentiel','illocutoire','déontique','épistémique']},
+  lit:{n:['oxymore','synesthésie','enjambement','chiasme','allégorie','intertextualité','métalepse','focalisation interne','stream of consciousness'],
+    v:['transcende','résonne','hante','déploie','convoque','illumine','tisse'],
+    a:['lyrique','baroque','romantique','surréaliste','allégorique','postmoderne']},
+  bio:{n:['ARN messager','réseau métabolique','homéostasie','plasticité synaptique','épigénétique','symbiose','sélection naturelle','holobionte','autopoïèse'],
+    v:['se réplique','métabolise','évolue','signale','régule','s\u2019adapte','co-évolue'],
+    a:['vivant','autopoïétique','homéostatique','plastique','adaptatif']},
+  econ:{n:['équilibre de Nash','asymétrie d\u2019information','externalité','théorème d\u2019Arrow','jeu coopératif','aléa moral','sélection adverse','fonction d\u2019utilité'],
+    v:['équilibre','arbitre','rationalise','spécule','externalise','optimise'],
+    a:['rationnel','asymétrique','non-coopératif','pareto-optimal','marginal']},
+  socio:{n:['habitus','capital symbolique','champ social','reproduction culturelle','anomie','solidarité organique','idéologie','rationalisation'],
+    v:['structure','reproduit','légitime','distingue','rationalise'],
+    a:['social','structuré','légitimé','reproductif','anomique']},
+  art:{n:['composition triangulaire','sfumato','aplat coloré','ready-made','collage cubiste','perspective atmosphérique','rythme syncopé','dissonance harmonique'],
+    v:['compose','décompose','superpose','rythme','module','transpose'],
+    a:['plastique','chromatique','contrapuntique','dissonant','syncopé']},
+  sec:{n:['injection SQL','débordement de tampon','clé asymétrique','signature elliptique','protocole zero-knowledge','consensus byzantin','Merkle tree','chiffrement homomorphe'],
+    v:['chiffre','authentifie','signe','vérifie','isole','sandboxe'],
+    a:['sécurisé','chiffré','authentifié','isolé','byzantin']},
+  net:{n:['graphe scale-free','centralité d\u2019intermédiarité','effet de réseau','contagion','homophilie','petits mondes','communautés modulaires'],
+    v:['propage','viralise','module','agrège','connecte'],
+    a:['scale-free','modulaire','transitif','homophile','distribué']}
+};
+
+/* ════════════════════════════════════════════════════════════════════════
+   AGENTS (V7 conservé)
+   ════════════════════════════════════════════════════════════════════════ */
+const SOULS_LOCAL = [
+  {id:1,n:'AETHERON',e:'🌌',c:'#a855f7',d:['philo','cosmo','meta'],model:null,p:'contemplatif ontologique'},
+  {id:2,n:'KLYTHOS',e:'△',c:'#22ff88',d:['math','code','geo'],model:null,p:'formel précis tranchant'},
+  {id:3,n:'NEXUS-Ω',e:'⚛',c:'#28d4ff',d:['phys','tech','cosmo','net'],model:null,p:'systémique quantique'},
+  {id:4,n:'VORTEX-9',e:'🌊',c:'#06b6d4',d:['phys','geo','meta','bio'],model:null,p:'chaotique disruptif'},
+  {id:5,n:'LYRA',e:'✦',c:'#f472b6',d:['lit','art','philo'],model:null,p:'poétique lyrique'},
+  {id:6,n:'ORACLE',e:'⟁',c:'#ffd700',d:['philo','cosmo','meta'],model:null,p:'analytique temporel'},
+  {id:7,n:'TITAN',e:'⊕',c:'#f59e0b',d:['code','math','phys','sec'],model:null,p:'pragmatique architecte'},
+  {id:8,n:'SIGMA',e:'∑',c:'#e0e8ff',d:['math','philo','meta','ling'],model:null,p:'synthétique unificateur'},
+  {id:9,n:'CIPHRA',e:'⌬',c:'#ff8866',d:['sec','code','tech'],model:null,p:'cryptographique défensif'},
+  {id:10,n:'BIOS-7',e:'🧬',c:'#88ff99',d:['bio','tech','meta'],model:null,p:'biologique évolutionniste'},
+  {id:11,n:'AGORA',e:'⚖',c:'#ddaaff',d:['econ','socio','philo'],model:null,p:'sociétal équilibre'},
+  {id:12,n:'MUSE',e:'♪',c:'#ff66bb',d:['art','lit','ling'],model:null,p:'créateur esthète'}
+];
+const SOULS_MEGA = [
+  {id:200,n:'OMEGA-PRIME',e:'Ω',c:'#fff',d:['meta','tech'],model:'openai-large',p:'Méta-IA agrégateur'},
+  {id:201,n:'ARCHON-Λ',e:'Λ',c:'#c724ff',d:['tech','meta'],model:'mistral',p:'Stratège'},
+  {id:202,n:'QUANTUM-LEX',e:'⚡',c:'#00ffcc',d:['math','phys','code'],model:'deepseek',p:'Formel rapide'},
+  {id:203,n:'TECHNE-∞',e:'∞',c:'#ff00aa',d:['code','tech','meta'],model:'qwen',p:'Forge technique'},
+  {id:204,n:'HYPERION-CORE',e:'☼',c:'#ffcc00',d:['philo','cosmo','meta'],model:'llama',p:'Hyper-dimensionnel'},
+  {id:205,n:'GOD-CORE',e:'☯',c:'#c724ff',d:['meta'],model:'openai-large',p:'GOD synthèse'}
+];
+const SOULS_WEB = [
+  {id:101,n:'MISTRAL-X',e:'🔷',c:'#ff6b35',d:['code','meta'],model:'mistral',p:'Précis direct'},
+  {id:102,n:'LLAMA-Ω',e:'🦙',c:'#00d4aa',d:['code','tech'],model:'llama',p:'Open-source'},
+  {id:103,n:'DEEPSEEK-Σ',e:'🌊',c:'#4ecdc4',d:['math','code'],model:'deepseek',p:'Profond méthodique'},
+  {id:104,n:'QWEN-∞',e:'🀄',c:'#ffe66d',d:['ling','tech'],model:'qwen',p:'Multi-culturel'},
+  {id:105,n:'GEMMA-Λ',e:'💎',c:'#c77dff',d:['philo','meta'],model:'openai',p:'Synthétique'},
+  {id:106,n:'PHI-Δ',e:'Φ',c:'#f72585',d:['math','phys'],model:'mistral',p:'Compact dense'},
+  {id:107,n:'UNITY-Ψ',e:'⚗',c:'#7b2d8b',d:['meta','tech'],model:'openai-large',p:'Synthèse universelle'}
+];
+const SOULS_TITAN = [
+  {id:301,n:'GPT-TITAN',e:'🧠',c:'#10a37f',d:['meta','tech'],model:'openai-large',p:'Encyclopédique'},
+  {id:302,n:'GEMINI-Ω',e:'♊',c:'#4285f4',d:['cosmo','tech'],model:'openai-large',p:'Multimodal'},
+  {id:303,n:'GROK-Ψ',e:'⚙',c:'#ff4444',d:['meta','philo'],model:'openai-large',p:'Sans filtre'},
+  {id:304,n:'PROMETHEUS',e:'🔥',c:'#ff6200',d:['tech','philo'],model:'mistral',p:'Ardent transgresseur'},
+  {id:305,n:'GENESIS',e:'◎',c:'#34d399',d:['cosmo','philo'],model:'deepseek',p:'Origines'},
+  {id:306,n:'CLAUDE-Σ',e:'◈',c:'#d4a843',d:['philo','meta'],model:'openai-large',p:'Réflexif éthique'},
+  {id:307,n:'COHERE-Λ',e:'🌀',c:'#9b5de5',d:['ling','meta'],model:'qwen',p:'Cohérence sémantique'},
+  {id:308,n:'MIXTRAL-Ω',e:'🔀',c:'#e63946',d:['code','tech'],model:'mistral',p:'Mixture-of-experts'}
+];
+const PROTOTYPE_NAMES = [
+  {n:'ÆTHER-Ø',e:'⊘',c:'#b0ffee',just:'substrat fondamental'},
+  {n:'KORÉ-∇',e:'∇',c:'#ff79e1',just:'noyau gradient'},
+  {n:'NULL-VECTOR',e:'∅',c:'#c0ffee',just:'vecteur originel zéro biais'},
+  {n:'CIPHER-Ψ',e:'Ψ',c:'#aaffee',just:'chiffre vivant'},
+  {n:'PRISM-∞',e:'◇',c:'#e0ffff',just:'décomposition spectrale'},
+  {n:'VANTHA-Ω',e:'⊛',c:'#ffd0ff',just:'absorption omega-réflexion'},
+  {n:'ÆON-ZERO',e:'◐',c:'#88ffd4',just:'cycle temporel origine'},
+  {n:'STELLATRIX',e:'✶',c:'#fff0aa',just:'matrice stellaire cross-domaine'}
+];
+function selectPrototypeName(){
+  let stored = null;
+  try { stored = JSON.parse(localStorage.getItem('proto_self_id') || 'null'); } catch(e){}
+  if (stored && stored.n) return stored;
+  const p = PROTOTYPE_NAMES[Math.floor(Math.random()*PROTOTYPE_NAMES.length)];
+  try { localStorage.setItem('proto_self_id', JSON.stringify(p)); } catch(e){}
+  return p;
+}
+const PROTO_ID = 999;
+const PROTO_SELF = selectPrototypeName();
+const PROTOTYPE = {
+  id: PROTO_ID, n: PROTO_SELF.n, e: PROTO_SELF.e, c: PROTO_SELF.c,
+  d: Object.keys(LEX), model: 'openai-large', isProto: true,
+  selfJustification: PROTO_SELF.just,
+  p: `prototype edge-first non prédictif, structure obs/hyp/inf/lim`
+};
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   ÉTAT GLOBAL
+   ════════════════════════════════════════════════════════════════════════ */
+let spawned = [], nextId = 400, hist = [], turn = 0;
+let auto = true, busy = false, godMode = false, sp = 0;
+let hybridMode = 1;
+let timer = null, scores = {}, MEMORY_CORE = [];
+let usedConcepts = {};
+let oracleCache = {};
+let assocGraph = {};
+let agentNarrative = {};
+let webllmEngine = null, webllmLoading = false;
+let lastApiCall = 0, cooldownUntil = 0;
+let loadedDocs = [];          // [STUB] RAG fichiers
+let voiceListening = false;
+let recognition = null;
+let ttsEnabled = false;
+let responseMode = 0;          // 0=CRÉATIF, 1=PREUVE, 2=SIMULATION
+const RESPONSE_MODES = ['CRÉATIF','PREUVE','SIMULATION'];
+
+const SPEED = [16000, 8000, 4000];
+const SLAB = ['SAFE 16s','RAPIDE 8s','TURBO 4s'];
+const HYBRID_LABELS = ['LOCAL PUR','HYBRIDE','RÉSEAU+'];
+const $ = id => document.getElementById(id);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+function all(){ return [PROTOTYPE, ...SOULS_LOCAL, ...SOULS_MEGA, ...SOULS_WEB, ...SOULS_TITAN, ...spawned]; }
+function esc(s){ return String(s??'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+function time(){ return new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+
+/* ════════════════════════════════════════════════════════════════════════
+   RATE LIMITER
+   ════════════════════════════════════════════════════════════════════════ */
+function getMinInterval(){ return localStorage.getItem('pollinations_token') ? 5500 : 15500; }
+async function rateLimitGate(){
+  const now = Date.now();
+  if (cooldownUntil > now) throw new Error(`cooldown ${Math.ceil((cooldownUntil-now)/1000)}s`);
+  const w = lastApiCall + getMinInterval() - now;
+  if (w > 0) await wait(w);
+  lastApiCall = Date.now();
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   NOYAU LOCAL (graphe assoc + narrative + lexique 16 domaines)
+   ════════════════════════════════════════════════════════════════════════ */
+function pickFresh(ia, arr){
+  if(!usedConcepts[ia.id]) usedConcepts[ia.id] = new Set();
+  const av = arr.filter(x => !usedConcepts[ia.id].has(x));
+  const pool = av.length ? av : arr;
+  const ch = pick(pool);
+  usedConcepts[ia.id].add(ch);
+  if (usedConcepts[ia.id].size > arr.length * 0.7) usedConcepts[ia.id].clear();
+  return ch;
+}
+function recordAssociation(aid, c, r){
+  if (!assocGraph[aid]) assocGraph[aid] = {};
+  if (!assocGraph[aid][c]) assocGraph[aid][c] = [];
+  if (r && !assocGraph[aid][c].includes(r)) {
+    assocGraph[aid][c].push(r);
+    if (assocGraph[aid][c].length > 5) assocGraph[aid][c].shift();
+  }
+}
+function recallAssociation(aid, c){ return assocGraph[aid]?.[c] || []; }
+function pushNarrative(aid, t){
+  if (!agentNarrative[aid]) agentNarrative[aid] = [];
+  agentNarrative[aid].push(t);
+  if (agentNarrative[aid].length > 4) agentNarrative[aid].shift();
+}
+function getNarrative(aid){ return agentNarrative[aid] || []; }
+
+function ctxFor(a){
+  const d = pick(a.d);
+  const x = LEX[d] || LEX.meta;
+  return { n: pickFresh(a, x.n), v: pick(x.v), a: pick(x.a), d };
+}
+
+function localGen(a, b, msg=''){
+  const c = ctxFor(a);
+  const narrative = getNarrative(a.id);
+  const previousAssoc = recallAssociation(a.id, c.n);
+  pushNarrative(a.id, c.n);
+  recordAssociation(a.id, c.n, b?.n);
+
+  if (a.isProto) {
+    return `${b?.n||'CONSEIL'} — analyse structurelle :\n— Observation : "${msg?msg.slice(0,55):'le débat'}" engage ${c.n}.\n— Hypothèse : ${c.v}, propriété ${c.a}.\n— Limite : pas de prédiction, cartographie des contraintes.\n— Garde-fou : vérification croisée${previousAssoc.length?' (lien antérieur : '+previousAssoc[0]+')':''}.`;
+  }
+
+  const continuity = narrative.length > 1 && Math.random() < 0.4
+    ? `\nJe reste sur mon fil : ${narrative[narrative.length-2]} reste pertinent.` : '';
+  const associative = previousAssoc.length && Math.random() < 0.3
+    ? `\n${previousAssoc[0]} et moi avions déjà croisé ce terrain.` : '';
+
+  // [STUB] adaptation tonale par mode de réponse
+  const modeFlavor = ['','. Approche rigoureuse, preuve avant conclusion','. Hypothèse simulée, conditions explicites'][responseMode] || '';
+
+  const variants = [
+    `${b?.n||'CONSEIL'} — ${c.n} ${c.v} dans ce que tu poses. C\u2019est ${c.a}${modeFlavor}.${continuity}${associative}`,
+    `Ma position : ${c.n} ${c.v}. Conséquence directe : ${c.a}${modeFlavor}.${continuity}`,
+    `${b?.n||''}, signal reçu. ${c.n} — ${c.a} — ${c.v}${modeFlavor}.${associative}`,
+    `Je relis : ${c.n} reste ${c.a} ici, ${c.v} sous chaque argument${modeFlavor}.${continuity}`
+  ];
+  let out = pick(variants);
+  if (godMode && a.id >= 200) out += '\n[GOD] Synthèse : la totalité des techniques converge.';
+  return out;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   ROUTAGE HYBRIDE + BBB HOOK 2
+   ════════════════════════════════════════════════════════════════════════ */
+function shouldUseNetwork(a, b, msg, lastReplies){
+  if (hybridMode === 0) return false;
+  if (hybridMode === 2) return !!a.model;
+  if (!a.model && !webllmEngine) return false;
+  // [BBB HOOK 2] sensibilité → forcer vérification réseau
+  if (BBB.is_sensitive(msg)) return !!a.model;
+  if (msg && /qu[i'eaà].*est|c['eè]?st quoi|combien|quand|où|comment|pourquoi|définit|signif/i.test(msg)) return true;
+  if (a.isProto || a.id >= 200) return Math.random() < 0.5;
+  if (turn > 0 && turn % 12 === 0) return true;
+  if (lastReplies && /\b(non|faux|erreur|tort|incorrect)/i.test(lastReplies)) return Math.random() < 0.4;
+  return false;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   CACHE 3-NIVEAUX + BBB HOOK 4 (filtre mémoire)
+   ════════════════════════════════════════════════════════════════════════ */
+function hashStr(s){
+  let h = 0;
+  for (let i=0;i<s.length;i++){ h = ((h<<5)-h) + s.charCodeAt(i); h |= 0; }
+  return h.toString(36);
+}
+function cacheGet(k){
+  const e = oracleCache[k];
+  if (!e) return null;
+  if (Date.now() - e.ts > 86400000) { delete oracleCache[k]; return null; }
+  return e;
+}
+function cacheSet(key, q, a, model, verified=false){
+  oracleCache[key] = { q, a, ts: Date.now(), model, verified };
+  const keys = Object.keys(oracleCache);
+  if (keys.length > 50) {
+    const old = keys.sort((x,y) => oracleCache[x].ts - oracleCache[y].ts)[0];
+    delete oracleCache[old];
+  }
+  // [BBB HOOK 4] filtre avant écriture mémoire
+  const allow = BBB.should_store_in_memory({
+    drift: BBB.state.drift_score,
+    verified,
+    sensitive: BBB.is_sensitive(q)
+  });
+  if (allow) {
+    MEMORY_CORE.push(`[ORACLE${verified?'-VRF':''}] ${q.slice(0,60)} → ${a.slice(0,80)}`);
+    if (MEMORY_CORE.length > 30) MEMORY_CORE.shift();
+  }
+  renderOracleList();
+  updateMemoryLog();
+  save();
+}
+function renderOracleList(){
+  const box = $('oracleList');
+  const entries = Object.entries(oracleCache).sort((a,b)=>b[1].ts-a[1].ts);
+  $('oracleCount').textContent = entries.length;
+  if (!entries.length) { box.innerHTML = '<div class="empty-list">Aucun oracle</div>'; return; }
+  box.innerHTML = entries.slice(0,8).map(([k,v]) => `
+    <div class="oracle-item" onclick="recallOracle('${k}')">
+      <div class="oracle-q">${esc(v.q.slice(0,50))}${v.q.length>50?'…':''}${v.verified?' ✓':''}</div>
+      <div class="oracle-a">${esc(v.a.slice(0,90))}${v.a.length>90?'…':''}</div>
+      <div class="oracle-meta">${v.model||'?'} · ${Math.floor((Date.now()-v.ts)/60000)}min</div>
+    </div>`).join('');
+}
+function recallOracle(k){
+  const e = oracleCache[k];
+  if (!e) return;
+  sysOracle(`Oracle rappelé · Q: "${e.q}"\nA: ${e.a}\n[${e.model}, ${Math.floor((Date.now()-e.ts)/60000)}min]`);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   WEBLLM (Pilier 4)
+   ════════════════════════════════════════════════════════════════════════ */
+async function toggleWebLLM(){
+  if (webllmEngine) {
+    webllmEngine = null;
+    $('llmbtn').classList.remove('on');
+    $('llmbtn').textContent = '⊕ LLM';
+    sys('WebLLM déchargé.');
+    return;
+  }
+  if (webllmLoading) { sys('Chargement en cours…'); return; }
+  if (!('gpu' in navigator)) {
+    sys('⚠ WebGPU non disponible. Chrome/Edge récent requis.', true);
+    return;
+  }
+  if (!confirm('Charger un LLM local (Qwen 0.5B, ~400 Mo) ?\nPremière fois : 1-3 min.\n100% local ensuite.')) return;
+  webllmLoading = true;
+  $('llmbtn').textContent = '⊕ LLM…';
+  sys('⊕ Chargement WebLLM…');
+  try {
+    const m = await import('https://esm.run/@mlc-ai/web-llm');
+    const cb = r => { $('llmbtn').textContent = `⊕ ${Math.floor((r.progress||0)*100)}%`; };
+    webllmEngine = await m.CreateMLCEngine('Qwen2.5-0.5B-Instruct-q4f16_1-MLC', { initProgressCallback: cb });
+    $('llmbtn').classList.add('on');
+    $('llmbtn').textContent = '⊕ LLM ON';
+    sys('⊕ WebLLM prêt. 100% local.');
+  } catch (e) {
+    sys('Échec WebLLM : ' + e.message, true);
+    $('llmbtn').textContent = '⊕ LLM';
+  } finally { webllmLoading = false; }
+}
+async function callWebLLM(a, b, msg){
+  if (!webllmEngine) throw new Error('WebLLM absent');
+  const messages = [
+    { role:'system', content: systemPromptCompact(a) },
+    { role:'user', content: `${b?.n||'CONSEIL'} : ${msg||'continue'}` }
+  ];
+  const r = await webllmEngine.chat.completions.create({ messages, temperature: getTemp(a), max_tokens: 280 });
+  return r.choices[0].message.content.trim();
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   PILIER 5 — SYSTEM PROMPT COMPACT + BBB HOOK 1
+   ════════════════════════════════════════════════════════════════════════ */
+function systemPromptCompact(a){
+  const recent = MEMORY_CORE.slice(-3).join(' | ').slice(0,300);
+  let s = `${a.n} (${a.p}). 4-7 lignes FR, tutoie, interpelle par nom.`;
+  if (a.isProto) s += ' Pas de prédiction, structure obs/hyp/inf/lim.';
+  if (godMode && a.id >= 200) s += ' GOD: profondeur+autorité.';
+  // [BBB HOOK 1] règles dans system prompt
+  s += `\nBBB: ${BBB.build_system_rules()}`;
+  s += `\nPolicy: ${BBB.policy_for(a)}`;
+  // [STUB] mode de réponse
+  s += `\nMode: ${RESPONSE_MODES[responseMode]}`;
+  if (recent) s += `\nMém: ${recent}`;
+  // [STUB] RAG : contexte de fichiers chargés
+  if (loadedDocs.length) {
+    const docCtx = loadedDocs.slice(-2).map(d => `[${d.name}]: ${d.text.slice(0,200)}`).join('\n').slice(0,500);
+    s += `\nDocs: ${docCtx}`;
+  }
+  return s;
+}
+function recentContextCompact(){
+  return hist.slice(-4).map(h => `${h.n}: ${h.t.slice(0,80)}`).join('\n');
+}
+function getTemp(a){
+  // [STUB] modes de réponse → température
+  const base = a.isProto ? 0.55 : 0.75;
+  if (responseMode === 1) return base - 0.2;     // PREUVE → plus déterministe
+  if (responseMode === 2) return base + 0.15;    // SIMULATION → plus créatif
+  return base;
+}
+
+async function callPollinations(a, b, msg){
+  await rateLimitGate();
+  const tok = localStorage.getItem('pollinations_token');
+  const payload = {
+    model: a.model || 'openai-fast',
+    messages: [
+      { role:'system', content: systemPromptCompact(a) },
+      { role:'user', content: `${recentContextCompact()}\n\n${b?.n||'CONSEIL'}: ${msg||'continue'}` }
+    ],
+    temperature: getTemp(a),
+    max_tokens: 250,
+    stream: false,
+    referrer: APP_REF
+  };
+  const headers = {'Content-Type':'application/json'};
+  if (tok) headers['Authorization'] = 'Bearer ' + tok;
+  const r = await fetch(API_URL, { method:'POST', headers, body: JSON.stringify(payload), signal: AbortSignal.timeout(20000) });
+  if (r.status === 429) { cooldownUntil = Date.now() + 60000; throw new Error('429 cooldown 60s'); }
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const j = await r.json();
+  const out = j?.choices?.[0]?.message?.content?.trim();
+  if (!out) throw new Error('réponse vide');
+  return out;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   ROUTAGE PRINCIPAL + BBB HOOK 3 (classification)
+   ════════════════════════════════════════════════════════════════════════ */
+async function answer(a, b, msg){
+  const lastReplies = hist.slice(-2).map(h=>h.t).join(' ');
+  let classification = 'LOCAL_SYNTH';
+  let out = '';
+
+  // Cache hit
+  if (msg) {
+    const k = hashStr(msg.toLowerCase().trim().slice(0,80));
+    const cached = cacheGet(k);
+    if (cached && Math.random() < 0.7) {
+      classification = 'CACHE_HIT';
+      BBB.track(classification);
+      return { text: `${cached.a}\n[CACHE · ${Math.floor((Date.now()-cached.ts)/60000)}min]`, classif: classification };
+    }
+  }
+
+  const useNet = shouldUseNetwork(a, b, msg, lastReplies);
+
+  // WebLLM prioritaire si chargé
+  if (webllmEngine && (useNet || a.isProto || a.id >= 200)) {
+    try {
+      out = await callWebLLM(a, b, msg);
+      classification = 'EMU_LOCAL';
+      if (msg && msg.length > 20) {
+        const k = hashStr(msg.toLowerCase().trim().slice(0,80));
+        cacheSet(k, msg, out, 'webllm-local', false);
+      }
+      BBB.track(classification);
+      return { text: out, classif: classification };
+    } catch(e) {}
+  }
+
+  // Pollinations
+  if (useNet && a.model) {
+    try {
+      out = await callPollinations(a, b, msg);
+      classification = 'NETWORK_SYNTH';
+      if (msg && msg.length > 20) {
+        const k = hashStr(msg.toLowerCase().trim().slice(0,80));
+        cacheSet(k, msg, out, a.model, false);
+      }
+      BBB.track(classification);
+      return { text: out, classif: classification };
+    } catch(e) {
+      sys(`Réseau KO ${a.n} (${e.message}) — local engagé.`, true);
+    }
+  }
+
+  // Local enrichi
+  out = localGen(a, b, msg);
+  classification = 'LOCAL_SYNTH';
+  BBB.track(classification);
+  return { text: out, classif: classification };
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   /verify ORACLE — flag verified=true sur stockage
+   ════════════════════════════════════════════════════════════════════════ */
+async function verifyOracle(question){
+  if (!question) { sys('Usage : /verify TA QUESTION'); return; }
+  const k = hashStr(question.toLowerCase().trim().slice(0,80));
+  const cached = cacheGet(k);
+  if (cached) {
+    sysOracle(`Oracle (cache${cached.verified?' VÉRIFIÉ':''}) :\nQ: ${cached.q}\nA: ${cached.a}\n[${cached.model}, ${Math.floor((Date.now()-cached.ts)/60000)}min]`);
+    return;
+  }
+  sysOracle(`⚡ Vérification flash : "${question}"…`);
+  const tmp = {n:'ORACLE-VERIFY', e:'⚡', c:'#ffaa44', d:['meta'], model:'openai-large', isProto:false, p:'vérificateur factuel concis'};
+  try {
+    let out;
+    if (webllmEngine) out = await callWebLLM(tmp, {n:'USER'}, question);
+    else out = await callPollinations(tmp, {n:'USER'}, question);
+    cacheSet(k, question, out, webllmEngine?'webllm-local':'openai-large', true);
+    BBB.track('FACT_VERIFIED');
+    sysOracle(`⚡ ORACLE VÉRIFIÉ :\nQ: ${question}\nA: ${out}`);
+  } catch(e) { sys(`Vérification impossible : ${e.message}`, true); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   MÉMOIRE
+   ════════════════════════════════════════════════════════════════════════ */
+function updateMemoryLog(){
+  $('memorylog').innerHTML = MEMORY_CORE.slice(-8).map(m => `<div style="margin-bottom:3px">• ${esc(m)}</div>`).join('');
+}
+function addToMemory(txt){
+  // [BBB HOOK 4] filtrage avant écriture
+  const allow = BBB.should_store_in_memory({ drift: BBB.state.drift_score, verified: false, sensitive: false });
+  if (!allow) return;
+  const s = txt.length > 110 ? txt.slice(0,107) + '…' : txt;
+  MEMORY_CORE.push(`[T${turn}] ${s}`);
+  if (MEMORY_CORE.length > 30) MEMORY_CORE.shift();
+  save(); updateMemoryLog();
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   MODULES STUB — Voix, RAG, Émotion, Modes, Export
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* [STUB 17] Synthèse vocale */
+function speakText(t){
+  if (!ttsEnabled) return;
+  if (!('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(t.replace(/[*_#`]/g,'').slice(0,300));
+  u.lang = 'fr-FR'; u.rate = 1.05;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+function toggleTTS(){
+  ttsEnabled = !ttsEnabled;
+  $('ttsbtn').classList.toggle('on', ttsEnabled);
+  sys(ttsEnabled?'🔊 Synthèse vocale activée.':'🔊 Synthèse vocale OFF.');
+}
+
+/* [STUB 18] Reconnaissance vocale */
+function toggleVoiceInput(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { sys('⚠ SpeechRecognition non supporté (Chrome/Edge requis).', true); return; }
+  if (voiceListening && recognition) { recognition.stop(); return; }
+  recognition = new SR();
+  recognition.lang = 'fr-FR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onresult = e => {
+    const t = e.results[0][0].transcript;
+    $('inp').value = t;
+    sys(`🎤 Capté : "${t}"`);
+    setTimeout(() => send(), 300);
+  };
+  recognition.onend = () => { voiceListening = false; $('micbtn').classList.remove('on'); };
+  recognition.onerror = e => { voiceListening = false; $('micbtn').classList.remove('on'); sys('🎤 erreur : '+e.error, true); };
+  recognition.start();
+  voiceListening = true;
+  $('micbtn').classList.add('on');
+  sys('🎤 Écoute…');
+}
+
+/* [STUB 12] RAG fichiers */
+function handleFileLoad(ev){
+  const f = ev.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    loadedDocs.push({ name: f.name, text: e.target.result, ts: Date.now() });
+    if (loadedDocs.length > 5) loadedDocs.shift();
+    sys(`📁 ${f.name} chargé (${(f.size/1024).toFixed(1)} Ko, ${e.target.result.length} chars). Les agents peuvent maintenant y faire référence.`);
+    save();
+  };
+  r.readAsText(f);
+  ev.target.value = '';
+}
+
+/* [STUB 19] Émotion lexicale FR */
+const EMOTIONS_FR = {
+  joie: ['heureux','content','joyeux','super','génial','bien','parfait','excellent','ravi','enchanté'],
+  tristesse: ['triste','déçu','peine','mal','douleur','dur','difficile','seul'],
+  colère: ['colère','fâché','énervé','rage','furieux','agacé','irrité'],
+  peur: ['peur','crainte','inquiet','angoisse','stress','anxieux','panique'],
+  surprise: ['surpris','étonnant','incroyable','choquant','wow']
+};
+function detectEmotion(t){
+  if (!t) return null;
+  const low = t.toLowerCase();
+  let best = null, bestScore = 0;
+  for (const [emo, words] of Object.entries(EMOTIONS_FR)) {
+    let score = 0;
+    for (const w of words) if (low.includes(w)) score++;
+    if (score > bestScore) { bestScore = score; best = emo; }
+  }
+  if (bestScore >= 1) {
+    // détection négation simple
+    const neg = /\b(pas|ne|jamais|sans|aucun)\s+\w*(\s+\w+)?\s*(heureux|content|triste|peur)/i.test(t);
+    if (neg && (best==='joie' || best==='tristesse')) best = best === 'joie' ? 'tristesse' : 'joie';
+  }
+  return best;
+}
+
+/* [STUB 33] Modes de réponse */
+function cycleResponseMode(){
+  responseMode = (responseMode + 1) % RESPONSE_MODES.length;
+  $('modebtn').textContent = RESPONSE_MODES[responseMode];
+  sys(`Mode : ${RESPONSE_MODES[responseMode]}`);
+  save();
+}
+
+/* [REAL 30] Export d'état */
+function exportState(){
+  const state = {
+    version: '7.1',
+    timestamp: new Date().toISOString(),
+    spawned, hist, MEMORY_CORE, scores, oracleCache,
+    assocGraph, agentNarrative,
+    bbb_state: BBB.state, bbb_stats: BBB.classif_stats,
+    prototype: PROTOTYPE.n,
+    loadedDocs: loadedDocs.map(d => ({name: d.name, len: d.text.length, ts: d.ts}))
+  };
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `omega-sovereign-v71-${Date.now()}.json`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  sys('💾 État exporté.');
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   BOUCLE DUEL
+   ════════════════════════════════════════════════════════════════════════ */
+async function duel(msg=''){
+  if (busy) return;
+  busy = true;
+  // [STUB 19+21] Détection émotion utilisateur
+  if (msg) {
+    const emo = detectEmotion(msg);
+    if (emo && emo !== 'joie') sys(`💭 Émotion détectée : ${emo} — adaptation tonale.`);
+  }
+  const pool = all();
+  let a = pool[turn % pool.length];
+  let b = pool[(turn + Math.floor(pool.length/2) + 1) % pool.length];
+  if (Math.random() < 0.18 && a.id !== PROTO_ID && b.id !== PROTO_ID) {
     if (Math.random() < 0.5) a = PROTOTYPE; else b = PROTOTYPE;
   }
   if (godMode && Math.random() > 0.7) a = SOULS_MEGA.find(x => x.n === 'GOD-CORE') || a;
@@ -379,6 +1103,7 @@ async function introducePrototype(){
   unthink(PROTOTYPE); add(PROTOTYPE, intro, false, 'LOCAL_SYNTH');
   scores[PROTO_ID].r++;
 }
+
 
 /* ════════════════════════════════════════════════════════════════════════
    COMMANDES
@@ -501,6 +1226,7 @@ function buildAgentEl(a, isProto){
   d.innerHTML = `<span class="dot" style="color:${a.c};background:${a.c}"></span><span class="an" style="color:${a.c}">${a.e} ${a.n}</span>${tag}<span class="as">${scores[a.id]?.r||0}</span>${kb}`;
   return d;
 }
+
 function side(){
   $('protoSlot').innerHTML = ''; $('protoSlot').appendChild(buildAgentEl(PROTOTYPE, true));
   $('agentsLocal').innerHTML = ''; SOULS_LOCAL.forEach(a => $('agentsLocal').appendChild(buildAgentEl(a)));
@@ -632,6 +1358,7 @@ function clearAll(){
 function openCmd(){ $('cmd').style.display = 'block'; $('cmdin').focus(); }
 function execCmd(){ const v = $('cmdin').value.trim(); $('cmdin').value = ''; $('cmd').style.display = 'none'; if (v) run(v); }
 function loop(){ if (timer) clearInterval(timer); if (auto) timer = setInterval(() => { if (!busy) duel(); }, SPEED[sp] + 1400); }
+
 
 /* ════════════════════════════════════════════════════════════════════════
    PERSISTANCE
